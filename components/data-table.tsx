@@ -152,8 +152,8 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
                 {columns.map((column) => (
                   <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {column.format
-                      ? column.format(row[column.key as keyof AdReport])
-                      : row[column.key as keyof AdReport] || ''
+                      ? column.format(row[column.key])
+                      : row[column.key] || ''
                     }
                   </td>
                 ))}
