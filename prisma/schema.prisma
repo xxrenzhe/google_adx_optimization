@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdReport {
+  id                  String     @id @default(cuid())
+  uploadDate          DateTime   @default(now())
+  dataDate            DateTime
+  website             String
+  country             String?
+  adFormat            String?
+  adUnit              String?
+  advertiser          String?
+  domain              String?
+  device              String?
+  browser             String?
+  requests            BigInt?
+  impressions         BigInt?
+  clicks              BigInt?
+  ctr                 Float?
+  ecpm                Float?
+  revenue             Float?
+  viewableImpressions BigInt?
+  viewabilityRate     Float?
+  measurableImpressions BigInt?
+  fillRate            Float?
+  arpu                Float?
+
+  @@index([dataDate])
+  @@index([website])
+  @@index([country])
+}
