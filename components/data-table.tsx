@@ -83,7 +83,11 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
     }
   }
   
-  const columns = [
+  const columns: Array<{
+    key: keyof AdReport
+    label: string
+    format?: (value: any) => string
+  }> = [
     { key: 'dataDate', label: 'Date', format: (value: string | null) => value ? new Date(value).toLocaleDateString() : 'N/A' },
     { key: 'website', label: 'Website' },
     { key: 'country', label: 'Country' },
