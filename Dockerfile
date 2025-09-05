@@ -23,6 +23,9 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
+# Ensure public directory exists
+RUN mkdir -p /app/public
+
 # Build the application
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
@@ -42,7 +45,12 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy public files if they exist
-COPY --from=builder /app/public ./public 2>/dev/null || true
+RUN if [ -d "/app/public" ]; then \
+      mkdir -p ./public && \
+      cp -r /app/public/. ./public/; \
+    else \
+      mkdir -p ./public; \
+    fi
 
 # Set the correct permission for prerender cache
 RUN mkdir -p .next
