@@ -10,24 +10,24 @@ interface AdReport {
   id: string
   dataDate: string
   website: string
-  country: string
-  adFormat: string
-  adUnit: string
-  advertiser: string
-  domain: string
-  device: string
-  browser: string
-  requests: number
-  impressions: number
-  clicks: number
-  ctr: number
-  ecpm: number
-  revenue: number
-  viewableImpressions: number
-  viewabilityRate: number
-  measurableImpressions: number
-  fillRate: number
-  arpu: number
+  country: string | null
+  adFormat: string | null
+  adUnit: string | null
+  advertiser: string | null
+  domain: string | null
+  device: string | null
+  browser: string | null
+  requests: number | null
+  impressions: number | null
+  clicks: number | null
+  ctr: number | null
+  ecpm: number | null
+  revenue: number | null
+  viewableImpressions: number | null
+  viewabilityRate: number | null
+  measurableImpressions: number | null
+  fillRate: number | null
+  arpu: number | null
 }
 
 export default function DataTable({ refreshTrigger }: DataTableProps) {
@@ -84,18 +84,18 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
   }
   
   const columns = [
-    { key: 'dataDate', label: 'Date', format: (value: string) => new Date(value).toLocaleDateString() },
+    { key: 'dataDate', label: 'Date', format: (value: string | null) => value ? new Date(value).toLocaleDateString() : 'N/A' },
     { key: 'website', label: 'Website' },
     { key: 'country', label: 'Country' },
     { key: 'device', label: 'Device' },
-    { key: 'requests', label: 'Requests', format: (value: number) => value.toLocaleString() },
-    { key: 'impressions', label: 'Impressions', format: (value: number) => value.toLocaleString() },
-    { key: 'clicks', label: 'Clicks', format: (value: number) => value.toLocaleString() },
-    { key: 'ctr', label: 'CTR', format: (value: number) => `${(value * 100).toFixed(2)}%` },
-    { key: 'ecpm', label: 'eCPM', format: (value: number) => `$${value.toFixed(2)}` },
-    { key: 'revenue', label: 'Revenue', format: (value: number) => `$${value.toFixed(2)}` },
-    { key: 'fillRate', label: 'Fill Rate', format: (value: number) => `${value.toFixed(1)}%` },
-    { key: 'arpu', label: 'ARPU', format: (value: number) => `$${value.toFixed(4)}` }
+    { key: 'requests', label: 'Requests', format: (value: number | null) => value ? value.toLocaleString() : '0' },
+    { key: 'impressions', label: 'Impressions', format: (value: number | null) => value ? value.toLocaleString() : '0' },
+    { key: 'clicks', label: 'Clicks', format: (value: number | null) => value ? value.toLocaleString() : '0' },
+    { key: 'ctr', label: 'CTR', format: (value: number | null) => value ? `${(value * 100).toFixed(2)}%` : '0%' },
+    { key: 'ecpm', label: 'eCPM', format: (value: number | null) => value ? `$${value.toFixed(2)}` : '$0.00' },
+    { key: 'revenue', label: 'Revenue', format: (value: number | null) => value ? `$${value.toFixed(2)}` : '$0.00' },
+    { key: 'fillRate', label: 'Fill Rate', format: (value: number | null) => value ? `${value.toFixed(1)}%` : '0%' },
+    { key: 'arpu', label: 'ARPU', format: (value: number | null) => value ? `$${value.toFixed(4)}` : '$0.0000' }
   ]
   
   if (loading) return <div className="p-8">Loading data...</div>
@@ -152,8 +152,8 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
                 {columns.map((column) => (
                   <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {column.format
-                      ? column.format(row[column.key as keyof AdReport] as any)
-                      : row[column.key as keyof AdReport]
+                      ? column.format(row[column.key as keyof AdReport])
+                      : row[column.key as keyof AdReport] || ''
                     }
                   </td>
                 ))}
