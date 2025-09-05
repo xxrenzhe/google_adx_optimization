@@ -89,7 +89,7 @@ jobs:
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         tags: |
-          type=raw,value=preview-latest,enable=${{ github.ref == 'refs/heads/main' }}
+          type=raw,value=prod-latest,enable=${{ github.ref == 'refs/heads/main' }}
           type=raw,value=prod-latest,enable=${{ github.ref == 'refs/heads/production' }}
           type=ref,event=tag,prefix=prod-
           type=sha,format=short,enable=${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -97,12 +97,12 @@ jobs:
     - name: Determine build environment
       id: env
       run: |
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.event.inputs.environment }}" == "preview" ]]; then
-          echo "deployment_env=preview" >> $GITHUB_OUTPUT
-          echo "domain=localhost" >> $GITHUB_OUTPUT
-        elif [[ "${{ github.ref }}" == "refs/heads/production" ]] || [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.ref }}" == "refs/heads/production" ]] || [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
           echo "deployment_env=production" >> $GITHUB_OUTPUT
           echo "domain=moretop10.com" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.event.inputs.environment }}" == "preview" ]]; then
+          echo "deployment_env=preview" >> $GITHUB_OUTPUT
+          echo "domain=localhost" >> $GITHUB_OUTPUT
         fi
         
     # Cache warmup for potential future optimizations
@@ -163,9 +163,7 @@ jobs:
     - name: Determine image tag
       id: tag
       run: |
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-          echo "image_tag=preview-latest" >> $GITHUB_OUTPUT
-        elif [[ "${{ github.ref }}" == "refs/heads/production" ]]; then
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.ref }}" == "refs/heads/production" ]]; then
           echo "image_tag=prod-latest" >> $GITHUB_OUTPUT
         else
           echo "image_tag=${{ github.sha }}" >> $GITHUB_OUTPUT
@@ -225,14 +223,14 @@ jobs:
         fi
         
         # 环境信息
-        if [[ "$GITHUB_REF" == "refs/heads/main" || "$INPUT_ENVIRONMENT" == "preview" ]]; then
-          echo "- **环境**: 预发环境 (Preview)" >> $GITHUB_STEP_SUMMARY
-          echo "- **镜像**: \`ghcr.io/xxrenzhe/google_adx_optimization:preview-latest\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **域名**: localhost" >> $GITHUB_STEP_SUMMARY
-        elif [[ "$GITHUB_REF" == "refs/heads/production" || "$INPUT_ENVIRONMENT" == "production" ]]; then
+        if [[ "$GITHUB_REF" == "refs/heads/main" || "$GITHUB_REF" == "refs/heads/production" || "$INPUT_ENVIRONMENT" == "production" ]]; then
           echo "- **环境**: 生产环境 (Production)" >> $GITHUB_STEP_SUMMARY
           echo "- **镜像**: \`ghcr.io/xxrenzhe/google_adx_optimization:prod-latest\`" >> $GITHUB_STEP_SUMMARY
           echo "- **域名**: moretop10.com" >> $GITHUB_STEP_SUMMARY
+        elif [[ "$INPUT_ENVIRONMENT" == "preview" ]]; then
+          echo "- **环境**: 预发环境 (Preview)" >> $GITHUB_STEP_SUMMARY
+          echo "- **镜像**: \`ghcr.io/xxrenzhe/google_adx_optimization:preview-latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **域名**: localhost" >> $GITHUB_STEP_SUMMARY
         fi
         
         echo "" >> $GITHUB_STEP_SUMMARY
