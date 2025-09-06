@@ -66,3 +66,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* 骨架屏加载动画 */
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

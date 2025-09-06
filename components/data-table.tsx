@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useReducer } from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface DataTableProps {
   refreshTrigger?: number
@@ -30,50 +31,111 @@ interface AdReport {
   arpu: number | null
 }
 
-export default function DataTable({ refreshTrigger }: DataTableProps) {
-  const [data, setData] = useState<AdReport[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [pagination, setPagination] = useState({
+// 使用 useReducer 优化状态管理 - 减少不必要的重新渲染
+type TableState = {
+  data: AdReport[]
+  loading: boolean
+  error: string | null
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    pages: number
+    cursors: string[]
+    hasMore: boolean
+  }
+  sortBy: string
+  sortOrder: 'asc' | 'desc'
+  search: string
+}
+
+type TableAction = 
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_ERROR'; payload: string | null }
+  | { type: 'SET_DATA'; payload: AdReport[] }
+  | { type: 'SET_PAGINATION'; payload: Partial<TableState['pagination']> }
+  | { type: 'SET_SORT'; payload: { sortBy: string; sortOrder: 'asc' | 'desc' } }
+  | { type: 'SET_SEARCH'; payload: string }
+  | { type: 'RESET_PAGINATION' }
+
+const initialState: TableState = {
+  data: [],
+  loading: true,
+  error: null,
+  pagination: {
     page: 1,
     limit: 10,
     total: 0,
     pages: 0,
-    cursors: [] as string[], // Store cursors for each page
+    cursors: [],
     hasMore: false
-  })
-  const [sortBy, setSortBy] = useState('revenue')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-  const [search, setSearch] = useState('')
+  },
+  sortBy: 'revenue',
+  sortOrder: 'desc',
+  search: ''
+}
+
+function tableReducer(state: TableState, action: TableAction): TableState {
+  switch (action.type) {
+    case 'SET_LOADING':
+      return { ...state, loading: action.payload }
+    case 'SET_ERROR':
+      return { ...state, error: action.payload }
+    case 'SET_DATA':
+      return { ...state, data: action.payload }
+    case 'SET_PAGINATION':
+      return { ...state, pagination: { ...state.pagination, ...action.payload } }
+    case 'SET_SORT':
+      return { ...state, sortBy: action.payload.sortBy, sortOrder: action.payload.sortOrder }
+    case 'SET_SEARCH':
+      return { ...state, search: action.payload }
+    case 'RESET_PAGINATION':
+      return { ...state, pagination: { ...state.pagination, page: 1, cursors: [] } }
+    default:
+      return state
+  }
+}
+
+export default function DataTable({ refreshTrigger }: DataTableProps) {
+  const [state, dispatch] = useReducer(tableReducer, initialState)
+  const [isDataStale, setIsDataStale] = useState(false) // 标记数据是否过期
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const savedScrollPosition = useRef(0)
+  const initialLoad = useRef(true) // 标记是否首次加载
   
   useEffect(() => {
     fetchData()
-  }, [pagination.page, pagination.limit, sortBy, sortOrder, search, refreshTrigger])
+  }, [state.pagination.page, state.pagination.limit, state.sortBy, state.sortOrder, state.search, refreshTrigger])
   
-  // Restore scroll position after data updates
+  // 只在数据变化且不在加载状态时恢复滚动位置
   useEffect(() => {
-    if (savedScrollPosition.current > 0 && tableContainerRef.current) {
+    if (!state.loading && savedScrollPosition.current > 0 && tableContainerRef.current) {
       tableContainerRef.current.scrollLeft = savedScrollPosition.current
       savedScrollPosition.current = 0
     }
-  }, [data])
+  }, [state.data, state.loading])
   
   const fetchData = async () => {
-    setLoading(true)
-    setError(null)
+    // 首次加载才显示加载状态，后续操作保持视觉连续性
+    if (initialLoad.current) {
+      dispatch({ type: 'SET_LOADING', payload: true })
+    } else {
+      // 标记数据为过期，但不清空显示
+      setIsDataStale(true)
+    }
+    
+    dispatch({ type: 'SET_ERROR', payload: null })
     
     try {
       const params = new URLSearchParams({
-        limit: pagination.limit.toString(),
-        sortBy,
-        sortOrder,
-        search
+        limit: state.pagination.limit.toString(),
+        sortBy: state.sortBy,
+        sortOrder: state.sortOrder,
+        search: state.search
       })
       
       // Get cursor for current page
-      const currentCursor = pagination.page > 1 ? pagination.cursors[pagination.page - 2] : null
+      const currentCursor = state.pagination.page > 1 ? state.pagination.cursors[state.pagination.page - 2] : null
       
       if (currentCursor) {
         params.append('cursor', currentCursor)
@@ -83,26 +145,29 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
       if (!response.ok) throw new Error('Failed to fetch data')
       
       const result = await response.json()
-      setData(result.data)
+      
+      // 批量更新所有状态，避免多次渲染
+      dispatch({ type: 'SET_DATA', payload: result.data })
+      setIsDataStale(false)
+      initialLoad.current = false
       
       // Update cursors array
-      const newCursors = [...pagination.cursors]
-      if (result.pagination.nextCursor && pagination.page <= newCursors.length) {
-        newCursors[pagination.page - 1] = result.pagination.nextCursor
+      const newCursors = [...state.pagination.cursors]
+      if (result.pagination.nextCursor && state.pagination.page <= newCursors.length) {
+        newCursors[state.pagination.page - 1] = result.pagination.nextCursor
       }
       
       // Update pagination with API response
-      setPagination(prev => ({
-        ...prev,
+      dispatch({ type: 'SET_PAGINATION', payload: {
         total: result.pagination.totalCount,
-        pages: Math.ceil(result.pagination.totalCount / prev.limit),
+        pages: Math.ceil(result.pagination.totalCount / state.pagination.limit),
         cursors: newCursors,
         hasMore: result.pagination.hasMore
-      }))
+      }})
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      dispatch({ type: 'SET_ERROR', payload: err instanceof Error ? err.message : 'Unknown error' })
     } finally {
-      setLoading(false)
+      dispatch({ type: 'SET_LOADING', payload: false })
     }
   }
   
@@ -110,16 +175,15 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
     // Save current scroll position before data changes
     savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
     
-    if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortBy(column)
-      setSortOrder('desc')
-    }
+    // 计算新的排序状态，避免多次渲染
+    const newSortOrder = state.sortBy === column ? 
+      (state.sortOrder === 'asc' ? 'desc' : 'asc') : 
+      'desc'
     
-    // Reset pagination when sorting
-    setPagination(prev => ({ ...prev, page: 1, cursors: [] }))
-  }, [sortBy, sortOrder])
+    // 批量更新排序状态
+    dispatch({ type: 'SET_SORT', payload: { sortBy: column, sortOrder: newSortOrder } })
+    dispatch({ type: 'RESET_PAGINATION' })
+  }, [state.sortBy, state.sortOrder])
   
   const columns: Array<{
     key: keyof AdReport
@@ -148,10 +212,35 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
     { key: 'arpu', label: '每用户收入', format: (value: number | null) => value ? `$${value.toFixed(4)}` : '$0.0000' }
   ]
   
-  if (loading) return <div className="p-8">加载数据中...</div>
-  if (error) {
+  // 只在首次加载时显示骨架屏，后续操作保持数据可见
+  if (state.loading && initialLoad.current) {
+    return (
+      <div className="space-y-4">
+        {/* 搜索框骨架屏 */}
+        <div className="flex gap-4">
+          <Skeleton className="h-10 flex-1" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        
+        {/* 表格骨架屏 */}
+        <div className="rounded-lg border border-gray-200">
+          <div className="space-y-2 p-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex space-x-4">
+                {Array.from({ length: 8 }).map((_, j) => (
+                  <Skeleton key={j} className="h-4 flex-1" />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+  
+  if (state.error) {
     // Check if the error is due to no data uploaded
-    if (error.includes('No data uploaded yet')) {
+    if (state.error.includes('No data uploaded yet')) {
       return (
         <div className="p-12 text-center">
           <div className="mb-4">
@@ -164,7 +253,7 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
         </div>
       )
     }
-    return <div className="p-8 text-red-500">错误：{error}</div>
+    return <div className="p-8 text-red-500">错误：{state.error}</div>
   }
   
   return (
@@ -175,29 +264,27 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
           <input
             type="text"
             placeholder="搜索网站、国家、域名或设备..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            value={search}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
+            value={state.search}
             onChange={(e) => {
               // Save scroll position before search
               savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
-              setSearch(e.target.value)
-              // Reset pagination when searching
-              setPagination(prev => ({ ...prev, page: 1, cursors: [] }))
+              dispatch({ type: 'SET_SEARCH', payload: e.target.value })
+              dispatch({ type: 'RESET_PAGINATION' })
             }}
           />
         </div>
         <select
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          value={pagination.limit}
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
+          value={state.pagination.limit}
           onChange={(e) => {
             // Save scroll position before changing limit
             savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
-            setPagination(prev => ({ 
-              ...prev, 
+            dispatch({ type: 'SET_PAGINATION', payload: { 
               page: 1,
               limit: parseInt(e.target.value),
-              cursors: [] // Reset cursors when changing limit
-            }))
+              cursors: []
+            }})
           }}
         >
           <option value={10}>每页10条</option>
@@ -206,8 +293,11 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
         </select>
       </div>
       
-      {/* Table */}
-      <div ref={tableContainerRef} className="overflow-x-auto rounded-lg border border-gray-200">
+      {/* Table with transition effect */}
+      <div 
+        ref={tableContainerRef} 
+        className={`overflow-x-auto rounded-lg border border-gray-200 transition-opacity duration-200 ${isDataStale ? 'opacity-60' : 'opacity-100'}`}
+      >
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -219,8 +309,8 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
                 >
                   <div className="flex items-center space-x-1">
                     <span>{column.label}</span>
-                    {sortBy === column.key && (
-                      <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                    {state.sortBy === column.key && (
+                      <span className="transition-transform duration-200">{state.sortOrder === 'asc' ? '↑' : '↓'}</span>
                     )}
                   </div>
                 </th>
@@ -228,8 +318,11 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {data.map((row) => (
-              <tr key={row.id} className="hover:bg-gray-50">
+            {state.data.map((row) => (
+              <tr 
+                key={row.id} 
+                className={`hover:bg-gray-50 transition-colors duration-150 ${isDataStale ? 'animate-pulse' : ''}`}
+              >
                 {columns.map((column) => (
                   <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {column.format
@@ -247,20 +340,20 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-sm text-gray-700">
-          显示第 {pagination.page === 1 ? 1 : (pagination.page - 1) * pagination.limit + 1} 至{' '}
-          {Math.min(pagination.page * pagination.limit, pagination.total)} 条，共{' '}
-          {pagination.total} 条记录
+          显示第 {state.pagination.page === 1 ? 1 : (state.pagination.page - 1) * state.pagination.limit + 1} 至{' '}
+          {Math.min(state.pagination.page * state.pagination.limit, state.pagination.total)} 条，共{' '}
+          {state.pagination.total} 条记录
         </div>
         
         <div className="flex items-center space-x-2">
           {/* Previous Button */}
           <button
             className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-            disabled={pagination.page === 1}
+            disabled={state.pagination.page === 1}
             onClick={() => {
               // Save scroll position before changing page
               savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
-              setPagination(prev => ({ ...prev, page: prev.page - 1 }))
+              dispatch({ type: 'SET_PAGINATION', payload: { page: state.pagination.page - 1 } })
             }}
           >
             上一页
@@ -268,30 +361,30 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
           
           {/* Page Numbers */}
           <div className="flex space-x-1">
-            {Array.from({ length: Math.min(pagination.pages, 5) }, (_, i) => {
+            {Array.from({ length: Math.min(state.pagination.pages, 5) }, (_, i) => {
               let pageNum
-              if (pagination.pages <= 5) {
+              if (state.pagination.pages <= 5) {
                 pageNum = i + 1
-              } else if (pagination.page <= 3) {
+              } else if (state.pagination.page <= 3) {
                 pageNum = i + 1
-              } else if (pagination.page >= pagination.pages - 2) {
-                pageNum = pagination.pages - 4 + i
+              } else if (state.pagination.page >= state.pagination.pages - 2) {
+                pageNum = state.pagination.pages - 4 + i
               } else {
-                pageNum = pagination.page - 2 + i
+                pageNum = state.pagination.page - 2 + i
               }
               
               return (
                 <button
                   key={pageNum}
-                  className={`px-3 py-1 border rounded-lg text-sm ${
-                    pagination.page === pageNum
+                  className={`px-3 py-1 border rounded-lg text-sm transition-colors ${
+                    state.pagination.page === pageNum
                       ? 'bg-primary text-white border-primary'
                       : 'border-gray-300 hover:bg-gray-50'
                   }`}
                   onClick={() => {
                     // Save scroll position before changing page
                     savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
-                    setPagination(prev => ({ ...prev, page: pageNum }))
+                    dispatch({ type: 'SET_PAGINATION', payload: { page: pageNum } })
                   }}
                 >
                   {pageNum}
@@ -300,18 +393,18 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
             })}
             
             {/* Ellipsis for many pages */}
-            {pagination.pages > 5 && pagination.page < pagination.pages - 2 && (
+            {state.pagination.pages > 5 && state.pagination.page < state.pagination.pages - 2 && (
               <>
                 <span className="px-2 text-gray-500">...</span>
                 <button
-                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors"
                   onClick={() => {
                     // Save scroll position before changing page
                     savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
-                    setPagination(prev => ({ ...prev, page: pagination.pages }))
+                    dispatch({ type: 'SET_PAGINATION', payload: { page: state.pagination.pages } })
                   }}
                 >
-                  {pagination.pages}
+                  {state.pagination.pages}
                 </button>
               </>
             )}
@@ -320,11 +413,11 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
           {/* Next Button */}
           <button
             className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-            disabled={pagination.page >= pagination.pages}
+            disabled={state.pagination.page >= state.pagination.pages}
             onClick={() => {
               // Save scroll position before changing page
               savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
-              setPagination(prev => ({ ...prev, page: prev.page + 1 }))
+              dispatch({ type: 'SET_PAGINATION', payload: { page: state.pagination.page + 1 } })
             }}
           >
             下一页

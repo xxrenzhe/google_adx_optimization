@@ -12,6 +12,7 @@ export default function Upload({ onUploadComplete, onDataCleared }: UploadProps)
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; recordCount: number } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = useCallback(async (file: File) => {
@@ -45,7 +46,12 @@ export default function Upload({ onUploadComplete, onDataCleared }: UploadProps)
       
       xhr.onload = () => {
         if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText)
           setUploading(false)
+          setUploadedFile({
+            name: file.name,
+            recordCount: response.recordsProcessed || 0
+          })
           onUploadComplete()
         } else {
           setError('上传失败')
@@ -105,6 +111,7 @@ export default function Upload({ onUploadComplete, onDataCleared }: UploadProps)
       })
       
       if (response.ok) {
+        setUploadedFile(null) // 清除文件信息
         onDataCleared()
       } else {
         setError('清除数据失败')
@@ -169,9 +176,32 @@ export default function Upload({ onUploadComplete, onDataCleared }: UploadProps)
             </svg>
             <div>
               <p className="text-lg text-gray-600">
-将CSV文件拖放到此处，或<span className="text-blue-600">点击浏览</span>
+                {uploadedFile ? (
+                  <span>点击或拖放上传新的CSV文件替换当前文件</span>
+                ) : (
+                  <span>将CSV文件拖放到此处，或<span className="text-blue-600">点击浏览</span></span>
+                )}
               </p>
-              <p className="text-sm text-gray-500">最大文件大小：50MB</p>
+              <p className="text-sm text-gray-500">
+                {uploadedFile ? '支持替换上传' : '最大文件大小：50MB'}
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {/* 显示已上传文件信息 */}
+        {uploadedFile && !uploading && (
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <svg className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="text-sm text-green-800">
+                <p className="font-medium">文件上传成功</p>
+                <p className="text-xs text-green-600 mt-1">
+                  文件名：{uploadedFile.name} | 数据行数：{uploadedFile.recordCount.toLocaleString()} 行
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -186,9 +216,14 @@ export default function Upload({ onUploadComplete, onDataCleared }: UploadProps)
       <div className="flex justify-center">
         <button
           onClick={handleClearData}
-          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm font-medium"
+          disabled={!uploadedFile}
+          className={`px-4 py-2 rounded-md transition-colors text-sm font-medium ${
+            uploadedFile
+              ? 'bg-red-100 text-red-700 hover:bg-red-200'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          }`}
         >
-          清除当前数据
+          {uploadedFile ? '清除当前数据' : '暂无数据可清除'}
         </button>
       </div>
     </div>

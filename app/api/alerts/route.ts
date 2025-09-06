@@ -12,7 +12,7 @@ interface Alert {
 
 interface Recommendation {
   id: string
-  type: 'website' | 'country' | 'device' | 'format' | 'combination' | 'competitive' | 'predictive'
+  type: 'website' | 'country' | 'device' | 'format' | 'combination' | 'competitive' | 'predictive' | 'timing' | 'pricing'
   title: string
   message: string
   impact: 'high' | 'medium' | 'low'
@@ -39,13 +39,13 @@ export async function GET(request: NextRequest) {
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - days)
 
-    // 1. Low Fill Rate Alerts
+    // 1. Low Fill Rate Alerts - 降低阈值到20%
     const lowFillRateData = await prisma.adReport.groupBy({
       by: ['website'],
       where: {
         sessionId: session.id,
         dataDate: { gte: startDate },
-        fillRate: { lt: 30 } // Less than 30% fill rate
+        fillRate: { lt: 20 } // 降低阈值
       },
       _avg: {
         fillRate: true,
@@ -54,15 +54,12 @@ export async function GET(request: NextRequest) {
       _count: true
     })
 
-    // Filter for low fill rate after querying
-    const filteredLowFillRate = lowFillRateData.filter(item => (item._avg.fillRate || 0) < 30)
-
     lowFillRateData.forEach((item, index) => {
       alerts.push({
         id: `low-fill-${index}`,
         type: 'warning',
         title: '低填充率警告',
-        message: `${item.website} 的平均填充率仅为 ${item._avg.fillRate?.toFixed(2)}%，低于30%警戒线`,
+        message: `${item.website} 的平均填充率仅为 ${item._avg.fillRate?.toFixed(2)}%，低于20%警戒线`,
         data: {
           website: item.website,
           avgFillRate: item._avg.fillRate,
@@ -72,7 +69,7 @@ export async function GET(request: NextRequest) {
       })
     })
 
-    // 2. High-value Website Recommendations
+    // 2. High-value Website Recommendations - 降低阈值到1.2倍
     const topWebsites = await prisma.adReport.groupBy({
       by: ['website'],
       where: {
@@ -91,7 +88,7 @@ export async function GET(request: NextRequest) {
           revenue: 'desc'
         }
       },
-      take: 5
+      take: 10
     })
 
     const avgEcpm = await prisma.adReport.aggregate({
@@ -105,12 +102,12 @@ export async function GET(request: NextRequest) {
     })
 
     topWebsites.forEach((item, index) => {
-      if (item._avg.ecpm && avgEcpm._avg.ecpm && item._avg.ecpm > avgEcpm._avg.ecpm * 1.5) {
+      if (item._avg.ecpm && avgEcpm._avg.ecpm && item._avg.ecpm > avgEcpm._avg.ecpm * 1.2) {
         recommendations.push({
           id: `high-value-${index}`,
           type: 'website',
           title: '高价值网站推荐',
-          message: `${item.website} 的 eCPM ($${item._avg.ecpm.toFixed(2)}) 显著高于平均水平，建议增加广告投放`,
+          message: `${item.website} 的 eCPM ($${item._avg.ecpm.toFixed(2)}) 高于平均水平${((item._avg.ecpm / avgEcpm._avg.ecpm! - 1) * 100).toFixed(1)}%，建议增加广告投放`,
           impact: 'high',
           data: {
             website: item.website,
@@ -122,7 +119,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // 3. Country Performance Analysis
+    // 3. Country Performance Analysis - 降低收入阈值
     const countryPerformance = await prisma.adReport.groupBy({
       by: ['country'],
       where: {
@@ -142,17 +139,17 @@ export async function GET(request: NextRequest) {
           revenue: 'desc'
         }
       },
-      take: 10
+      take: 15
     })
 
     // Find underperforming countries with low fill rate but high potential
     countryPerformance.forEach((item, index) => {
-      if (item._avg.fillRate && item._avg.fillRate < 50 && item._sum.revenue && item._sum.revenue > 100) {
+      if (item._avg.fillRate && item._avg.fillRate < 60 && item._sum.revenue && item._sum.revenue > 10) {
         recommendations.push({
           id: `country-opp-${index}`,
           type: 'country',
           title: '国家市场优化机会',
-          message: `${item.country} 填充率较低 (${item._avg.fillRate.toFixed(2)}%) 但收入潜力可观，建议优化广告配置`,
+          message: `${item.country} 填充率较低 (${item._avg.fillRate.toFixed(2)}%) 但有一定收入，建议优化广告配置`,
           impact: 'medium',
           data: {
             country: item.country,
@@ -241,7 +238,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 6. Ad Format Performance
+    // 6. Ad Format Performance - 降低阈值
     const formatPerformance = await prisma.adReport.groupBy({
       by: ['adFormat'],
       where: {
@@ -264,13 +261,13 @@ export async function GET(request: NextRequest) {
     })
 
     formatPerformance.forEach((item, index) => {
-      if (item._avg.ecpm && item._avg.ecpm > 10) { // High performing format
+      if (item._avg.ecpm && item._avg.ecpm > 5) { // 降低阈值到5
         recommendations.push({
           id: `format-high-${index}`,
           type: 'format',
           title: '广告格式优化建议',
-          message: `${item.adFormat} 格式表现优异，eCPM达 $${item._avg.ecpm.toFixed(2)}，建议增加使用比例`,
-          impact: 'high',
+          message: `${item.adFormat} 格式表现良好，eCPM达 $${item._avg.ecpm.toFixed(2)}，建议增加使用比例`,
+          impact: item._avg.ecpm > 10 ? 'high' : 'medium',
           data: {
             adFormat: item.adFormat,
             avgEcpm: item._avg.ecpm,
@@ -281,7 +278,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // 7. Device-Browser Combination Analysis (复合维度分析)
+    // 7. Device-Browser Combination Analysis - 降低阈值
     const deviceBrowserCombinations = await prisma.adReport.groupBy({
       by: ['device', 'browser'],
       where: {
@@ -302,12 +299,9 @@ export async function GET(request: NextRequest) {
       _count: true
     })
 
-    // Filter after grouping to check minimum revenue threshold
-    const filteredCombinations = deviceBrowserCombinations.filter(item => (item._sum.revenue || 0) >= 10)
-
     // Find high eCPM but low fill rate combinations
-    filteredCombinations.forEach((item, index) => {
-      if (item._avg.ecpm && item._avg.ecpm > 15 && item._avg.fillRate && item._avg.fillRate < 40) {
+    deviceBrowserCombinations.forEach((item, index) => {
+      if (item._avg.ecpm && item._avg.ecpm > 10 && item._avg.fillRate && item._avg.fillRate < 60) {
         recommendations.push({
           id: `combo-opp-${index}`,
           type: 'combination',
@@ -326,7 +320,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // 8. Competitive Intelligence Alerts (竞争情报提醒)
+    // 8. Competitive Intelligence Alerts - 降低阈值
     const competitorData = await prisma.adReport.groupBy({
       by: ['advertiser', 'domain'],
       where: {
@@ -346,12 +340,12 @@ export async function GET(request: NextRequest) {
           revenue: 'desc'
         }
       },
-      take: 10
+      take: 15
     })
 
     // Analyze competitor strategies
     const topCompetitor = competitorData[0]
-    if (topCompetitor && topCompetitor._sum.revenue && topCompetitor._sum.revenue > 500) {
+    if (topCompetitor && topCompetitor._sum.revenue && topCompetitor._sum.revenue > 50) {
       // Get countries where top competitor operates
       const competitorCountries = await prisma.adReport.findMany({
         where: {
@@ -365,7 +359,7 @@ export async function GET(request: NextRequest) {
         distinct: ['country']
       })
 
-      if (competitorCountries.length > 3) {
+      if (competitorCountries.length > 1) {
         recommendations.push({
           id: 'competitive-intel',
           type: 'competitive',
@@ -384,7 +378,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 9. Hourly Pattern Analysis (结合24小时表现模式)
+    // 9. Timing Analysis - 时段分析
     const hourlyPerformance = await prisma.adReport.findMany({
       where: {
         sessionId: session.id,
@@ -410,10 +404,10 @@ export async function GET(request: NextRequest) {
     const peakHour = hourlyAvg.indexOf(Math.max(...hourlyAvg))
     const lowHour = hourlyAvg.indexOf(Math.min(...hourlyAvg.filter(h => h > 0)))
 
-    if (hourlyAvg[peakHour] > hourlyAvg[lowHour] * 3) {
+    if (hourlyAvg[peakHour] > hourlyAvg[lowHour] * 2) {
       recommendations.push({
-        id: 'hourly-optimization',
-        type: 'predictive',
+        id: 'timing-optimization',
+        type: 'timing',
         title: '时段优化建议',
         message: `${peakHour}:00是高峰时段（平均收入$${hourlyAvg[peakHour].toFixed(2)}），${lowHour}:00是低谷时段，建议调整广告投放策略`,
         impact: 'medium',
@@ -477,7 +471,40 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 11. Predictive Alerts (预测性提醒)
+    // 10. Pricing Strategy - 定价策略
+    const ecpmDistribution = await prisma.adReport.groupBy({
+      by: ['adFormat'],
+      where: {
+        sessionId: session.id,
+        dataDate: { gte: startDate },
+        adFormat: { not: null },
+        ecpm: { not: null }
+      },
+      _avg: {
+        ecpm: true
+      },
+      _count: true
+    })
+
+    // Find underpriced formats
+    ecpmDistribution.forEach((item, index) => {
+      if (item._avg.ecpm && item._avg.ecpm < 3 && item._count > 10) {
+        recommendations.push({
+          id: `pricing-${index}`,
+          type: 'pricing',
+          title: '定价策略建议',
+          message: `${item.adFormat} 的平均eCPM仅为$${item._avg.ecpm.toFixed(2)}，可能定价过低，建议调整定价策略`,
+          impact: 'medium',
+          data: {
+            adFormat: item.adFormat,
+            avgEcpm: item._avg.ecpm,
+            impressionCount: item._count
+          }
+        })
+      }
+    })
+
+  // 11. Predictive Alerts (预测性提醒)
     // Get eCPM distribution data
     const ecpmData = await prisma.adReport.findMany({
       where: {
@@ -536,7 +563,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       alerts: serializeData(alerts.slice(0, 10)), // Limit to top 10 alerts
-      recommendations: serializeData(recommendations.slice(0, 10)) // Limit to top 10 recommendations
+      recommendations: serializeData(recommendations.slice(0, 15)) // Limit to top 15 recommendations
     })
   } catch (error) {
     console.error('Error generating alerts:', error)

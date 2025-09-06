@@ -239,8 +239,12 @@ export default function PredictiveAnalytics({ refreshTrigger }: PredictiveAnalyt
                 <tr key={index}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{competitor.advertiser}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{competitor.domain || '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{competitor.market_penetration} 个国家</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${competitor.avg_bid_strength.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {competitor.market_penetration > 0 ? `${competitor.market_penetration} 个国家` : '无数据'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${competitor.avg_bid_strength.toFixed(2)}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       competitor.strategy_type === 'AGGRESSIVE' ? 'bg-red-100 text-red-800' :
