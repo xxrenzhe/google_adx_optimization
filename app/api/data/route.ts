@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
     const cursor = searchParams.get('cursor') || '' // 使用ID作为cursor
     const limit = Math.min(Number(searchParams.get('limit')) || 100, 1000) // 限制最大1000条
     const search = searchParams.get('search') || ''
+    const sortBy = searchParams.get('sortBy') || 'dataDate'
+    const sortOrder = searchParams.get('sortOrder') || 'desc'
     
     // 构建where条件
     const where = {
@@ -28,12 +30,15 @@ export async function GET(request: NextRequest) {
       } : {})
     }
     
+    // 构建排序条件
+    const orderBy = { [sortBy]: sortOrder }
+    
     // 并行获取数据和总数（仅第一次请求）
     const [data, totalCount] = await Promise.all([
       prisma.adReport.findMany({
         where,
         take: limit,
-        orderBy: { id: 'desc' } // 按ID排序，比OFFSET快
+        orderBy
       }),
       cursor ? Promise.resolve(null) : prisma.adReport.count({ where: { sessionId: session.id } })
     ])

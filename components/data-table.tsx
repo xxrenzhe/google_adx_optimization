@@ -97,6 +97,7 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
   }
   
   const handleSort = (column: string) => {
+    console.log('Sorting by:', column, 'Current order:', sortBy === column ? sortOrder : 'new')
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
     } else {
