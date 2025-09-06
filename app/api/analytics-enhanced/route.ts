@@ -214,7 +214,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // 6. Hourly Performance Pattern - simplified
+    // 6. Hourly Performance Pattern
     const hourlyPattern = Array.from({ length: 24 }, (_, i) => ({
       hour: i,
       avg_ecpm: 0,
@@ -222,6 +222,44 @@ export async function GET(request: NextRequest) {
       total_revenue: 0,
       records: 0
     }))
+
+    // Fetch hourly data
+    const hourlyRecords = await prisma.adReport.findMany({
+      where: {
+        sessionId: session.id,
+        ...(startDate || endDate ? {
+          dataDate: {
+            ...(startDate && { gte: new Date(startDate) }),
+            ...(endDate && { lte: new Date(endDate) })
+          }
+        } : {})
+      },
+      select: {
+        dataDate: true,
+        ecpm: true,
+        ctr: true,
+        revenue: true
+      }
+    })
+
+    // Populate hourly pattern
+    hourlyRecords.forEach(record => {
+      const hour = new Date(record.dataDate).getHours()
+      if (hour >= 0 && hour < 24) {
+        hourlyPattern[hour].records++
+        hourlyPattern[hour].total_revenue += record.revenue || 0
+        hourlyPattern[hour].avg_ecpm += record.ecpm || 0
+        hourlyPattern[hour].avg_ctr += record.ctr || 0
+      }
+    })
+
+    // Calculate averages for each hour
+    hourlyPattern.forEach(hour => {
+      if (hour.records > 0) {
+        hour.avg_ecpm = hour.avg_ecpm / hour.records
+        hour.avg_ctr = hour.avg_ctr / hour.records
+      }
+    })
 
     // 7. Viewability Analysis
     const viewabilityAnalysis = await prisma.adReport.groupBy({
