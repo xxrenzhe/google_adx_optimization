@@ -13,7 +13,10 @@ async function main() {
       try {
         // Use db push to create tables
         const { execSync } = require('child_process')
-        execSync('npx prisma db push', { stdio: 'inherit' })
+        execSync('npx prisma db push --schema=/app/prisma/schema.prisma', { 
+          stdio: 'inherit',
+          cwd: '/app'
+        })
         console.log('Database schema created successfully')
       } catch (pushError: any) {
         console.error('Failed to create database schema:', pushError)
