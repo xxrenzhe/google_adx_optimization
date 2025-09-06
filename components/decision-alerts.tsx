@@ -12,7 +12,7 @@ interface Alert {
 
 interface Recommendation {
   id: string
-  type: 'website' | 'country' | 'device' | 'format' | 'combination' | 'competitive' | 'predictive'
+  type: 'website' | 'country' | 'device' | 'format' | 'combination' | 'competitive' | 'predictive' | 'timing' | 'pricing'
   title: string
   message: string
   impact: 'high' | 'medium' | 'low'
@@ -26,6 +26,7 @@ interface DecisionAlertsProps {
 export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) {
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
+  const [enhancedRecommendations, setEnhancedRecommendations] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -35,12 +36,20 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
   const fetchAlertsAndRecommendations = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/alerts')
-      if (!response.ok) throw new Error('Failed to fetch alerts')
+      // Fetch alerts and recommendations
+      const alertsResponse = await fetch('/api/alerts')
+      if (!alertsResponse.ok) throw new Error('Failed to fetch alerts')
       
-      const data = await response.json()
-      setAlerts(data.alerts || [])
-      setRecommendations(data.recommendations || [])
+      const alertsData = await alertsResponse.json()
+      setAlerts(alertsData.alerts || [])
+      setRecommendations(alertsData.recommendations || [])
+      
+      // Fetch enhanced analytics for optimization recommendations
+      const enhancedResponse = await fetch('/api/analytics-enhanced')
+      if (enhancedResponse.ok) {
+        const enhancedData = await enhancedResponse.json()
+        setEnhancedRecommendations(enhancedData)
+      }
     } catch (error) {
       console.error('Error fetching alerts:', error)
     } finally {
@@ -107,6 +116,10 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
         return '🎯'
       case 'predictive':
         return '🔮'
+      case 'timing':
+        return '⏰'
+      case 'pricing':
+        return '💰'
       default:
         return '💡'
     }
@@ -182,6 +195,8 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
                             {rec.type === 'combination' ? '组合分析' :
                              rec.type === 'competitive' ? '竞争情报' :
                              rec.type === 'predictive' ? '预测分析' :
+                             rec.type === 'timing' ? '时段分析' :
+                             rec.type === 'pricing' ? '定价策略' :
                              rec.type === 'website' ? '网站' :
                              rec.type === 'country' ? '国家' :
                              rec.type === 'device' ? '设备' :
@@ -221,6 +236,74 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
           </div>
         )}
       </div>
+
+      {/* Enhanced Optimization Recommendations */}
+      {enhancedRecommendations && (
+        <div className="bg-white shadow rounded-lg p-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">📊 详细优化建议</h2>
+          
+          {/* Ad Unit Performance */}
+          <div className="mb-8">
+            <h3 className="text-md font-medium mb-4 text-gray-800">广告单元优化建议</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告格式</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告单元</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平均eCPM</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">填充率</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">建议</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {enhancedRecommendations.adUnitAnalysis?.map((item: any, index: number) => (
+                    <tr key={index}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.adFormat}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.adUnit}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${(item._avg.ecpm || 0).toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{((item._avg.fillRate || 0) * 100).toFixed(1)}%</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {item._avg.ecpm > 10 ? (
+                          <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">优先投放</span>
+                        ) : item._avg.fillRate < 30 ? (
+                          <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">需要优化</span>
+                        ) : (
+                          <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">保持现状</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Viewability Analysis Summary */}
+          {enhancedRecommendations.viewabilityAnalysis && (
+            <div>
+              <h3 className="text-md font-medium mb-4 text-gray-800">可见度分析摘要</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {enhancedRecommendations.viewabilityAnalysis.map((item: any, index: number) => (
+                  <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                    <div className="text-sm font-medium text-gray-900">{item.adFormat}</div>
+                    <div className="mt-2 space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">可见率:</span>
+                        <span className="font-medium">{((item._avg.viewabilityRate || 0) * 100).toFixed(1)}%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">eCPM:</span>
+                        <span className="font-medium">${(item._avg.ecpm || 0).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
