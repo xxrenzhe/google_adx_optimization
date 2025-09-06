@@ -151,7 +151,7 @@ function createRecordFromCSV(headers: string[], values: string[], sessionId: str
         record.website = value
         break
       case 'country':
-      case '国家/地区':
+      case '国家地区':
       case '国家':
         record.country = value
         break
@@ -163,12 +163,12 @@ function createRecordFromCSV(headers: string[], values: string[], sessionId: str
         break
       case 'adunit':
       case 'ad_unit':
-      case '广告单元（所有级别）':
+      case '广告单元所有级别':
       case '广告单元':
         record.adUnit = value
         break
       case 'advertiser':
-      case '广告客户（已分类）':
+      case '广告客户已分类':
       case '广告客户':
         record.advertiser = value
         break
