@@ -55,3 +55,18 @@ export function clearCurrentSession() {
 export function generateSessionId(): string {
   return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
+
+// Get session ID from request cookies
+export function getSessionId(request: Request): string | null {
+  const cookieHeader = request.headers.get('cookie')
+  if (cookieHeader) {
+    const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+      const [key, value] = cookie.trim().split('=')
+      acc[key] = value
+      return acc
+    }, {} as Record<string, string>)
+    
+    return cookies['adx_session_id'] || null
+  }
+  return null
+}

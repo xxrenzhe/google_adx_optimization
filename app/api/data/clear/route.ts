@@ -3,6 +3,14 @@ import { prisma } from '@/lib/prisma'
 import { getSessionId } from '@/lib/session'
 
 export async function DELETE(request: NextRequest) {
+  return await handleClear(request)
+}
+
+export async function POST(request: NextRequest) {
+  return await handleClear(request)
+}
+
+async function handleClear(request: NextRequest) {
   try {
     // Get session ID from cookie
     const sessionId = getSessionId(request)

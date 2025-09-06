@@ -100,7 +100,7 @@ export default function Upload({ onUploadComplete, onDataCleared }: UploadProps)
   const handleClearData = useCallback(async () => {
     try {
       const response = await fetch('/api/data/clear', {
-        method: 'DELETE',
+        method: 'POST',
         credentials: 'include'
       })
       
