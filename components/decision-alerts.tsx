@@ -50,74 +50,61 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
         const enhancedData = await enhancedResponse.json()
         setEnhancedRecommendations(enhancedData)
         
-        // Convert enhanced analytics recommendations to the same format
+        // Convert only important enhanced analytics recommendations to the same format
         const enhancedRecs: Recommendation[] = []
         
-        // Add ad unit analysis recommendations
+        // Add only important ad unit analysis recommendations (high impact only)
         if (enhancedData.adUnitAnalysis) {
           enhancedData.adUnitAnalysis.forEach((item: any, index: number) => {
-            let impact: 'high' | 'medium' | 'low' = 'medium'
-            let message = ''
-            
-            if (item._avg.ecpm > 10) {
-              impact = 'high'
-              message = `该广告单元eCPM表现优秀（$${item._avg.ecpm.toFixed(2)}），建议优先投放`
-            } else if (item._avg.fillRate < 30) {
-              impact = 'high'
-              message = `该广告单元填充率较低（${((item._avg.fillRate || 0) * 100).toFixed(1)}%），需要优化配置`
-            } else {
-              message = `该广告单元表现稳定，保持当前策略`
-            }
-            
-            enhancedRecs.push({
-              id: `adunit-${index}`,
-              type: 'format',
-              title: `${item.adFormat} - ${item.adUnit}`,
-              message,
-              impact,
-              data: {
-                adFormat: item.adFormat,
-                adUnit: item.adUnit,
-                avgEcpm: item._avg.ecpm || 0,
-                fillRate: item._avg.fillRate || 0,
-                recommendation: item._avg.ecpm > 10 ? '优先投放' : 
-                               item._avg.fillRate < 30 ? '需要优化' : '保持现状'
+            // Only include high impact recommendations
+            if (item._avg.ecpm > 15 || item._avg.fillRate < 20) {
+              let impact: 'high' | 'medium' | 'low' = 'high'
+              let message = ''
+              
+              if (item._avg.ecpm > 15) {
+                message = `高价值广告单元：${item.adUnit}（eCPM: $${item._avg.ecpm.toFixed(2)}），强烈建议优先投放`
+              } else if (item._avg.fillRate < 20) {
+                message = `低填充率警告：${item.adUnit}填充率仅${((item._avg.fillRate || 0) * 100).toFixed(1)}%，急需优化`
               }
-            })
+              
+              enhancedRecs.push({
+                id: `adunit-${index}`,
+                type: 'format',
+                title: `${item.adFormat} - ${item.adUnit}`,
+                message,
+                impact,
+                data: {
+                  adFormat: item.adFormat,
+                  adUnit: item.adUnit,
+                  avgEcpm: item._avg.ecpm || 0,
+                  fillRate: item._avg.fillRate || 0,
+                  recommendation: item._avg.ecpm > 15 ? '优先投放' : '需要优化'
+                }
+              })
+            }
           })
         }
         
-        // Add viewability analysis recommendations
+        // Add only critical viewability issues
         if (enhancedData.viewabilityAnalysis) {
           enhancedData.viewabilityAnalysis.forEach((item: any, index: number) => {
             const viewabilityRate = (item._avg.viewabilityRate || 0) * 100
-            let impact: 'high' | 'medium' | 'low' = 'medium'
-            let message = ''
-            
-            if (viewabilityRate > 70) {
-              impact = 'high'
-              message = `该广告格式可见度优秀（${viewabilityRate.toFixed(1)}%），建议增加投放`
-            } else if (viewabilityRate < 30) {
-              impact = 'high'
-              message = `该广告格式可见度较低（${viewabilityRate.toFixed(1)}%），建议优化位置`
-            } else {
-              message = `该广告格式可见度表现正常`
+            // Only include severe viewability issues
+            if (viewabilityRate < 25 && item._avg.ecpm > 5) {
+              enhancedRecs.push({
+                id: `viewability-${index}`,
+                type: 'format',
+                title: `${item.adFormat} 可见度异常`,
+                message: `${item.adFormat}可见度过低（${viewabilityRate.toFixed(1)}%）但eCPM较高（$${item._avg.ecpm.toFixed(2)}），建议优化广告位置`,
+                impact: 'high',
+                data: {
+                  adFormat: item.adFormat,
+                  viewabilityRate: viewabilityRate,
+                  ecpm: item._avg.ecpm || 0,
+                  recommendation: '优化位置'
+                }
+              })
             }
-            
-            enhancedRecs.push({
-              id: `viewability-${index}`,
-              type: 'format',
-              title: `${item.adFormat} 可见度分析`,
-              message,
-              impact,
-              data: {
-                adFormat: item.adFormat,
-                viewabilityRate: viewabilityRate,
-                ecpm: item._avg.ecpm || 0,
-                recommendation: viewabilityRate > 70 ? '增加投放' : 
-                               viewabilityRate < 30 ? '优化位置' : '保持现状'
-              }
-            })
           })
         }
         
