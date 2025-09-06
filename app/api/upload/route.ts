@@ -186,50 +186,50 @@ function createRecordFromCSV(headers: string[], values: string[], sessionId: str
         record.browser = value
         break
       case 'requests':
-    case 'adexchange请求总数':
-    case '请求总数':
+      case 'adexchange请求总数':
+      case '请求总数':
         record.requests = value ? BigInt(value) : null
         break
       case 'impressions':
-    case 'adexchange展示次数':
-    case '展示次数':
+      case 'adexchange展示次数':
+      case '展示次数':
         record.impressions = value ? BigInt(value) : null
         break
       case 'clicks':
-    case 'adexchange点击次数':
-    case '点击次数':
+      case 'adexchange点击次数':
+      case '点击次数':
         record.clicks = value ? BigInt(value) : null
         break
       case 'ctr':
-    case 'adexchange点击率':
-    case '点击率':
+      case 'adexchange点击率':
+      case '点击率':
         record.ctr = value ? parseFloat(value) : null
         break
       case 'ecpm':
-    case 'adexchange平均ecpm':
-    case '平均ecpm':
+      case 'adexchange平均ecpm':
+      case '平均ecpm':
         record.ecpm = value ? parseFloat(value) : null
         break
       case 'revenue':
-    case 'adexchange收入':
-    case '收入':
+      case 'adexchange收入':
+      case '收入':
         record.revenue = value ? parseFloat(value) : null
         break
       case 'viewableimpressions':
       case 'viewable_impressions':
-      case 'ad exchange active view可见展示次数':
+      case 'adexchangeactiveview可见展示次数':
       case '可见展示次数':
         record.viewableImpressions = value ? BigInt(value) : null
         break
       case 'viewabilityrate':
       case 'viewability_rate':
-      case 'ad exchange active view可见展示次数百分比':
+      case 'adexchangeactiveview可见展示次数百分比':
       case '可见展示次数百分比':
         record.viewabilityRate = value ? parseFloat(value) : null
         break
       case 'measurableimpressions':
       case 'measurable_impressions':
-      case 'ad exchange active view可衡量展示次数':
+      case 'adexchangeactiveview可衡量展示次数':
       case '可衡量展示次数':
         record.measurableImpressions = value ? BigInt(value) : null
         break
@@ -244,8 +244,9 @@ function createRecordFromCSV(headers: string[], values: string[], sessionId: str
     record.fillRate = (Number(record.impressions) / Number(record.requests)) * 100
   }
   
-  if (record.revenue) {
-    record.arpu = record.revenue / 5000
+  // Calculate ARPU as revenue per thousand requests (RPM)
+  if (record.revenue && record.requests) {
+    record.arpu = (record.revenue / Number(record.requests)) * 1000
   }
   
   return record
