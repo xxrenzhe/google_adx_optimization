@@ -44,11 +44,85 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
       setAlerts(alertsData.alerts || [])
       setRecommendations(alertsData.recommendations || [])
       
-      // Fetch enhanced analytics for optimization recommendations
+      // Fetch enhanced analytics and integrate its recommendations
       const enhancedResponse = await fetch('/api/analytics-enhanced')
       if (enhancedResponse.ok) {
         const enhancedData = await enhancedResponse.json()
         setEnhancedRecommendations(enhancedData)
+        
+        // Convert enhanced analytics recommendations to the same format
+        const enhancedRecs: Recommendation[] = []
+        
+        // Add ad unit analysis recommendations
+        if (enhancedData.adUnitAnalysis) {
+          enhancedData.adUnitAnalysis.forEach((item: any, index: number) => {
+            let impact: 'high' | 'medium' | 'low' = 'medium'
+            let message = ''
+            
+            if (item._avg.ecpm > 10) {
+              impact = 'high'
+              message = `该广告单元eCPM表现优秀（$${item._avg.ecpm.toFixed(2)}），建议优先投放`
+            } else if (item._avg.fillRate < 30) {
+              impact = 'high'
+              message = `该广告单元填充率较低（${((item._avg.fillRate || 0) * 100).toFixed(1)}%），需要优化配置`
+            } else {
+              message = `该广告单元表现稳定，保持当前策略`
+            }
+            
+            enhancedRecs.push({
+              id: `adunit-${index}`,
+              type: 'format',
+              title: `${item.adFormat} - ${item.adUnit}`,
+              message,
+              impact,
+              data: {
+                adFormat: item.adFormat,
+                adUnit: item.adUnit,
+                avgEcpm: item._avg.ecpm || 0,
+                fillRate: item._avg.fillRate || 0,
+                recommendation: item._avg.ecpm > 10 ? '优先投放' : 
+                               item._avg.fillRate < 30 ? '需要优化' : '保持现状'
+              }
+            })
+          })
+        }
+        
+        // Add viewability analysis recommendations
+        if (enhancedData.viewabilityAnalysis) {
+          enhancedData.viewabilityAnalysis.forEach((item: any, index: number) => {
+            const viewabilityRate = (item._avg.viewabilityRate || 0) * 100
+            let impact: 'high' | 'medium' | 'low' = 'medium'
+            let message = ''
+            
+            if (viewabilityRate > 70) {
+              impact = 'high'
+              message = `该广告格式可见度优秀（${viewabilityRate.toFixed(1)}%），建议增加投放`
+            } else if (viewabilityRate < 30) {
+              impact = 'high'
+              message = `该广告格式可见度较低（${viewabilityRate.toFixed(1)}%），建议优化位置`
+            } else {
+              message = `该广告格式可见度表现正常`
+            }
+            
+            enhancedRecs.push({
+              id: `viewability-${index}`,
+              type: 'format',
+              title: `${item.adFormat} 可见度分析`,
+              message,
+              impact,
+              data: {
+                adFormat: item.adFormat,
+                viewabilityRate: viewabilityRate,
+                ecpm: item._avg.ecpm || 0,
+                recommendation: viewabilityRate > 70 ? '增加投放' : 
+                               viewabilityRate < 30 ? '优化位置' : '保持现状'
+              }
+            })
+          })
+        }
+        
+        // Combine original recommendations with enhanced ones
+        setRecommendations(prev => [...prev, ...enhancedRecs])
       }
     } catch (error) {
       console.error('Error fetching alerts:', error)
@@ -211,13 +285,19 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
                         <div className="space-y-2">
                           {Object.entries(rec.data).map(([key, value]) => (
                             <div key={key} className="flex items-start">
-                              <span className="text-gray-600 capitalize mr-2">
-                                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
+                              <span className="text-gray-600 mr-2 min-w-[80px]">
+                                {key === 'adFormat' ? '广告格式' :
+                                 key === 'adUnit' ? '广告单元' :
+                                 key === 'avgEcpm' ? '平均eCPM' :
+                                 key === 'fillRate' ? '填充率' :
+                                 key === 'viewabilityRate' ? '可见率' :
+                                 key === 'recommendation' ? '建议' :
+                                 key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
                               </span>
                               <span className="font-medium text-gray-900">
                                 {typeof value === 'number' ? 
-                                  (key.includes('revenue') || key.includes('ecpm') ? `$${value.toFixed(2)}` :
-                                   key.includes('rate') || key.includes('ratio') ? `${(value * 100).toFixed(1)}%` :
+                                  (key.includes('revenue') || key.includes('ecpm') || key === 'avgEcpm' ? `$${value.toFixed(2)}` :
+                                   key.includes('rate') || key.includes('ratio') || key === 'fillRate' || key === 'viewabilityRate' ? `${(value * 100).toFixed(1)}%` :
                                    key.includes('percentage') ? `${value.toFixed(1)}%` :
                                    value.toLocaleString()) :
                                   Array.isArray(value) ? value.join(', ') :
@@ -236,74 +316,6 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
           </div>
         )}
       </div>
-
-      {/* Enhanced Optimization Recommendations */}
-      {enhancedRecommendations && (
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">📊 详细优化建议</h2>
-          
-          {/* Ad Unit Performance */}
-          <div className="mb-8">
-            <h3 className="text-md font-medium mb-4 text-gray-800">广告单元优化建议</h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告格式</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">广告单元</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平均eCPM</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">填充率</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">建议</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {enhancedRecommendations.adUnitAnalysis?.map((item: any, index: number) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.adFormat}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.adUnit}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${(item._avg.ecpm || 0).toFixed(2)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{((item._avg.fillRate || 0) * 100).toFixed(1)}%</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {item._avg.ecpm > 10 ? (
-                          <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">优先投放</span>
-                        ) : item._avg.fillRate < 30 ? (
-                          <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">需要优化</span>
-                        ) : (
-                          <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">保持现状</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Viewability Analysis Summary */}
-          {enhancedRecommendations.viewabilityAnalysis && (
-            <div>
-              <h3 className="text-md font-medium mb-4 text-gray-800">可见度分析摘要</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {enhancedRecommendations.viewabilityAnalysis.map((item: any, index: number) => (
-                  <div key={index} className="border rounded-lg p-4 bg-gray-50">
-                    <div className="text-sm font-medium text-gray-900">{item.adFormat}</div>
-                    <div className="mt-2 space-y-1">
-                      <div className="flex items-start text-sm">
-                        <span className="text-gray-600 mr-2">可见率:</span>
-                        <span className="font-medium">{((item._avg.viewabilityRate || 0) * 100).toFixed(1)}%</span>
-                      </div>
-                      <div className="flex items-start text-sm">
-                        <span className="text-gray-600 mr-2">eCPM:</span>
-                        <span className="font-medium">${(item._avg.ecpm || 0).toFixed(2)}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   )
 }
