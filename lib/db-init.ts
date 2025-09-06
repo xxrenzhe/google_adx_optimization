@@ -7,7 +7,7 @@ async function main() {
     // Try to query the database to check if tables exist
     await prisma.adReport.count()
     console.log('Database tables already exist')
-  } catch (error) {
+  } catch (error: any) {
     if (error.code === 'P2021') {
       console.log('Tables do not exist, creating schema...')
       try {
@@ -15,7 +15,7 @@ async function main() {
         const { execSync } = require('child_process')
         execSync('npx prisma db push', { stdio: 'inherit' })
         console.log('Database schema created successfully')
-      } catch (pushError) {
+      } catch (pushError: any) {
         console.error('Failed to create database schema:', pushError)
         // Don't exit process, let the app start anyway
       }
