@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       {
         id: 'low-fill-rate',
         name: '低填充率自动调价',
-        condition: currentStats._avg.fillRate < 30,
+        condition: (currentStats._avg.fillRate || 0) < 30,
         action: 'decrease_floor_price_20',
         recommendation: `检测到平均填充率仅为 ${(currentStats._avg.fillRate || 0).toFixed(1)}%，建议降低底价20%以提高填充率`
       },
