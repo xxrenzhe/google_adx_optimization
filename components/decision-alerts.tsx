@@ -208,10 +208,10 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
                     <p className="text-sm text-gray-600 ml-9">{rec.message}</p>
                     {rec.data && (
                       <div className="mt-3 bg-gray-50 rounded p-3 text-sm ml-9">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div className="space-y-2">
                           {Object.entries(rec.data).map(([key, value]) => (
-                            <div key={key} className="flex justify-between">
-                              <span className="text-gray-600 capitalize">
+                            <div key={key} className="flex items-start">
+                              <span className="text-gray-600 capitalize mr-2">
                                 {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
                               </span>
                               <span className="font-medium text-gray-900">
@@ -288,12 +288,12 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
                   <div key={index} className="border rounded-lg p-4 bg-gray-50">
                     <div className="text-sm font-medium text-gray-900">{item.adFormat}</div>
                     <div className="mt-2 space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">可见率:</span>
+                      <div className="flex items-start text-sm">
+                        <span className="text-gray-600 mr-2">可见率:</span>
                         <span className="font-medium">{((item._avg.viewabilityRate || 0) * 100).toFixed(1)}%</span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">eCPM:</span>
+                      <div className="flex items-start text-sm">
+                        <span className="text-gray-600 mr-2">eCPM:</span>
                         <span className="font-medium">${(item._avg.ecpm || 0).toFixed(2)}</span>
                       </div>
                     </div>
