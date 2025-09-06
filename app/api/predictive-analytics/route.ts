@@ -213,15 +213,33 @@ export async function GET(request: NextRequest) {
         }
       },
       take: 15
-    }).then(results => results.map(r => ({
-      advertiser: r.advertiser,
-      domain: r.domain,
-      total_revenue: Number(r._sum.revenue || 0),
-      total_impressions: Number(r._sum.impressions || 0),
-      avg_bid_strength: Number(r._sum.revenue || 0) / Number(r._sum.impressions || 1) * 1000,
-      strategy_type: Number(r._sum.revenue || 0) > 1000 ? 'AGGRESSIVE' :
-                    Number(r._sum.revenue || 0) > 500 ? 'COMPETITIVE' :
-                    Number(r._sum.revenue || 0) > 100 ? 'MODERATE' : 'CONSERVATIVE'
+    }).then(results => Promise.all(results.map(async r => {
+      // Get unique countries for this advertiser
+      const countryData = await prisma.adReport.findMany({
+        where: {
+          sessionId: session.id,
+          advertiser: r.advertiser,
+          country: { not: null }
+        },
+        select: {
+          country: true
+        },
+        distinct: ['country']
+      })
+      
+      const uniqueCountries = new Set(countryData.map(d => d.country).filter(Boolean))
+      
+      return {
+        advertiser: r.advertiser,
+        domain: r.domain,
+        total_revenue: Number(r._sum.revenue || 0),
+        total_impressions: Number(r._sum.impressions || 0),
+        avg_bid_strength: Number(r._sum.revenue || 0) / Number(r._sum.impressions || 1) * 1000,
+        market_penetration: uniqueCountries.size,
+        strategy_type: Number(r._sum.revenue || 0) > 1000 ? 'AGGRESSIVE' :
+                      Number(r._sum.revenue || 0) > 500 ? 'COMPETITIVE' :
+                      Number(r._sum.revenue || 0) > 100 ? 'MODERATE' : 'CONSERVATIVE'
+      }
     })))
     
     // Calculate model accuracy based on data consistency

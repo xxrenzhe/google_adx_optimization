@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 
 interface Alert {
   id: string
-  type: 'warning' | 'success' | 'error'
+  type: 'warning' | 'success' | 'error' | 'info'
   title: string
   message: string
   data?: any
@@ -12,7 +12,7 @@ interface Alert {
 
 interface Recommendation {
   id: string
-  type: 'website' | 'country' | 'device' | 'format'
+  type: 'website' | 'country' | 'device' | 'format' | 'combination' | 'competitive' | 'predictive'
   title: string
   message: string
   impact: 'high' | 'medium' | 'low'
@@ -56,6 +56,8 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
         return '❌'
       case 'success':
         return '✅'
+      case 'info':
+        return '📊'
       default:
         return 'ℹ️'
     }
@@ -69,8 +71,10 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
         return 'border-red-400 bg-red-50'
       case 'success':
         return 'border-green-400 bg-green-50'
-      default:
+      case 'info':
         return 'border-blue-400 bg-blue-50'
+      default:
+        return 'border-gray-400 bg-gray-50'
     }
   }
 
@@ -84,6 +88,27 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
         return 'bg-green-100 text-green-800'
       default:
         return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getRecommendationIcon = (type: Recommendation['type']) => {
+    switch (type) {
+      case 'website':
+        return '🌐'
+      case 'country':
+        return '🌍'
+      case 'device':
+        return '📱'
+      case 'format':
+        return '📊'
+      case 'combination':
+        return '🔗'
+      case 'competitive':
+        return '🎯'
+      case 'predictive':
+        return '🔮'
+      default:
+        return '💡'
     }
   }
 
@@ -145,16 +170,48 @@ export default function DecisionAlerts({ refreshTrigger }: DecisionAlertsProps) 
               <div key={rec.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-medium text-gray-900">{rec.title}</h3>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getImpactColor(rec.impact)}`}>
-                        {rec.impact === 'high' ? '高影响' : rec.impact === 'medium' ? '中影响' : '低影响'}
-                      </span>
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-xl">{getRecommendationIcon(rec.type)}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium text-gray-900">{rec.title}</h3>
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getImpactColor(rec.impact)}`}>
+                            {rec.impact === 'high' ? '高影响' : rec.impact === 'medium' ? '中影响' : '低影响'}
+                          </span>
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                            {rec.type === 'combination' ? '组合分析' :
+                             rec.type === 'competitive' ? '竞争情报' :
+                             rec.type === 'predictive' ? '预测分析' :
+                             rec.type === 'website' ? '网站' :
+                             rec.type === 'country' ? '国家' :
+                             rec.type === 'device' ? '设备' :
+                             rec.type === 'format' ? '格式' : '其他'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-600">{rec.message}</p>
+                    <p className="text-sm text-gray-600 ml-9">{rec.message}</p>
                     {rec.data && (
-                      <div className="mt-3 bg-gray-50 rounded p-3 text-sm">
-                        <pre className="text-gray-700">{JSON.stringify(rec.data, null, 2)}</pre>
+                      <div className="mt-3 bg-gray-50 rounded p-3 text-sm ml-9">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {Object.entries(rec.data).map(([key, value]) => (
+                            <div key={key} className="flex justify-between">
+                              <span className="text-gray-600 capitalize">
+                                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
+                              </span>
+                              <span className="font-medium text-gray-900">
+                                {typeof value === 'number' ? 
+                                  (key.includes('revenue') || key.includes('ecpm') ? `$${value.toFixed(2)}` :
+                                   key.includes('rate') || key.includes('ratio') ? `${(value * 100).toFixed(1)}%` :
+                                   key.includes('percentage') ? `${value.toFixed(1)}%` :
+                                   value.toLocaleString()) :
+                                  Array.isArray(value) ? value.join(', ') :
+                                  typeof value === 'object' ? JSON.stringify(value) :
+                                  String(value)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
