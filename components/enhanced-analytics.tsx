@@ -32,6 +32,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'
 export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'advertisers' | 'devices' | 'geography' | 'optimization'>('advertisers')
 
   useEffect(() => {
@@ -40,17 +41,22 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
 
   const fetchEnhancedAnalytics = async () => {
     setLoading(true)
+    setError(null)
     try {
       const params = new URLSearchParams()
       if (filters?.startDate) params.append('startDate', filters.startDate)
       if (filters?.endDate) params.append('endDate', filters.endDate)
       
       const response = await fetch(`/api/analytics-enhanced?${params}`)
-      if (!response.ok) throw new Error('Failed to fetch enhanced analytics')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to fetch enhanced analytics')
+      }
       
       const analyticsData = await response.json()
       setData(analyticsData)
     } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error')
       console.error('Error fetching enhanced analytics:', error)
     } finally {
       setLoading(false)
@@ -59,6 +65,38 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
 
   if (loading) {
     return <div className="p-8 text-center">加载高级分析数据...</div>
+  }
+
+  if (error) {
+    // Check if the error is due to no data uploaded
+    if (error.includes('No data uploaded yet')) {
+      return (
+        <div className="p-12 text-center">
+          <div className="mb-4">
+            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">暂无高级分析数据</h3>
+          <p className="text-gray-600 mb-6">请先上传CSV文件以查看高级分析</p>
+          <button
+            onClick={() => {
+              const uploadTab = document.querySelector('button[onclick*="upload"]') as HTMLElement;
+              if (uploadTab) {
+                uploadTab.click();
+              } else {
+                window.location.hash = 'upload';
+                window.location.reload();
+              }
+            }}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            前往上传
+          </button>
+        </div>
+      )
+    }
+    return <div className="p-8 text-red-500">错误：{error}</div>
   }
 
   if (!data) return null

@@ -23,6 +23,7 @@ interface PredictiveAnalyticsProps {
 export default function PredictiveAnalytics({ refreshTrigger }: PredictiveAnalyticsProps) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [selectedDays, setSelectedDays] = useState(30)
 
   useEffect(() => {
@@ -31,13 +32,18 @@ export default function PredictiveAnalytics({ refreshTrigger }: PredictiveAnalyt
 
   const fetchPredictiveData = async () => {
     setLoading(true)
+    setError(null)
     try {
       const response = await fetch(`/api/predictive-analytics?days=${selectedDays}`)
-      if (!response.ok) throw new Error('Failed to fetch predictive analytics')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to fetch predictive analytics')
+      }
       
       const predictiveData = await response.json()
       setData(predictiveData)
     } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error')
       console.error('Error fetching predictive analytics:', error)
     } finally {
       setLoading(false)
@@ -46,6 +52,38 @@ export default function PredictiveAnalytics({ refreshTrigger }: PredictiveAnalyt
 
   if (loading) {
     return <div className="p-8 text-center">加载预测分析数据...</div>
+  }
+
+  if (error) {
+    // Check if the error is due to no data uploaded
+    if (error.includes('No data uploaded yet')) {
+      return (
+        <div className="p-12 text-center">
+          <div className="mb-4">
+            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">暂无预测分析数据</h3>
+          <p className="text-gray-600 mb-6">请先上传CSV文件以查看预测分析</p>
+          <button
+            onClick={() => {
+              const uploadTab = document.querySelector('button[onclick*="upload"]') as HTMLElement;
+              if (uploadTab) {
+                uploadTab.click();
+              } else {
+                window.location.hash = 'upload';
+                window.location.reload();
+              }
+            }}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            前往上传
+          </button>
+        </div>
+      )
+    }
+    return <div className="p-8 text-red-500">错误：{error}</div>
   }
 
   if (!data) return null
