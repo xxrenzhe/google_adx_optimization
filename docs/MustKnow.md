@@ -22,6 +22,6 @@
 - NODE_ENV=production
 - NEXT_PUBLIC_DOMAIN=moretop10.com
 - NEXT_PUBLIC_DEPLOYMENT_ENV=production
-- DATABASE_URL=postgresql://postgres:w8mhnnqh@dbprovider.sg-members-1.clawcloudrun.com:32404/?directConnection=true
-- REDIS_URL=redis://default:9xdjb8nf@dbprovider.sg-members-1.clawcloudrun.com:32284
+- DATABASE_URL="postgresql://postgres:w8mhnnqh@dbprovider.sg-members-1.clawcloudrun.com:32404/adx_optimization?directConnection=true"
+- REDIS_URL="redis://default:9xdjb8nf@dbprovider.sg-members-1.clawcloudrun.com:32284"
 7）预发/生产环境的容器配置：2C4G
