@@ -25,8 +25,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Google ADX Optimization</h1>
-              <p className="text-sm text-gray-600">Upload your CSV data to optimize ad revenue</p>
+              <h1 className="text-2xl font-bold text-gray-900">Google ADX 优化系统</h1>
+              <p className="text-sm text-gray-600">上传CSV数据以优化广告收入</p>
             </div>
           </div>
         </div>
@@ -40,19 +40,19 @@ export default function Home() {
               className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'upload' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
               onClick={() => setActiveTab('upload')}
             >
-              Upload Data
+              上传数据
             </button>
             <button
               className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'data' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
               onClick={() => setActiveTab('data')}
             >
-              Data Table
+              数据表格
             </button>
             <button
               className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'analytics' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
               onClick={() => setActiveTab('analytics')}
             >
-              Analytics
+              数据分析
             </button>
             <button
               className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'alerts' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
@@ -88,17 +88,17 @@ export default function Home() {
           {activeTab === 'upload' && (
             <div className="space-y-6">
               <div className="bg-white shadow rounded-lg p-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Upload CSV File</h2>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">上传CSV文件</h2>
                 <Upload onUploadComplete={handleUploadComplete} />
               </div>
               
               <div className="bg-white shadow rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">CSV Format Requirements</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">CSV格式要求</h3>
                 <div className="space-y-2 text-sm text-gray-600">
-                  <p>• File must be in CSV format</p>
-                  <p>• Maximum file size: 50MB</p>
-                  <p>• Required columns: Date, Website</p>
-                  <p>• Optional columns: Country, Device, Ad Format, Requests, Impressions, Clicks, Revenue, etc.</p>
+                  <p>• 文件必须为CSV格式</p>
+                  <p>• 最大文件大小：50MB</p>
+                  <p>• 必需列：日期(Date)、网站(Website)</p>
+                  <p>• 可选列：国家(Country)、设备(Device)、广告格式(Ad Format)、请求数(Requests)、展示数(Impressions)、点击数(Clicks)、收入(Revenue)等</p>
                 </div>
               </div>
             </div>

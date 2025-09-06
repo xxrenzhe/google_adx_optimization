@@ -249,15 +249,17 @@ export default function AutomationDashboard({ refreshTrigger }: AutomationDashbo
       <div className="bg-white shadow rounded-lg p-6">
         <h3 className="text-lg font-medium mb-4">自动化日志</h3>
         <div className="space-y-2 max-h-64 overflow-y-auto">
-          <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded">
-            <p>2025-01-15 14:30:25 - 规则"低填充率自动调价"触发，生成调价建议</p>
-          </div>
-          <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded">
-            <p>2025-01-15 14:25:10 - 规则"高价值广告客户优先"执行完成</p>
-          </div>
-          <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded">
-            <p>2025-01-15 14:20:05 - 检测到高需求时段，自动提高底价15%</p>
-          </div>
+          {actions.length > 0 ? (
+            actions.map((action, index) => (
+              <div key={index} className="text-sm text-gray-600 p-3 bg-gray-50 rounded">
+                <p>{new Date().toLocaleString('zh-CN')} - 规则"{action.ruleName}"触发，建议执行操作：{action.action}</p>
+              </div>
+            ))
+          ) : (
+            <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded text-center">
+              <p>暂无自动化活动记录</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

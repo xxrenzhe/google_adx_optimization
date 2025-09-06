@@ -72,8 +72,8 @@ export default function Analytics({ filters }: AnalyticsProps) {
     }
   }
   
-  if (loading) return <div className="p-8">Loading analytics...</div>
-  if (error) return <div className="p-8 text-red-500">Error: {error}</div>
+  if (loading) return <div className="p-8">加载分析数据中...</div>
+  if (error) return <div className="p-8 text-red-500">错误：{error}</div>
   if (!data) return null
   
   return (
@@ -81,13 +81,13 @@ export default function Analytics({ filters }: AnalyticsProps) {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-sm font-medium text-gray-500">Total Revenue</h3>
+          <h3 className="text-sm font-medium text-gray-500">总收入</h3>
           <p className="text-2xl font-bold">
             ${data.summary.totalRevenue.toFixed(2)}
           </p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-sm font-medium text-gray-500">Impressions</h3>
+          <h3 className="text-sm font-medium text-gray-500">展示数</h3>
           <p className="text-2xl font-bold">
             {data.summary.totalImpressions.toLocaleString()}
           </p>
@@ -99,7 +99,7 @@ export default function Analytics({ filters }: AnalyticsProps) {
           </p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-sm font-medium text-gray-500">Fill Rate</h3>
+          <h3 className="text-sm font-medium text-gray-500">填充率</h3>
           <p className="text-2xl font-bold">
             {data.summary.avgFillRate.toFixed(1)}%
           </p>
@@ -116,13 +116,13 @@ export default function Analytics({ filters }: AnalyticsProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Revenue Trend */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Revenue Trend</h3>
+          <h3 className="text-lg font-semibold mb-4">收入趋势</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data.charts.revenueByDate}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis />
-              <Tooltip formatter={(value) => [`$${value}`, 'Revenue']} />
+              <Tooltip formatter={(value) => [`$${value}`, '收入']} />
               <Line type="monotone" dataKey="revenue" stroke="#8884d8" />
             </LineChart>
           </ResponsiveContainer>
@@ -130,7 +130,7 @@ export default function Analytics({ filters }: AnalyticsProps) {
         
         {/* Revenue by Country */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Revenue by Country</h3>
+          <h3 className="text-lg font-semibold mb-4">按国家统计收入</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -147,20 +147,20 @@ export default function Analytics({ filters }: AnalyticsProps) {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => [`$${value}`, 'Revenue']} />
+              <Tooltip formatter={(value) => [`$${value}`, '收入']} />
             </PieChart>
           </ResponsiveContainer>
         </div>
         
         {/* Revenue by Device */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Revenue by Device</h3>
+          <h3 className="text-lg font-semibold mb-4">按设备统计收入</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.charts.revenueByDevice}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="device" />
               <YAxis />
-              <Tooltip formatter={(value) => [`$${value}`, 'Revenue']} />
+              <Tooltip formatter={(value) => [`$${value}`, '收入']} />
               <Bar dataKey="revenue" fill="#82ca9d" />
             </BarChart>
           </ResponsiveContainer>
@@ -168,7 +168,7 @@ export default function Analytics({ filters }: AnalyticsProps) {
         
         {/* Fill Rate Distribution */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Fill Rate Distribution</h3>
+          <h3 className="text-lg font-semibold mb-4">填充率分布</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.charts.fillRateDistribution}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -197,7 +197,7 @@ export default function Analytics({ filters }: AnalyticsProps) {
           {data.charts.revenueByCountry.length > 0 && (
             <div className="p-4 bg-green-50 border border-green-200 rounded">
               <p className="text-green-800">
-                💡 Top performing country: {data.charts.revenueByCountry[0].country} 
+                💡 表现最佳国家：{data.charts.revenueByCountry[0].country} 
                 (${data.charts.revenueByCountry[0].revenue.toFixed(2)})
               </p>
             </div>
@@ -206,7 +206,7 @@ export default function Analytics({ filters }: AnalyticsProps) {
           {data.charts.revenueByDevice.length > 0 && (
             <div className="p-4 bg-blue-50 border border-blue-200 rounded">
               <p className="text-blue-800">
-                📱 Best device type: {data.charts.revenueByDevice[0].device}
+                📱 最佳设备类型：{data.charts.revenueByDevice[0].device}
               </p>
             </div>
           )}

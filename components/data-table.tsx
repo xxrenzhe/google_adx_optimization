@@ -88,22 +88,22 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
     label: string
     format?: (value: any) => string
   }> = [
-    { key: 'dataDate', label: 'Date', format: (value: string | null) => value ? new Date(value).toLocaleDateString() : 'N/A' },
-    { key: 'website', label: 'Website' },
-    { key: 'country', label: 'Country' },
-    { key: 'device', label: 'Device' },
-    { key: 'requests', label: 'Requests', format: (value: number | null) => value ? value.toLocaleString() : '0' },
-    { key: 'impressions', label: 'Impressions', format: (value: number | null) => value ? value.toLocaleString() : '0' },
-    { key: 'clicks', label: 'Clicks', format: (value: number | null) => value ? value.toLocaleString() : '0' },
-    { key: 'ctr', label: 'CTR', format: (value: number | null) => value ? `${(value * 100).toFixed(2)}%` : '0%' },
-    { key: 'ecpm', label: 'eCPM', format: (value: number | null) => value ? `$${value.toFixed(2)}` : '$0.00' },
-    { key: 'revenue', label: 'Revenue', format: (value: number | null) => value ? `$${value.toFixed(2)}` : '$0.00' },
-    { key: 'fillRate', label: 'Fill Rate', format: (value: number | null) => value ? `${value.toFixed(1)}%` : '0%' },
-    { key: 'arpu', label: 'ARPU', format: (value: number | null) => value ? `$${value.toFixed(4)}` : '$0.0000' }
+    { key: 'dataDate', label: '日期', format: (value: string | null) => value ? new Date(value).toLocaleDateString() : '无' },
+    { key: 'website', label: '网站' },
+    { key: 'country', label: '国家' },
+    { key: 'device', label: '设备' },
+    { key: 'requests', label: '请求数', format: (value: number | null) => value ? value.toLocaleString() : '0' },
+    { key: 'impressions', label: '展示数', format: (value: number | null) => value ? value.toLocaleString() : '0' },
+    { key: 'clicks', label: '点击数', format: (value: number | null) => value ? value.toLocaleString() : '0' },
+    { key: 'ctr', label: '点击率', format: (value: number | null) => value ? `${(value * 100).toFixed(2)}%` : '0%' },
+    { key: 'ecpm', label: '千次展示收入', format: (value: number | null) => value ? `$${value.toFixed(2)}` : '$0.00' },
+    { key: 'revenue', label: '收入', format: (value: number | null) => value ? `$${value.toFixed(2)}` : '$0.00' },
+    { key: 'fillRate', label: '填充率', format: (value: number | null) => value ? `${value.toFixed(1)}%` : '0%' },
+    { key: 'arpu', label: '每用户收入', format: (value: number | null) => value ? `$${value.toFixed(4)}` : '$0.0000' }
   ]
   
-  if (loading) return <div className="p-8">Loading data...</div>
-  if (error) return <div className="p-8 text-red-500">Error: {error}</div>
+  if (loading) return <div className="p-8">加载数据中...</div>
+  if (error) return <div className="p-8 text-red-500">错误：{error}</div>
   
   return (
     <div className="space-y-4">
@@ -112,7 +112,7 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
         <div className="flex-1">
           <input
             type="text"
-            placeholder="Search by website, country, domain, or device..."
+            placeholder="搜索网站、国家、域名或设备..."
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -123,9 +123,9 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
           value={pagination.limit}
           onChange={(e) => setPagination(prev => ({ ...prev, limit: parseInt(e.target.value), page: 1 }))}
         >
-          <option value={10}>10 per page</option>
-          <option value={50}>50 per page</option>
-          <option value={100}>100 per page</option>
+          <option value={10}>每页10条</option>
+          <option value={50}>每页50条</option>
+          <option value={100}>每页100条</option>
         </select>
       </div>
       
@@ -170,9 +170,9 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
       {/* Pagination */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-gray-700">
-          Showing {((pagination.page - 1) * pagination.limit) + 1} to{' '}
-          {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
-          {pagination.total} results
+          显示第 {((pagination.page - 1) * pagination.limit) + 1} 至{' '}
+          {Math.min(pagination.page * pagination.limit, pagination.total)} 条，共{' '}
+          {pagination.total} 条记录
         </div>
         <div className="flex space-x-2">
           <button
@@ -180,17 +180,17 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
             disabled={pagination.page === 1}
             onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
           >
-            Previous
+            上一页
           </button>
           <span className="px-3 py-1">
-            Page {pagination.page} of {pagination.pages}
+            第 {pagination.page} 页，共 {pagination.pages} 页
           </span>
           <button
             className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={pagination.page === pagination.pages}
             onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
           >
-            Next
+            下一页
           </button>
         </div>
       </div>

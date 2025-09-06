@@ -17,12 +17,12 @@ export default function Upload({ onUploadComplete }: UploadProps) {
     if (!file) return
     
     if (file.size > 50 * 1024 * 1024) {
-      setError('File size must be less than 50MB')
+      setError('文件大小必须小于50MB')
       return
     }
     
     if (!file.name.toLowerCase().endsWith('.csv')) {
-      setError('Please upload a CSV file')
+      setError('请上传CSV文件')
       return
     }
     
@@ -47,7 +47,7 @@ export default function Upload({ onUploadComplete }: UploadProps) {
           setUploading(false)
           onUploadComplete()
         } else {
-          setError('Upload failed')
+          setError('上传失败')
           setUploading(false)
         }
       }
@@ -124,7 +124,7 @@ export default function Upload({ onUploadComplete }: UploadProps) {
           <div className="space-y-4">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <div>
-              <p className="text-sm text-gray-600">Uploading...</p>
+              <p className="text-sm text-gray-600">上传中...</p>
               <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                 <div
                   className="bg-blue-600 h-2 rounded-full transition-all duration-300"
@@ -151,9 +151,9 @@ export default function Upload({ onUploadComplete }: UploadProps) {
             </svg>
             <div>
               <p className="text-lg text-gray-600">
-                Drop your CSV file here, or <span className="text-blue-600">click to browse</span>
+将CSV文件拖放到此处，或<span className="text-blue-600">点击浏览</span>
               </p>
-              <p className="text-sm text-gray-500">Maximum file size: 50MB</p>
+              <p className="text-sm text-gray-500">最大文件大小：50MB</p>
             </div>
           </div>
         )}
@@ -166,9 +166,9 @@ export default function Upload({ onUploadComplete }: UploadProps) {
       )}
       
       <div className="text-xs text-gray-500 space-y-1">
-        <p>• CSV format only</p>
-        <p>• Required columns: Date, Website</p>
-        <p>• Optional: Country, Device, Ad Format, Requests, Impressions, Clicks, Revenue</p>
+        <p>• 仅支持CSV格式</p>
+        <p>• 必需列：日期(Date)、网站(Website)</p>
+        <p>• 可选：国家(Country)、设备(Device)、广告格式(Ad Format)、请求数(Requests)、展示数(Impressions)、点击数(Clicks)、收入(Revenue)</p>
       </div>
     </div>
   )

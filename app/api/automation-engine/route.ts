@@ -78,7 +78,8 @@ export async function GET(request: NextRequest) {
       triggered: 
         (rule.id === 'low-fill-rate' && (currentStats._avg.fillRate || 0) < 30) ||
         (rule.id === 'high-ecpm-opportunity' && (currentStats._avg.ecpm || 0) > 20) ||
-        (rule.id === 'revenue-anomaly' && Math.random() > 0.8), // Simulated
+        (rule.id === 'revenue-anomaly' && (currentStats._sum.revenue || 0) > 0 && 
+         Math.abs((currentStats._sum.revenue || 0) - (currentStats._avg.ecpm || 0) * 1000) > (currentStats._sum.revenue || 0) * 0.5), // Check for significant deviation
       recommendation: getRecommendation(rule.id, currentStats)
     }))
     
