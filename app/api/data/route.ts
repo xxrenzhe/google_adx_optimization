@@ -10,16 +10,18 @@ export async function GET(request: NextRequest) {
     }
     
     const { searchParams } = new URL(request.url)
-    const cursor = searchParams.get('cursor') || '' // 使用ID作为cursor
+    const page = Math.max(Number(searchParams.get('page')) || 1, 1) // 页码从1开始
     const limit = Math.min(Number(searchParams.get('limit')) || 100, 1000) // 限制最大1000条
     const search = searchParams.get('search') || ''
     const sortBy = searchParams.get('sortBy') || 'dataDate'
     const sortOrder = searchParams.get('sortOrder') || 'desc'
     
+    // 计算跳过的记录数
+    const skip = (page - 1) * limit
+    
     // 构建where条件
     const where = {
       sessionId: session.id,
-      ...(cursor ? { id: { lt: cursor } } : {}), // 向后分页
       ...(search ? {
         OR: [
           { website: { contains: search, mode: 'insensitive' as const } },
@@ -33,14 +35,15 @@ export async function GET(request: NextRequest) {
     // 构建排序条件
     const orderBy = { [sortBy]: sortOrder }
     
-    // 并行获取数据和总数（仅第一次请求）
+    // 并行获取数据和总数
     const [data, totalCount] = await Promise.all([
       prisma.adReport.findMany({
         where,
+        skip,
         take: limit,
         orderBy
       }),
-      cursor ? Promise.resolve(null) : prisma.adReport.count({ where: { sessionId: session.id } })
+      prisma.adReport.count({ where: { sessionId: session.id } })
     ])
     
     // Transform BigInt values to regular numbers for JSON serialization

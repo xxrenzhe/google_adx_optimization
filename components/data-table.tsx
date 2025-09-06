@@ -41,7 +41,6 @@ type TableState = {
     limit: number
     total: number
     pages: number
-    cursors: string[]
     hasMore: boolean
   }
   sortBy: string
@@ -67,7 +66,6 @@ const initialState: TableState = {
     limit: 10,
     total: 0,
     pages: 0,
-    cursors: [],
     hasMore: false
   },
   sortBy: 'revenue',
@@ -90,7 +88,7 @@ function tableReducer(state: TableState, action: TableAction): TableState {
     case 'SET_SEARCH':
       return { ...state, search: action.payload }
     case 'RESET_PAGINATION':
-      return { ...state, pagination: { ...state.pagination, page: 1, cursors: [] } }
+      return { ...state, pagination: { ...state.pagination, page: 1 } }
     default:
       return state
   }
@@ -107,6 +105,7 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
     fetchData()
   }, [state.pagination.page, state.pagination.limit, state.sortBy, state.sortOrder, state.search, refreshTrigger])
   
+    
   // 只在数据变化且不在加载状态时恢复滚动位置
   useEffect(() => {
     if (!state.loading && savedScrollPosition.current > 0 && tableContainerRef.current) {
@@ -131,15 +130,9 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
         limit: state.pagination.limit.toString(),
         sortBy: state.sortBy,
         sortOrder: state.sortOrder,
-        search: state.search
+        search: state.search,
+        page: state.pagination.page.toString()
       })
-      
-      // Get cursor for current page
-      const currentCursor = state.pagination.page > 1 ? state.pagination.cursors[state.pagination.page - 2] : null
-      
-      if (currentCursor) {
-        params.append('cursor', currentCursor)
-      }
       
       const response = await fetch(`/api/data?${params}`)
       if (!response.ok) throw new Error('Failed to fetch data')
@@ -151,17 +144,10 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
       setIsDataStale(false)
       initialLoad.current = false
       
-      // Update cursors array
-      const newCursors = [...state.pagination.cursors]
-      if (result.pagination.nextCursor && state.pagination.page <= newCursors.length) {
-        newCursors[state.pagination.page - 1] = result.pagination.nextCursor
-      }
-      
       // Update pagination with API response
       dispatch({ type: 'SET_PAGINATION', payload: {
         total: result.pagination.totalCount,
         pages: Math.ceil(result.pagination.totalCount / state.pagination.limit),
-        cursors: newCursors,
         hasMore: result.pagination.hasMore
       }})
     } catch (err) {
@@ -282,8 +268,7 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
             savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
             dispatch({ type: 'SET_PAGINATION', payload: { 
               page: 1,
-              limit: parseInt(e.target.value),
-              cursors: []
+              limit: parseInt(e.target.value)
             }})
           }}
         >
