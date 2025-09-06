@@ -214,7 +214,7 @@ export async function GET(request: NextRequest) {
     })))
 
     // Convert BigInt values to Number for serialization
-    const serializeData = (data: any) => {
+    const serializeData = (data: any): any => {
       if (Array.isArray(data)) {
         return data.map(item => serializeData(item))
       } else if (data && typeof data === 'object') {
