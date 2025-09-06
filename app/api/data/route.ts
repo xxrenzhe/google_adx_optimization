@@ -10,16 +10,14 @@ export async function GET(request: NextRequest) {
     }
     
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '10')
-    const sortBy = searchParams.get('sortBy') || 'dataDate'
-    const sortOrder = searchParams.get('sortOrder') || 'desc'
+    const cursor = searchParams.get('cursor') || '' // 使用ID作为cursor
+    const limit = Math.min(Number(searchParams.get('limit')) || 100, 1000) // 限制最大1000条
     const search = searchParams.get('search') || ''
     
-    const skip = (page - 1) * limit
-    
+    // 构建where条件
     const where = {
       sessionId: session.id,
+      ...(cursor ? { id: { lt: cursor } } : {}), // 向后分页
       ...(search ? {
         OR: [
           { website: { contains: search, mode: 'insensitive' as const } },
@@ -30,25 +28,23 @@ export async function GET(request: NextRequest) {
       } : {})
     }
     
-    const [data, total] = await Promise.all([
+    // 并行获取数据和总数（仅第一次请求）
+    const [data, totalCount] = await Promise.all([
       prisma.adReport.findMany({
         where,
-        skip,
         take: limit,
-        orderBy: {
-          [sortBy]: sortOrder
-        }
+        orderBy: { id: 'desc' } // 按ID排序，比OFFSET快
       }),
-      prisma.adReport.count({ where })
+      cursor ? Promise.resolve(null) : prisma.adReport.count({ where: { sessionId: session.id } })
     ])
     
     return NextResponse.json({
       data,
       pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
+        nextCursor: data.length === limit ? data[data.length - 1].id : null,
+        totalCount: totalCount || await prisma.adReport.count({ where: { sessionId: session.id } }),
+        hasMore: data.length === limit,
+        limit
       }
     })
     

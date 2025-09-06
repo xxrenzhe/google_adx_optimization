@@ -10,7 +10,7 @@ datasource db {
 
 model AdReport {
   id                  String     @id @default(cuid())
-  sessionId           String?    @default("legacy")
+  sessionId           String
   uploadDate          DateTime   @default(now())
   dataDate            DateTime
   website             String
@@ -33,6 +33,9 @@ model AdReport {
   fillRate            Float?
   arpu                Float?
 
+  @@index([sessionId, id])
+  @@index([sessionId, dataDate])
+  @@index([sessionId, country])
   @@index([dataDate])
   @@index([website])
   @@index([country])
