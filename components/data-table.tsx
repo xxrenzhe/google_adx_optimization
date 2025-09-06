@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 interface DataTableProps {
   refreshTrigger?: number
@@ -45,10 +45,20 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
   const [sortBy, setSortBy] = useState('revenue')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [search, setSearch] = useState('')
+  const tableContainerRef = useRef<HTMLDivElement>(null)
+  const savedScrollPosition = useRef(0)
   
   useEffect(() => {
     fetchData()
   }, [pagination.page, pagination.limit, sortBy, sortOrder, search, refreshTrigger])
+  
+  // Restore scroll position after data updates
+  useEffect(() => {
+    if (savedScrollPosition.current > 0 && tableContainerRef.current) {
+      tableContainerRef.current.scrollLeft = savedScrollPosition.current
+      savedScrollPosition.current = 0
+    }
+  }, [data])
   
   const fetchData = async () => {
     setLoading(true)
@@ -96,16 +106,20 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
     }
   }
   
-  const handleSort = (column: string) => {
+  const handleSort = useCallback((column: string) => {
+    // Save current scroll position before data changes
+    savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
+    
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
     } else {
       setSortBy(column)
       setSortOrder('desc')
     }
+    
     // Reset pagination when sorting
     setPagination(prev => ({ ...prev, page: 1, cursors: [] }))
-  }
+  }, [sortBy, sortOrder])
   
   const columns: Array<{
     key: keyof AdReport
@@ -164,6 +178,8 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             value={search}
             onChange={(e) => {
+              // Save scroll position before search
+              savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
               setSearch(e.target.value)
               // Reset pagination when searching
               setPagination(prev => ({ ...prev, page: 1, cursors: [] }))
@@ -174,6 +190,8 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
           className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           value={pagination.limit}
           onChange={(e) => {
+            // Save scroll position before changing limit
+            savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
             setPagination(prev => ({ 
               ...prev, 
               page: 1,
@@ -189,7 +207,7 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
       </div>
       
       {/* Table */}
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
+      <div ref={tableContainerRef} className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -240,6 +258,8 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
             className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             disabled={pagination.page === 1}
             onClick={() => {
+              // Save scroll position before changing page
+              savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
               setPagination(prev => ({ ...prev, page: prev.page - 1 }))
             }}
           >
@@ -269,6 +289,8 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
                       : 'border-gray-300 hover:bg-gray-50'
                   }`}
                   onClick={() => {
+                    // Save scroll position before changing page
+                    savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
                     setPagination(prev => ({ ...prev, page: pageNum }))
                   }}
                 >
@@ -284,6 +306,8 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
                 <button
                   className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
                   onClick={() => {
+                    // Save scroll position before changing page
+                    savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
                     setPagination(prev => ({ ...prev, page: pagination.pages }))
                   }}
                 >
@@ -298,6 +322,8 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
             className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             disabled={pagination.page >= pagination.pages}
             onClick={() => {
+              // Save scroll position before changing page
+              savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
               setPagination(prev => ({ ...prev, page: prev.page + 1 }))
             }}
           >
