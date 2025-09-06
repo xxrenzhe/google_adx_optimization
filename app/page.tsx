@@ -5,10 +5,13 @@ import Upload from '@/components/upload-native'
 import DataTable from '@/components/data-table'
 import Analytics from '@/components/analytics'
 import DecisionAlerts from '@/components/decision-alerts'
+import EnhancedAnalytics from '@/components/enhanced-analytics'
+import PredictiveAnalytics from '@/components/predictive-analytics'
+import AutomationDashboard from '@/components/automation-dashboard'
 
 export default function Home() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [activeTab, setActiveTab] = useState<'upload' | 'data' | 'analytics' | 'alerts'>('upload')
+  const [activeTab, setActiveTab] = useState<'upload' | 'data' | 'analytics' | 'alerts' | 'enhanced' | 'predictive' | 'automation'>('upload')
 
   const handleUploadComplete = () => {
     setRefreshTrigger(prev => prev + 1)
@@ -57,6 +60,24 @@ export default function Home() {
             >
               决策提醒
             </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'enhanced' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+              onClick={() => setActiveTab('enhanced')}
+            >
+              高级分析
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'predictive' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+              onClick={() => setActiveTab('predictive')}
+            >
+              预测分析
+            </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'automation' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+              onClick={() => setActiveTab('automation')}
+            >
+              自动化
+            </button>
           </div>
         </div>
       </nav>
@@ -95,6 +116,18 @@ export default function Home() {
           
           {activeTab === 'alerts' && (
             <DecisionAlerts refreshTrigger={refreshTrigger} />
+          )}
+          
+          {activeTab === 'enhanced' && (
+            <EnhancedAnalytics />
+          )}
+          
+          {activeTab === 'predictive' && (
+            <PredictiveAnalytics refreshTrigger={refreshTrigger} />
+          )}
+          
+          {activeTab === 'automation' && (
+            <AutomationDashboard refreshTrigger={refreshTrigger} />
           )}
         </div>
       </main>

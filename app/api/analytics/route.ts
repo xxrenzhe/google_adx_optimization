@@ -1,11 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// Simple in-memory cache (in production, consider Redis)
+const analyticsCache = new Map()
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+async function getCachedData(key: string) {
+  const cached = analyticsCache.get(key)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data
+  }
+  return null
+}
+
+async function setCachedData(key: string, data: any) {
+  analyticsCache.set(key, {
+    data,
+    timestamp: Date.now()
+  })
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
+    
+    // Create cache key from search params
+    const cacheKey = `analytics:${startDate || 'all'}:${endDate || 'all'}`
+    
+    // Check if we have cached data
+    const cachedData = await getCachedData(cacheKey)
+    if (cachedData) {
+      return NextResponse.json(cachedData)
+    }
     
     const where: any = {}
     if (startDate && endDate) {
@@ -84,14 +112,17 @@ export async function GET(request: NextRequest) {
       return { range: `${bucket}-${nextBucket}%`, count }
     })
     
-    return NextResponse.json({
-      summary: {
-        totalRevenue: totalRevenue._sum.revenue || 0,
-        totalImpressions: totalImpressions._sum.impressions || 0,
-        totalRequests: totalRequests._sum.requests || 0,
-        avgFillRate,
-        arpu: totalRevenue._sum.revenue ? totalRevenue._sum.revenue / 5000 : 0
-      },
+    // Convert BigInt to Number for JSON serialization
+    const summary = {
+      totalRevenue: Number(totalRevenue._sum.revenue || 0),
+      totalImpressions: Number(totalImpressions._sum.impressions || 0),
+      totalRequests: Number(totalRequests._sum.requests || 0),
+      avgFillRate,
+      arpu: Number(totalRevenue._sum.revenue || 0) / 5000
+    }
+    
+    const responseData = {
+      summary,
       charts: {
         revenueByDate: revenueByDate.map(item => ({
           date: item.dataDate.toISOString().split('T')[0],
@@ -107,7 +138,12 @@ export async function GET(request: NextRequest) {
         })),
         fillRateDistribution: fillRateHist
       }
-    })
+    }
+    
+    // Cache the response
+    await setCachedData(cacheKey, responseData)
+    
+    return NextResponse.json(responseData)
     
   } catch (error) {
     console.error('Analytics fetch error:', error)

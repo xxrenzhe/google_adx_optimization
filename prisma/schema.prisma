@@ -35,4 +35,10 @@ model AdReport {
   @@index([dataDate])
   @@index([website])
   @@index([country])
+  @@index([dataDate, website])
+  @@index([dataDate, country])
+  @@index([website, country])
+  @@index([device])
+  @@index([adFormat])
+  @@index([fillRate])
 }
