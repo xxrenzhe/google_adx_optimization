@@ -38,8 +38,18 @@ export async function GET(request: NextRequest) {
       cursor ? Promise.resolve(null) : prisma.adReport.count({ where: { sessionId: session.id } })
     ])
     
+    // Transform BigInt values to regular numbers for JSON serialization
+    const transformedData = data.map(record => ({
+      ...record,
+      requests: record.requests ? Number(record.requests) : null,
+      impressions: record.impressions ? Number(record.impressions) : null,
+      clicks: record.clicks ? Number(record.clicks) : null,
+      viewableImpressions: record.viewableImpressions ? Number(record.viewableImpressions) : null,
+      measurableImpressions: record.measurableImpressions ? Number(record.measurableImpressions) : null
+    }))
+    
     return NextResponse.json({
-      data,
+      data: transformedData,
       pagination: {
         nextCursor: data.length === limit ? data[data.length - 1].id : null,
         totalCount: totalCount || await prisma.adReport.count({ where: { sessionId: session.id } }),
