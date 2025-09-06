@@ -26,6 +26,8 @@ RUN npx prisma generate
 # Ensure public directory exists
 RUN mkdir -p /app/public
 
+# Database initialization will be handled at runtime
+
 # Build the application
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
