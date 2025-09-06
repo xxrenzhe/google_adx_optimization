@@ -39,7 +39,7 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
     limit: 10,
     total: 0,
     pages: 0,
-    nextCursor: null as string | null,
+    cursors: [] as string[], // Store cursors for each page
     hasMore: false
   })
   const [sortBy, setSortBy] = useState('dataDate')
@@ -48,7 +48,7 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
   
   useEffect(() => {
     fetchData()
-  }, [pagination.limit, sortBy, sortOrder, search, refreshTrigger])
+  }, [pagination.page, pagination.limit, sortBy, sortOrder, search, refreshTrigger])
   
   const fetchData = async () => {
     setLoading(true)
@@ -62,9 +62,11 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
         search
       })
       
-      // Add cursor if we have one (for pagination)
-      if (pagination.nextCursor) {
-        params.append('cursor', pagination.nextCursor)
+      // Get cursor for current page
+      const currentCursor = pagination.page > 1 ? pagination.cursors[pagination.page - 2] : null
+      
+      if (currentCursor) {
+        params.append('cursor', currentCursor)
       }
       
       const response = await fetch(`/api/data?${params}`)
@@ -73,12 +75,18 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
       const result = await response.json()
       setData(result.data)
       
+      // Update cursors array
+      const newCursors = [...pagination.cursors]
+      if (result.pagination.nextCursor && pagination.page <= newCursors.length) {
+        newCursors[pagination.page - 1] = result.pagination.nextCursor
+      }
+      
       // Update pagination with API response
       setPagination(prev => ({
         ...prev,
         total: result.pagination.totalCount,
         pages: Math.ceil(result.pagination.totalCount / prev.limit),
-        nextCursor: result.pagination.nextCursor,
+        cursors: newCursors,
         hasMore: result.pagination.hasMore
       }))
     } catch (err) {
@@ -95,6 +103,8 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
       setSortBy(column)
       setSortOrder('desc')
     }
+    // Reset pagination when sorting
+    setPagination(prev => ({ ...prev, page: 1, cursors: [] }))
   }
   
   const columns: Array<{
@@ -153,7 +163,11 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
             placeholder="搜索网站、国家、域名或设备..."
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              // Reset pagination when searching
+              setPagination(prev => ({ ...prev, page: 1, cursors: [] }))
+            }}
           />
         </div>
         <select
@@ -162,8 +176,9 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
           onChange={(e) => {
             setPagination(prev => ({ 
               ...prev, 
+              page: 1,
               limit: parseInt(e.target.value),
-              nextCursor: null // Reset cursor when changing limit
+              cursors: [] // Reset cursors when changing limit
             }))
           }}
         >
@@ -212,22 +227,81 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
       </div>
       
       {/* Pagination */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-sm text-gray-700">
-          显示第 {data.length > 0 ? 1 : 0} 至{' '}
-          {data.length} 条，共{' '}
+          显示第 {pagination.page === 1 ? 1 : (pagination.page - 1) * pagination.limit + 1} 至{' '}
+          {Math.min(pagination.page * pagination.limit, pagination.total)} 条，共{' '}
           {pagination.total} 条记录
         </div>
-        <div className="flex space-x-2">
+        
+        <div className="flex items-center space-x-2">
+          {/* Previous Button */}
           <button
-            className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={!pagination.nextCursor}
+            className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            disabled={pagination.page === 1}
             onClick={() => {
-              // Load more data using cursor
-              fetchData()
+              setPagination(prev => ({ ...prev, page: prev.page - 1 }))
             }}
           >
-            加载更多
+            上一页
+          </button>
+          
+          {/* Page Numbers */}
+          <div className="flex space-x-1">
+            {Array.from({ length: Math.min(pagination.pages, 5) }, (_, i) => {
+              let pageNum
+              if (pagination.pages <= 5) {
+                pageNum = i + 1
+              } else if (pagination.page <= 3) {
+                pageNum = i + 1
+              } else if (pagination.page >= pagination.pages - 2) {
+                pageNum = pagination.pages - 4 + i
+              } else {
+                pageNum = pagination.page - 2 + i
+              }
+              
+              return (
+                <button
+                  key={pageNum}
+                  className={`px-3 py-1 border rounded-lg text-sm ${
+                    pagination.page === pageNum
+                      ? 'bg-primary text-white border-primary'
+                      : 'border-gray-300 hover:bg-gray-50'
+                  }`}
+                  onClick={() => {
+                    setPagination(prev => ({ ...prev, page: pageNum }))
+                  }}
+                >
+                  {pageNum}
+                </button>
+              )
+            })}
+            
+            {/* Ellipsis for many pages */}
+            {pagination.pages > 5 && pagination.page < pagination.pages - 2 && (
+              <>
+                <span className="px-2 text-gray-500">...</span>
+                <button
+                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+                  onClick={() => {
+                    setPagination(prev => ({ ...prev, page: pagination.pages }))
+                  }}
+                >
+                  {pagination.pages}
+                </button>
+              </>
+            )}
+          </div>
+          
+          {/* Next Button */}
+          <button
+            className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            disabled={pagination.page >= pagination.pages}
+            onClick={() => {
+              setPagination(prev => ({ ...prev, page: prev.page + 1 }))
+            }}
+          >
+            下一页
           </button>
         </div>
       </div>
