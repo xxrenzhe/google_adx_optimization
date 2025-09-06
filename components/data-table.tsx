@@ -128,23 +128,7 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
             </svg>
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">暂无数据</h3>
-          <p className="text-gray-600 mb-6">请先上传CSV文件以查看数据表格</p>
-          <button
-            onClick={() => {
-              // Find the upload tab button and click it
-              const uploadTab = document.querySelector('button[onclick*="upload"]') as HTMLElement;
-              if (uploadTab) {
-                uploadTab.click();
-              } else {
-                // Fallback: change URL hash
-                window.location.hash = 'upload';
-                window.location.reload();
-              }
-            }}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
-            前往上传
-          </button>
+          <p className="text-gray-600">请先上传CSV文件以查看数据表格</p>
         </div>
       )
     }

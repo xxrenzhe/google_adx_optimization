@@ -11,11 +11,10 @@ import AutomationDashboard from '@/components/automation-dashboard'
 
 export default function Home() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [activeTab, setActiveTab] = useState<'upload' | 'data' | 'analytics' | 'alerts' | 'enhanced' | 'predictive' | 'automation'>('upload')
+  const [activeTab, setActiveTab] = useState<'upload' | 'analytics' | 'alerts' | 'enhanced' | 'predictive' | 'automation'>('upload')
 
   const handleUploadComplete = () => {
     setRefreshTrigger(prev => prev + 1)
-    setActiveTab('data')
   }
 
   return (
@@ -41,12 +40,6 @@ export default function Home() {
               onClick={() => setActiveTab('upload')}
             >
               上传数据
-            </button>
-            <button
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'data' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
-              onClick={() => setActiveTab('data')}
-            >
-              数据表格
             </button>
             <button
               className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'analytics' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
@@ -93,6 +86,11 @@ export default function Home() {
               </div>
               
               <div className="bg-white shadow rounded-lg p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">数据表格</h3>
+                <DataTable refreshTrigger={refreshTrigger} />
+              </div>
+              
+              <div className="bg-white shadow rounded-lg p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">CSV格式要求</h3>
                 <div className="space-y-2 text-sm text-gray-600">
                   <p>• 文件必须为CSV格式</p>
@@ -104,11 +102,6 @@ export default function Home() {
             </div>
           )}
           
-          {activeTab === 'data' && (
-            <div className="bg-white shadow rounded-lg p-6">
-              <DataTable refreshTrigger={refreshTrigger} />
-            </div>
-          )}
           
           {activeTab === 'analytics' && (
             <Analytics />
