@@ -4,9 +4,10 @@ import { useState, useRef, useCallback } from 'react'
 
 interface UploadProps {
   onUploadComplete: () => void
+  onDataCleared: () => void
 }
 
-export default function Upload({ onUploadComplete }: UploadProps) {
+export default function Upload({ onUploadComplete, onDataCleared }: UploadProps) {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
@@ -96,6 +97,23 @@ export default function Upload({ onUploadComplete }: UploadProps) {
     fileInputRef.current?.click()
   }, [])
 
+  const handleClearData = useCallback(async () => {
+    try {
+      const response = await fetch('/api/data/clear', {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      
+      if (response.ok) {
+        onDataCleared()
+      } else {
+        setError('清除数据失败')
+      }
+    } catch (err) {
+      setError('清除数据失败')
+    }
+  }, [onDataCleared])
+
   return (
     <div className="space-y-4">
       <div
@@ -165,6 +183,14 @@ export default function Upload({ onUploadComplete }: UploadProps) {
         </div>
       )}
       
+      <div className="flex justify-center">
+        <button
+          onClick={handleClearData}
+          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm font-medium"
+        >
+          清除当前数据
+        </button>
       </div>
+    </div>
   )
 }

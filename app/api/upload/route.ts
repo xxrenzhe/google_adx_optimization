@@ -20,6 +20,11 @@ export async function POST(request: NextRequest) {
     const sessionId = generateSessionId()
     let recordCount = 0
 
+    // First, clear any existing data for this session
+    await prisma.adReport.deleteMany({
+      where: { sessionId }
+    })
+
     const stream = file.stream()
     const reader = stream.getReader()
     const decoder = new TextDecoder()
@@ -74,13 +79,8 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Set the current session
-    setCurrentSession({
-      id: sessionId,
-      filename: file.name,
-      uploadDate: new Date().toISOString(),
-      recordCount
-    })
+    // Note: We don't set the global session here as it's serverless
+    // Each API call is independent, relying on cookies for session tracking
     
     // Create response with session cookie
     const response = NextResponse.json({ 

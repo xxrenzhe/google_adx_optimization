@@ -17,6 +17,10 @@ export default function Home() {
     setRefreshTrigger(prev => prev + 1)
   }
 
+  const handleDataCleared = () => {
+    setRefreshTrigger(prev => prev + 1)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -82,7 +86,7 @@ export default function Home() {
             <div className="space-y-6">
               <div className="bg-white shadow rounded-lg p-6">
                 <h2 className="text-lg font-medium text-gray-900 mb-4">上传CSV文件</h2>
-                <Upload onUploadComplete={handleUploadComplete} />
+                <Upload onUploadComplete={handleUploadComplete} onDataCleared={handleDataCleared} />
               </div>
               
               <div className="bg-white shadow rounded-lg p-6">
