@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getCurrentSession } from '@/lib/session'
 
 // Simple in-memory cache (in production, consider Redis)
 const analyticsCache = new Map()
@@ -22,12 +23,18 @@ async function setCachedData(key: string, data: any) {
 
 export async function GET(request: NextRequest) {
   try {
+    const session = getCurrentSession()
+    
+    if (!session) {
+      return NextResponse.json({ error: 'No data uploaded yet' }, { status: 404 })
+    }
+    
     const { searchParams } = new URL(request.url)
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
     
-    // Create cache key from search params
-    const cacheKey = `analytics:${startDate || 'all'}:${endDate || 'all'}`
+    // Create cache key from search params and session
+    const cacheKey = `analytics:${session.id}:${startDate || 'all'}:${endDate || 'all'}`
     
     // Check if we have cached data
     const cachedData = await getCachedData(cacheKey)
@@ -35,7 +42,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cachedData)
     }
     
-    const where: any = {}
+    const where: any = {
+      sessionId: session.id
+    }
     if (startDate && endDate) {
       where.dataDate = {
         gte: new Date(startDate),

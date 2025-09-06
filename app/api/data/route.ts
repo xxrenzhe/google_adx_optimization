@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getCurrentSession } from '@/lib/session'
 
 export async function GET(request: NextRequest) {
   try {
+    const session = getCurrentSession()
+    if (!session) {
+      return NextResponse.json({ error: 'No data uploaded yet' }, { status: 404 })
+    }
+    
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
@@ -12,14 +18,17 @@ export async function GET(request: NextRequest) {
     
     const skip = (page - 1) * limit
     
-    const where = search ? {
-      OR: [
-        { website: { contains: search, mode: 'insensitive' as const } },
-        { country: { contains: search, mode: 'insensitive' as const } },
-        { domain: { contains: search, mode: 'insensitive' as const } },
-        { device: { contains: search, mode: 'insensitive' as const } }
-      ]
-    } : {}
+    const where = {
+      sessionId: session.id,
+      ...(search ? {
+        OR: [
+          { website: { contains: search, mode: 'insensitive' as const } },
+          { country: { contains: search, mode: 'insensitive' as const } },
+          { domain: { contains: search, mode: 'insensitive' as const } },
+          { device: { contains: search, mode: 'insensitive' as const } }
+        ]
+      } : {})
+    }
     
     const [data, total] = await Promise.all([
       prisma.adReport.findMany({

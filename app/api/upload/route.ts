@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Readable } from 'stream'
+import { generateSessionId, setCurrentSession } from '@/lib/session'
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +15,10 @@ export async function POST(request: NextRequest) {
     if (!file.name.endsWith('.csv')) {
       return NextResponse.json({ error: 'Only CSV files are allowed' }, { status: 400 })
     }
+
+    // Create a session for this upload
+    const sessionId = generateSessionId()
+    let recordCount = 0
 
     const stream = file.stream()
     const reader = stream.getReader()
@@ -53,9 +58,10 @@ export async function POST(request: NextRequest) {
         
         if (values.length !== headers.length) continue
         
-        const record = createRecordFromCSV(headers, values)
+        const record = createRecordFromCSV(headers, values, sessionId)
         if (record) {
           batch.push(record)
+          recordCount++
           
           if (batch.length >= batchSize) {
             await prisma.adReport.createMany({
@@ -68,9 +74,18 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    // Set the current session
+    setCurrentSession({
+      id: sessionId,
+      filename: file.name,
+      uploadDate: new Date().toISOString(),
+      recordCount
+    })
+    
     return NextResponse.json({ 
       message: 'File uploaded successfully',
-      recordsProcessed: await prisma.adReport.count()
+      sessionId,
+      recordsProcessed: recordCount
     })
     
   } catch (error) {
@@ -104,8 +119,10 @@ function parseCSVLine(line: string): string[] {
   return result
 }
 
-function createRecordFromCSV(headers: string[], values: string[]): any {
-  const record: any = {}
+function createRecordFromCSV(headers: string[], values: string[], sessionId: string): any {
+  const record: any = {
+    sessionId
+  }
   
   for (let i = 0; i < headers.length; i++) {
     const header = headers[i].toLowerCase().replace(/[^\w\u4e00-\u9fff]/g, '')

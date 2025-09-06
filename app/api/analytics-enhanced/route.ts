@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getCurrentSession } from '@/lib/session'
 
 export async function GET(request: NextRequest) {
   try {
+    const session = getCurrentSession()
+    if (!session) {
+      return NextResponse.json({ error: 'No data uploaded yet' }, { status: 404 })
+    }
+    
     const { searchParams } = new URL(request.url)
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
@@ -33,12 +39,15 @@ export async function GET(request: NextRequest) {
     // 1. Advertiser Value Analysis
     const advertiserAnalysis = await prisma.adReport.groupBy({
       by: ['advertiser', 'domain'],
-      where: startDate || endDate ? {
-        dataDate: {
-          ...(startDate && { gte: new Date(startDate) }),
-          ...(endDate && { lte: new Date(endDate) })
-        }
-      } : {},
+      where: {
+        sessionId: session.id,
+        ...(startDate || endDate ? {
+          dataDate: {
+            ...(startDate && { gte: new Date(startDate) }),
+            ...(endDate && { lte: new Date(endDate) })
+          }
+        } : {})
+      },
       _avg: {
         ecpm: true,
         ctr: true,
@@ -63,6 +72,7 @@ export async function GET(request: NextRequest) {
     const deviceBrowserMatrix = await prisma.adReport.groupBy({
       by: ['device', 'browser'],
       where: {
+        sessionId: session.id,
         ...(startDate || endDate ? {
           dataDate: {
             ...(startDate && { gte: new Date(startDate) }),
@@ -87,12 +97,15 @@ export async function GET(request: NextRequest) {
     // 3. Ad Unit Performance Analysis
     const adUnitAnalysis = await prisma.adReport.groupBy({
       by: ['adFormat', 'adUnit'],
-      where: startDate || endDate ? {
-        dataDate: {
-          ...(startDate && { gte: new Date(startDate) }),
-          ...(endDate && { lte: new Date(endDate) })
-        }
-      } : {},
+      where: {
+        sessionId: session.id,
+        ...(startDate || endDate ? {
+          dataDate: {
+            ...(startDate && { gte: new Date(startDate) }),
+            ...(endDate && { lte: new Date(endDate) })
+          }
+        } : {})
+      },
       _avg: {
         ecpm: true,
         ctr: true,
@@ -115,6 +128,7 @@ export async function GET(request: NextRequest) {
     const geoAnalysis = await prisma.adReport.groupBy({
       by: ['country', 'device'],
       where: {
+        sessionId: session.id,
         ...(startDate || endDate ? {
           dataDate: {
             ...(startDate && { gte: new Date(startDate) }),
@@ -159,6 +173,7 @@ export async function GET(request: NextRequest) {
     const viewabilityAnalysis = await prisma.adReport.groupBy({
       by: ['adFormat'],
       where: {
+        sessionId: session.id,
         ...(startDate || endDate ? {
           dataDate: {
             ...(startDate && { gte: new Date(startDate) }),
@@ -179,6 +194,7 @@ export async function GET(request: NextRequest) {
     const topCombinations = await prisma.adReport.groupBy({
       by: ['country', 'device', 'adFormat'],
       where: {
+        sessionId: session.id,
         ...(startDate || endDate ? {
           dataDate: {
             ...(startDate && { gte: new Date(startDate) }),

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
+import { getCurrentSession } from '@/lib/session'
 
 interface Alert {
   id: string
@@ -22,6 +21,14 @@ interface Recommendation {
 
 export async function GET(request: NextRequest) {
   try {
+    const session = getCurrentSession()
+    if (!session) {
+      return NextResponse.json({ 
+        alerts: [],
+        recommendations: []
+      })
+    }
+    
     const alerts: Alert[] = []
     const recommendations: Recommendation[] = []
 
@@ -33,6 +40,7 @@ export async function GET(request: NextRequest) {
     const lowFillRateData = await prisma.adReport.groupBy({
       by: ['website'],
       where: {
+        sessionId: session.id,
         dataDate: { gte: sevenDaysAgo },
         fillRate: { lt: 30 } // Less than 30% fill rate
       },
@@ -65,6 +73,7 @@ export async function GET(request: NextRequest) {
     const topWebsites = await prisma.adReport.groupBy({
       by: ['website'],
       where: {
+        sessionId: session.id,
         dataDate: { gte: sevenDaysAgo }
       },
       _avg: {
@@ -84,6 +93,7 @@ export async function GET(request: NextRequest) {
 
     const avgEcpm = await prisma.adReport.aggregate({
       where: {
+        sessionId: session.id,
         dataDate: { gte: sevenDaysAgo }
       },
       _avg: {
@@ -113,6 +123,7 @@ export async function GET(request: NextRequest) {
     const countryPerformance = await prisma.adReport.groupBy({
       by: ['country'],
       where: {
+        sessionId: session.id,
         dataDate: { gte: sevenDaysAgo },
         country: { not: null }
       },
@@ -154,6 +165,7 @@ export async function GET(request: NextRequest) {
     const devicePerformance = await prisma.adReport.groupBy({
       by: ['device'],
       where: {
+        sessionId: session.id,
         dataDate: { gte: sevenDaysAgo },
         device: { not: null }
       },
@@ -194,6 +206,7 @@ export async function GET(request: NextRequest) {
     const revenueByDay = await prisma.adReport.groupBy({
       by: ['dataDate'],
       where: {
+        sessionId: session.id,
         dataDate: { gte: sevenDaysAgo }
       },
       _sum: {
@@ -229,6 +242,7 @@ export async function GET(request: NextRequest) {
     const formatPerformance = await prisma.adReport.groupBy({
       by: ['adFormat'],
       where: {
+        sessionId: session.id,
         dataDate: { gte: sevenDaysAgo },
         adFormat: { not: null }
       },

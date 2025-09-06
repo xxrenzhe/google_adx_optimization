@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getCurrentSession } from '@/lib/session'
 
 export async function GET(request: NextRequest) {
   try {
+    const session = getCurrentSession()
+    if (!session) {
+      return NextResponse.json({ error: 'No data uploaded yet' }, { status: 404 })
+    }
+    
     const { searchParams } = new URL(request.url)
     const days = parseInt(searchParams.get('days') || '30')
 
@@ -13,6 +19,7 @@ export async function GET(request: NextRequest) {
     const dailyRevenue = await prisma.adReport.groupBy({
       by: ['dataDate'],
       where: {
+        sessionId: session.id,
         dataDate: {
           gte: cutoffDate
         }
@@ -44,6 +51,7 @@ export async function GET(request: NextRequest) {
     const pricingData = await prisma.adReport.groupBy({
       by: ['country', 'device', 'adFormat'],
       where: {
+        sessionId: session.id,
         dataDate: {
           gte: cutoffDate
         },
@@ -86,6 +94,7 @@ export async function GET(request: NextRequest) {
     const opportunities = await prisma.adReport.groupBy({
       by: ['country'],
       where: {
+        sessionId: session.id,
         dataDate: {
           gte: cutoffDate
         },
@@ -118,6 +127,7 @@ export async function GET(request: NextRequest) {
     const dayOfWeekData = await prisma.adReport.groupBy({
       by: ['dataDate'],
       where: {
+        sessionId: session.id,
         dataDate: {
           gte: cutoffDate
         }
@@ -150,6 +160,7 @@ export async function GET(request: NextRequest) {
     const enhancedOpportunities = await prisma.adReport.groupBy({
       by: ['country', 'device'],
       where: {
+        sessionId: session.id,
         dataDate: {
           gte: cutoffDate
         },
@@ -185,6 +196,7 @@ export async function GET(request: NextRequest) {
     const competitorInsights = await prisma.adReport.groupBy({
       by: ['advertiser', 'domain'],
       where: {
+        sessionId: session.id,
         dataDate: {
           gte: cutoffDate
         },

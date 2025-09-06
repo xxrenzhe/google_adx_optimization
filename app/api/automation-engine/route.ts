@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getCurrentSession } from '@/lib/session'
 
 // Automation rules database simulation
 const automationRules = [
@@ -35,12 +36,28 @@ const automationRules = [
 
 export async function GET(request: NextRequest) {
   try {
+    const session = getCurrentSession()
+    if (!session) {
+      return NextResponse.json({ 
+        rules: [],
+        actions: [],
+        summary: {
+          totalRules: 0,
+          enabledRules: 0,
+          triggeredRules: 0,
+          currentMetrics: {},
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+    
     // Get simple current metrics
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     
     const currentStats = await prisma.adReport.aggregate({
       where: {
+        sessionId: session.id,
         dataDate: {
           gte: today
         }
