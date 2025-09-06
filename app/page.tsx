@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import Upload from '@/components/upload'
+import Upload from '@/components/upload-native'
 import DataTable from '@/components/data-table'
 import Analytics from '@/components/analytics'
+import DecisionAlerts from '@/components/decision-alerts'
 
 export default function Home() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [activeTab, setActiveTab] = useState<'upload' | 'data' | 'analytics'>('upload')
+  const [activeTab, setActiveTab] = useState<'upload' | 'data' | 'analytics' | 'alerts'>('upload')
 
   const handleUploadComplete = () => {
     setRefreshTrigger(prev => prev + 1)
@@ -50,6 +51,12 @@ export default function Home() {
             >
               Analytics
             </button>
+            <button
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'alerts' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+              onClick={() => setActiveTab('alerts')}
+            >
+              决策提醒
+            </button>
           </div>
         </div>
       </nav>
@@ -84,6 +91,10 @@ export default function Home() {
           
           {activeTab === 'analytics' && (
             <Analytics />
+          )}
+          
+          {activeTab === 'alerts' && (
+            <DecisionAlerts refreshTrigger={refreshTrigger} />
           )}
         </div>
       </main>
