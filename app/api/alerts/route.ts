@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
       by: ['website'],
       where: {
         sessionId: session.id,
-        dataDate: { gte: sevenDaysAgo }
+        dataDate: { gte: startDate }
       },
       _avg: {
         ecpm: true,
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
     const avgEcpm = await prisma.adReport.aggregate({
       where: {
         sessionId: session.id,
-        dataDate: { gte: sevenDaysAgo }
+        dataDate: { gte: startDate }
       },
       _avg: {
         ecpm: true
@@ -210,7 +210,7 @@ export async function GET(request: NextRequest) {
       by: ['dataDate'],
       where: {
         sessionId: session.id,
-        dataDate: { gte: sevenDaysAgo }
+        dataDate: { gte: startDate }
       },
       _sum: {
         revenue: true
@@ -388,7 +388,7 @@ export async function GET(request: NextRequest) {
     const hourlyPerformance = await prisma.adReport.findMany({
       where: {
         sessionId: session.id,
-        dataDate: { gte: sevenDaysAgo }
+        dataDate: { gte: startDate }
       },
       select: {
         dataDate: true,
