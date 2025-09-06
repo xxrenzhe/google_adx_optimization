@@ -165,11 +165,6 @@ export default function Upload({ onUploadComplete }: UploadProps) {
         </div>
       )}
       
-      <div className="text-xs text-gray-500 space-y-1">
-        <p>• 仅支持CSV格式</p>
-        <p>• 必需列：日期(Date)、网站(Website)</p>
-        <p>• 可选：国家(Country)、设备(Device)、广告格式(Ad Format)、请求数(Requests)、展示数(Impressions)、点击数(Clicks)、收入(Revenue)</p>
       </div>
-    </div>
   )
 }
