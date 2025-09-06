@@ -21,7 +21,7 @@ interface Recommendation {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = getCurrentSession()
+    const session = getCurrentSession(request)
     if (!session) {
       return NextResponse.json({ 
         alerts: [],

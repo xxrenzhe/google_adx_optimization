@@ -24,7 +24,7 @@ async function setCachedData(key: string, data: any) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = getCurrentSession()
+    const session = getCurrentSession(request)
     
     if (!session) {
       return NextResponse.json({ error: 'No data uploaded yet' }, { status: 404 })

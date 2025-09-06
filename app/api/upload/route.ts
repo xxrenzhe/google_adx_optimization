@@ -82,11 +82,22 @@ export async function POST(request: NextRequest) {
       recordCount
     })
     
-    return NextResponse.json({ 
+    // Create response with session cookie
+    const response = NextResponse.json({ 
       message: 'File uploaded successfully',
       sessionId,
       recordsProcessed: recordCount
     })
+    
+    // Set session ID in cookie for client-side storage
+    response.cookies.set('adx_session_id', sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7 // 7 days
+    })
+    
+    return response
     
   } catch (error) {
     console.error('Upload error:', error)
