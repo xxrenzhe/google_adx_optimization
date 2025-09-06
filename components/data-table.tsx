@@ -42,7 +42,7 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
     cursors: [] as string[], // Store cursors for each page
     hasMore: false
   })
-  const [sortBy, setSortBy] = useState('dataDate')
+  const [sortBy, setSortBy] = useState('revenue')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [search, setSearch] = useState('')
   
@@ -97,7 +97,6 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
   }
   
   const handleSort = (column: string) => {
-    console.log('Sorting by:', column, 'Current order:', sortBy === column ? sortOrder : 'new')
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
     } else {
