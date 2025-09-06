@@ -1,0 +1,6 @@
+日期,网站,国家/地区,广告资源格式,广告单元（所有级别）,广告客户（已分类）,广告客户网域,设备,浏览器,Ad Exchange 请求总数,Ad Exchange 展示次数,Ad Exchange 点击次数,Ad Exchange 点击率,Ad Exchange 平均 eCPM,Ad Exchange 收入,Ad Exchange Active View可见展示次数,Ad Exchange Active View可见展示次数百分比,Ad Exchange Active View可衡量展示次数
+2025-01-15,test.com,美国,横幅,Test-Unit,Test Advertiser,test.com,（非移动设备）,Google Chrome,1000,800,40,0.05,5.00,4.00,750,0.9375,800
+2025-01-15,test.com,英国,插页式广告,Test-Unit,Test Advertiser,test.com,iPhone/iPod touch (Apple),Safari (iPhone/iPod),500,300,15,0.05,8.00,2.40,280,0.9333,300
+2025-01-14,test.com,美国,横幅,Test-Unit,Another Advertiser,another.com,Android 手机 (Google),Google Chrome,800,600,30,0.05,3.50,2.10,550,0.9167,600
+2025-01-14,test.com,德国,插页式广告,Test-Unit,Test Advertiser,test.com,（非移动设备）,Firefox Other,600,400,20,0.05,6.00,2.40,380,0.95,400
+2025-01-13,test.com,法国,横幅,Test-Unit,Premium Advertiser,premium.com,iPhone/iPod touch (Apple),Safari (iPhone/iPod),1200,1000,60,0.06,12.00,12.00,950,0.95,1000
