@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Simple predictions based on average
-    const avgRevenue = dailyRevenue.reduce((sum, day) => sum + (day._sum.revenue || 0), 0) / dailyRevenue.length
+    const avgRevenue = dailyRevenue.reduce((sum, day) => sum + Number(day._sum.revenue || 0), 0) / dailyRevenue.length
     const predictions = Array.from({ length: 7 }, (_, i) => {
       const date = new Date()
       date.setDate(date.getDate() + i + 1)
@@ -65,21 +65,21 @@ export async function GET(request: NextRequest) {
     })
 
     // Detect anomalies (simplified)
-    const revenues = dailyRevenue.map(d => d._sum.revenue || 0)
+    const revenues = dailyRevenue.map(d => Number(d._sum.revenue || 0))
     const mean = revenues.reduce((a, b) => a + b, 0) / revenues.length
     const stdDev = Math.sqrt(revenues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / revenues.length)
     
     const anomalies = dailyRevenue
       .filter(day => {
-        const revenue = day._sum.revenue || 0
+        const revenue = Number(day._sum.revenue || 0)
         const zScore = Math.abs(revenue - mean) / stdDev
         return zScore > 2
       })
       .map(day => ({
         date: day.dataDate.toISOString().split('T')[0],
-        actual: day._sum.revenue || 0,
+        actual: Number(day._sum.revenue || 0),
         expected: mean,
-        severity: Math.abs((day._sum.revenue || 0) - mean) / stdDev > 3 ? 'HIGH' : 'MEDIUM'
+        severity: Math.abs(Number(day._sum.revenue || 0) - mean) / stdDev > 3 ? 'HIGH' : 'MEDIUM'
       }))
 
     // Growth opportunities
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
       take: 10
     }).then(results => results.map(r => ({
       country: r.country,
-      potential: (r._sum.revenue || 0) * 1.2, // 20% growth potential
+      potential: Number(r._sum.revenue || 0) * 1.2, // 20% growth potential
       currentEcpm: r._avg.ecpm,
       recommendation: 'Increase ad inventory in this market'
     })))
@@ -138,11 +138,11 @@ export async function GET(request: NextRequest) {
       })
       return {
         avg_revenue: dayData.length > 0 ? 
-          dayData.reduce((sum, d) => sum + (d._sum.revenue || 0), 0) / dayData.length : 0,
+          dayData.reduce((sum, d) => sum + Number(d._sum.revenue || 0), 0) / dayData.length : 0,
         avg_ecpm: dayData.length > 0 ?
           dayData.reduce((sum, d) => sum + (d._avg.ecpm || 0), 0) / dayData.length : 0,
         impressions: dayData.length > 0 ?
-          dayData.reduce((sum, d) => sum + (d._sum.impressions || 0), 0) : 0
+          dayData.reduce((sum, d) => sum + Number(d._sum.impressions || 0), 0) : 0
       }
     })
     
@@ -176,7 +176,7 @@ export async function GET(request: NextRequest) {
       device: r.device,
       current_ecpm: r._avg.ecpm || 0,
       current_fill_rate: r._avg.fillRate || 0,
-      potential_revenue_increase: (r._sum.revenue || 0) * (1 - (r._avg.fillRate || 0) / 100),
+      potential_revenue_increase: Number(r._sum.revenue || 0) * (1 - (r._avg.fillRate || 0) / 100),
       opportunity_score: (r._avg.ecpm || 0) > 15 && (r._avg.fillRate || 0) < 30 ? 'HIGH' :
                        (r._avg.ecpm || 0) > 10 && (r._avg.fillRate || 0) < 50 ? 'MEDIUM' : 'LOW'
     })))
@@ -205,10 +205,10 @@ export async function GET(request: NextRequest) {
       advertiser: r.advertiser,
       domain: r.domain,
       market_penetration: Math.floor(Math.random() * 50) + 1, // Simulated
-      avg_bid_strength: (r._sum.revenue || 0) / (r._sum.impressions || 1) * 1000,
-      strategy_type: (r._sum.revenue || 0) > 1000 ? 'AGGRESSIVE' :
-                    (r._sum.revenue || 0) > 500 ? 'COMPETITIVE' :
-                    (r._sum.revenue || 0) > 100 ? 'MODERATE' : 'CONSERVATIVE'
+      avg_bid_strength: Number(r._sum.revenue || 0) / Number(r._sum.impressions || 1) * 1000,
+      strategy_type: Number(r._sum.revenue || 0) > 1000 ? 'AGGRESSIVE' :
+                    Number(r._sum.revenue || 0) > 500 ? 'COMPETITIVE' :
+                    Number(r._sum.revenue || 0) > 100 ? 'MODERATE' : 'CONSERVATIVE'
     })))
     
     // Calculate model accuracy (simulated)
