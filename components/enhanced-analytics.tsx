@@ -167,7 +167,7 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={data.ecpmBuckets}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="ecpm_range" />
+                <XAxis dataKey="range" />
                 <YAxis />
                 <Tooltip />
                 <Bar dataKey="count" fill="#8884d8" />

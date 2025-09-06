@@ -149,7 +149,7 @@ export async function GET(request: NextRequest) {
       _count: true
     })
 
-    // 5. eCPM Distribution Analysis - simplified
+    // 5. eCPM Distribution Analysis
     const ecpmBuckets = [
       { range: '< $1', count: 0, avg_revenue: 0, total_revenue: 0 },
       { range: '$1-$5', count: 0, avg_revenue: 0, total_revenue: 0 },
@@ -159,6 +159,60 @@ export async function GET(request: NextRequest) {
       { range: '$50-$100', count: 0, avg_revenue: 0, total_revenue: 0 },
       { range: '> $100', count: 0, avg_revenue: 0, total_revenue: 0 }
     ]
+
+    // Fetch all records with eCPM to populate buckets
+    const ecpmRecords = await prisma.adReport.findMany({
+      where: {
+        sessionId: session.id,
+        ecpm: { not: null },
+        ...(startDate || endDate ? {
+          dataDate: {
+            ...(startDate && { gte: new Date(startDate) }),
+            ...(endDate && { lte: new Date(endDate) })
+          }
+        } : {})
+      },
+      select: {
+        ecpm: true,
+        revenue: true
+      }
+    })
+
+    // Populate eCPM buckets
+    ecpmRecords.forEach(record => {
+      const ecpm = record.ecpm || 0
+      const revenue = record.revenue || 0
+      
+      if (ecpm < 1) {
+        ecpmBuckets[0].count++
+        ecpmBuckets[0].total_revenue += revenue
+      } else if (ecpm < 5) {
+        ecpmBuckets[1].count++
+        ecpmBuckets[1].total_revenue += revenue
+      } else if (ecpm < 10) {
+        ecpmBuckets[2].count++
+        ecpmBuckets[2].total_revenue += revenue
+      } else if (ecpm < 20) {
+        ecpmBuckets[3].count++
+        ecpmBuckets[3].total_revenue += revenue
+      } else if (ecpm < 50) {
+        ecpmBuckets[4].count++
+        ecpmBuckets[4].total_revenue += revenue
+      } else if (ecpm < 100) {
+        ecpmBuckets[5].count++
+        ecpmBuckets[5].total_revenue += revenue
+      } else {
+        ecpmBuckets[6].count++
+        ecpmBuckets[6].total_revenue += revenue
+      }
+    })
+
+    // Calculate average revenue for each bucket
+    ecpmBuckets.forEach(bucket => {
+      if (bucket.count > 0) {
+        bucket.avg_revenue = bucket.total_revenue / bucket.count
+      }
+    })
 
     // 6. Hourly Performance Pattern - simplified
     const hourlyPattern = Array.from({ length: 24 }, (_, i) => ({
@@ -249,13 +303,17 @@ export async function GET(request: NextRequest) {
       return data
     }
 
+    // Serialize ecpmBuckets and hourlyPattern
+    const serializedEcpmBuckets = serializeData(ecpmBuckets)
+    const serializedHourlyPattern = serializeData(hourlyPattern)
+
     return NextResponse.json({
       advertiserAnalysis: serializeData(advertiserAnalysis),
       deviceBrowserMatrix: serializeData(deviceBrowserMatrix),
       adUnitAnalysis: serializeData(adUnitAnalysis),
       geoAnalysis: serializeData(geoAnalysis),
-      ecpmBuckets,
-      hourlyPattern,
+      ecpmBuckets: serializedEcpmBuckets,
+      hourlyPattern: serializedHourlyPattern,
       viewabilityAnalysis: serializeData(viewabilityAnalysis),
       topCombinations: serializeData(topCombinations)
     })
