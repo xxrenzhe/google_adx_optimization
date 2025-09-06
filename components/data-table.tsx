@@ -38,7 +38,9 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
     page: 1,
     limit: 10,
     total: 0,
-    pages: 0
+    pages: 0,
+    nextCursor: null as string | null,
+    hasMore: false
   })
   const [sortBy, setSortBy] = useState('dataDate')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
@@ -46,7 +48,7 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
   
   useEffect(() => {
     fetchData()
-  }, [pagination.page, pagination.limit, sortBy, sortOrder, search, refreshTrigger])
+  }, [pagination.limit, sortBy, sortOrder, search, refreshTrigger])
   
   const fetchData = async () => {
     setLoading(true)
@@ -54,19 +56,31 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
     
     try {
       const params = new URLSearchParams({
-        page: pagination.page.toString(),
         limit: pagination.limit.toString(),
         sortBy,
         sortOrder,
         search
       })
       
+      // Add cursor if we have one (for pagination)
+      if (pagination.nextCursor) {
+        params.append('cursor', pagination.nextCursor)
+      }
+      
       const response = await fetch(`/api/data?${params}`)
       if (!response.ok) throw new Error('Failed to fetch data')
       
       const result = await response.json()
       setData(result.data)
-      setPagination(result.pagination)
+      
+      // Update pagination with API response
+      setPagination(prev => ({
+        ...prev,
+        total: result.pagination.totalCount,
+        pages: Math.ceil(result.pagination.totalCount / prev.limit),
+        nextCursor: result.pagination.nextCursor,
+        hasMore: result.pagination.hasMore
+      }))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
@@ -153,7 +167,13 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
         <select
           className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           value={pagination.limit}
-          onChange={(e) => setPagination(prev => ({ ...prev, limit: parseInt(e.target.value), page: 1 }))}
+          onChange={(e) => {
+            setPagination(prev => ({ 
+              ...prev, 
+              limit: parseInt(e.target.value),
+              nextCursor: null // Reset cursor when changing limit
+            }))
+          }}
         >
           <option value={10}>每页10条</option>
           <option value={50}>每页50条</option>
@@ -202,27 +222,20 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
       {/* Pagination */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-gray-700">
-          显示第 {((pagination.page - 1) * pagination.limit) + 1} 至{' '}
-          {Math.min(pagination.page * pagination.limit, pagination.total)} 条，共{' '}
+          显示第 {data.length > 0 ? 1 : 0} 至{' '}
+          {data.length} 条，共{' '}
           {pagination.total} 条记录
         </div>
         <div className="flex space-x-2">
           <button
             className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={pagination.page === 1}
-            onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+            disabled={!pagination.nextCursor}
+            onClick={() => {
+              // Load more data using cursor
+              fetchData()
+            }}
           >
-            上一页
-          </button>
-          <span className="px-3 py-1">
-            第 {pagination.page} 页，共 {pagination.pages} 页
-          </span>
-          <button
-            className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={pagination.page === pagination.pages}
-            onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-          >
-            下一页
+            加载更多
           </button>
         </div>
       </div>
