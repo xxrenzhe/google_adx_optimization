@@ -65,13 +65,8 @@ RUN chown nextjs:nodejs .next
 # Copy Prisma schema
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
-# Automatically leverage output traces to reduce image size
+# Copy the standalone output
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Copy package.json and package-lock.json for npm start
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/package-lock.json ./package-lock.json
 
 USER nextjs
 
@@ -80,5 +75,5 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-# Start the application
-CMD ["npm", "start"]
+# Start the standalone server
+CMD ["npm", "run", "start:prod"]

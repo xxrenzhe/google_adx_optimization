@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "NODE_OPTIONS=\"--max-old-space-size=1536\" next start",
+    "start:prod": "NODE_OPTIONS=\"--max-old-space-size=1536\" node server.js",
     "lint": "next lint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
