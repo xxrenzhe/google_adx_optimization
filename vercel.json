@@ -1,0 +1,10 @@
+# 定时任务配置 - Vercel Cron Jobs
+
+# 数据清理任务 - 每天凌晨2点执行
+0 2 * * * https://www.moretop10.com/api/data-cleanup
+
+# 缓存清理任务 - 每6小时执行一次
+0 */6 * * * https://www.moretop10.com/api/cache-cleanup
+
+# 数据库维护任务 - 每周日凌晨3点执行
+0 3 * * 0 https://www.moretop10.com/api/db-maintenance

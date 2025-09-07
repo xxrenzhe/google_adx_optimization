@@ -1,6 +1,10 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter, Noto_Sans_SC } from 'next/font/google'
+import { runDatabaseInitialization } from '@/lib/db-middleware'
+
+// 在应用启动时初始化数据库
+runDatabaseInitialization()
 
 const inter = Inter({ subsets: ['latin'] })
 const notoSansSC = Noto_Sans_SC({ 

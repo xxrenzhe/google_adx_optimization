@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-09-07T06:50:43.773Z",
+  "results": {
+    "health": false,
+    "upload": false,
+    "dataApi": false,
+    "analytics": false,
+    "independentAnalysis": false,
+    "performance": {
+      "health": 4806
+    },
+    "errors": [
+      "健康检查失败: 404"
+    ]
+  },
+  "summary": {
+    "passed": 0,
+    "total": 4
+  }
+}

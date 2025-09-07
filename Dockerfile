@@ -61,8 +61,9 @@ RUN if [ -d "/app/public" ]; then \
 RUN mkdir -p .next
 RUN chown nextjs:nodejs .next
 
-# Copy Prisma schema
+# Copy Prisma schema and start script
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./start.sh
 
 # Automatically leverage output traces to reduce image size
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -75,4 +76,5 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-CMD ["node", "server.js"]
+# Use custom start script that handles database initialization
+CMD ["./start.sh"]
