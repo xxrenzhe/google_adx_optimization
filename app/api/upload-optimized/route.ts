@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     })
     
     // Cache session info
-    await redis.setex(`session:${sessionId}`, 3600, JSON.stringify({
+    await redis.setEx(`session:${sessionId}`, 3600, JSON.stringify({
       id: sessionId,
       filename: file.name,
       recordCount: result.recordCount,
