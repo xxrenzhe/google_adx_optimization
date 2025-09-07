@@ -26,9 +26,8 @@ RUN npx prisma generate
 # Ensure public directory exists
 RUN mkdir -p /app/public
 
-# Copy start script to builder stage
-COPY start.sh ./start.sh
-RUN chmod +x start.sh
+# Create necessary directories
+RUN mkdir -p uploads results && chmod 755 uploads results
 
 # Database initialization will be handled at runtime
 
@@ -56,8 +55,8 @@ ENV NODE_OPTIONS="--max-old-space-size=1536"
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy start script from builder
-COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./start.sh
+# Create necessary directories in runner
+RUN mkdir -p uploads results && chmod 755 uploads results
 
 # Set the correct permission for prerender cache
 RUN mkdir -p .next
@@ -81,5 +80,5 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-# Use custom start script that handles database initialization
-CMD ["./start.sh"]
+# Start the application
+CMD ["npm", "start"]
