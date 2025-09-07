@@ -26,6 +26,10 @@ RUN npx prisma generate
 # Ensure public directory exists
 RUN mkdir -p /app/public
 
+# Copy start script to builder stage
+COPY start.sh ./start.sh
+RUN chmod +x start.sh
+
 # Database initialization will be handled at runtime
 
 # Build the application
@@ -49,17 +53,8 @@ RUN apk add --no-cache openssl-dev openssl
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy public files if they exist
-RUN if [ -d "/app/public" ]; then \
-      mkdir -p ./public && \
-      cp -r /app/public/. ./public/; \
-    else \
-      mkdir -p ./public; \
-    fi
-
-# Copy start script
-COPY start.sh ./start.sh
-RUN chmod +x start.sh
+# Copy start script from builder
+COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./start.sh
 
 # Set the correct permission for prerender cache
 RUN mkdir -p .next
@@ -71,6 +66,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 # Automatically leverage output traces to reduce image size
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy package.json and package-lock.json for npm start
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/package-lock.json ./package-lock.json
 
 USER nextjs
 
