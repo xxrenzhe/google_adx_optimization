@@ -16,8 +16,8 @@ export default function Upload({ onUploadComplete }: UploadProps) {
     const file = acceptedFiles[0]
     if (!file) return
     
-    if (file.size > 50 * 1024 * 1024) {
-      setError('File size must be less than 50MB')
+    if (file.size > 500 * 1024 * 1024) {
+      setError('File size must be less than 500MB')
       return
     }
     

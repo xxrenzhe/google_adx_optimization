@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .upload-area.dragover {
+            border-color: #0070f3;
+            background-color: #f0f8ff;
+        }
+        button {
+            background-color: #0070f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #progress {
+            margin: 20px 0;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #progress-bar {
+            height: 100%;
+            background-color: #0070f3;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>文件上传测试</h1>
+    
+    <div class="upload-area" id="upload-area">
+        <p>拖拽CSV文件到此处或点击选择文件</p>
+        <input type="file" id="file-input" accept=".csv" style="display: none;">
+        <button onclick="document.getElementById('file-input').click()">选择文件</button>
+    </div>
+    
+    <div id="progress" style="display: none;">
+        <div id="progress-bar"></div>
+    </div>
+    
+    <button id="upload-btn" disabled>开始上传</button>
+    <button id="test-data-btn" disabled>测试数据查询</button>
+    <button id="test-analytics-btn" disabled>测试分析功能</button>
+    
+    <div id="results"></div>
+    
+    <script>
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const uploadBtn = document.getElementById('upload-btn');
+        const testDataBtn = document.getElementById('test-data-btn');
+        const testAnalyticsBtn = document.getElementById('test-analytics-btn');
+        const progress = document.getElementById('progress');
+        const progressBar = document.getElementById('progress-bar');
+        const results = document.getElementById('results');
+        
+        let selectedFile = null;
+        let sessionId = null;
+        
+        // 文件选择处理
+        fileInput.addEventListener('change', (e) => {
+            selectedFile = e.target.files[0];
+            if (selectedFile) {
+                uploadBtn.disabled = false;
+                results.textContent = `已选择文件: ${selectedFile.name} (${(selectedFile.size / 1024 / 1024).toFixed(2)} MB)`;
+            }
+        });
+        
+        // 拖拽处理
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].name.endsWith('.csv')) {
+                selectedFile = files[0];
+                uploadBtn.disabled = false;
+                results.textContent = `已选择文件: ${selectedFile.name} (${(selectedFile.size / 1024 / 1024).toFixed(2)} MB)`;
+            }
+        });
+        
+        // 上传处理
+        uploadBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            
+            uploadBtn.disabled = true;
+            progress.style.display = 'block';
+            results.textContent = '正在上传...';
+            
+            try {
+                const startTime = Date.now();
+                
+                // 上传文件
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                const endTime = Date.now();
+                
+                if (response.ok) {
+                    sessionId = result.sessionId;
+                    results.textContent = `上传成功!\n\n` +
+                        `Session ID: ${result.sessionId}\n` +
+                        `文件名: ${result.filename}\n` +
+                        `记录数: ${result.recordCount}\n` +
+                        `上传耗时: ${((endTime - startTime) / 1000).toFixed(2)} 秒\n\n`;
+                    
+                    testDataBtn.disabled = false;
+                    testAnalyticsBtn.disabled = false;
+                    
+                    // 开始轮询进度
+                    pollProgress(sessionId);
+                } else {
+                    results.textContent = `上传失败: ${result.error}\n`;
+                    uploadBtn.disabled = false;
+                }
+            } catch (error) {
+                results.textContent = `上传出错: ${error.message}\n`;
+                uploadBtn.disabled = false;
+            }
+        });
+        
+        // 轮询上传进度
+        async function pollProgress(sessionId) {
+            try {
+                const response = await fetch(`/api/progress?sessionId=${sessionId}`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    progressBar.style.width = result.progress + '%';
+                    results.textContent += `处理进度: ${result.progress}% (${result.processed}/${result.total})\n`;
+                    
+                    if (result.progress < 100) {
+                        setTimeout(() => pollProgress(sessionId), 1000);
+                    }
+                }
+            } catch (error) {
+                console.error('获取进度失败:', error);
+            }
+        }
+        
+        // 测试数据查询
+        testDataBtn.addEventListener('click', async () => {
+            if (!sessionId) return;
+            
+            testDataBtn.disabled = true;
+            results.textContent += '\n正在测试数据查询...\n';
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`/api/data?limit=100`);
+                const result = await response.json();
+                const endTime = Date.now();
+                
+                if (response.ok) {
+                    results.textContent += `查询成功!\n` +
+                        `返回记录数: ${result.data.length}\n` +
+                        `总记录数: ${result.pagination.totalCount}\n` +
+                        `查询耗时: ${((endTime - startTime) / 1000).toFixed(2)} 秒\n\n`;
+                    
+                    // 显示前5条数据
+                    results.textContent += '前5条数据:\n';
+                    result.data.slice(0, 5).forEach((row, index) => {
+                        results.textContent += `${index + 1}. ${row.website} - ${row.country} - ${row.dataDate} - $${row.revenue}\n`;
+                    });
+                } else {
+                    results.textContent += `查询失败: ${result.error}\n`;
+                }
+            } catch (error) {
+                results.textContent += `查询出错: ${error.message}\n`;
+            }
+            
+            testDataBtn.disabled = false;
+        });
+        
+        // 测试分析功能
+        testAnalyticsBtn.addEventListener('click', async () => {
+            if (!sessionId) return;
+            
+            testAnalyticsBtn.disabled = true;
+            results.textContent += '\n正在测试数据分析...\n';
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`/api/analytics`);
+                const result = await response.json();
+                const endTime = Date.now();
+                
+                if (response.ok) {
+                    results.textContent += `分析成功!\n` +
+                        `总收入: $${result.summary.totalRevenue.toFixed(2)}\n` +
+                        `总展示次数: ${result.summary.totalImpressions.toLocaleString()}\n` +
+                        `总请求数: ${result.summary.totalRequests.toLocaleString()}\n` +
+                        `平均CTR: ${(result.summary.avgCTR * 100).toFixed(2)}%\n` +
+                        `平均eCPM: $${result.summary.avgECPM.toFixed(2)}\n` +
+                        `平均填充率: ${(result.summary.avgFillRate * 100).toFixed(2)}%\n` +
+                        `分析耗时: ${((endTime - startTime) / 1000).toFixed(2)} 秒\n\n`;
+                    
+                    results.textContent += `数据点数: ${result.charts.revenueByDate.length}\n`;
+                    
+                    // 显示收入前5的日期
+                    results.textContent += '\n收入前5的日期:\n';
+                    result.charts.revenueByDate
+                        .sort((a, b) => b.revenue - a.revenue)
+                        .slice(0, 5)
+                        .forEach((item, index) => {
+                            results.textContent += `${index + 1}. ${item.date}: $${item.revenue.toFixed(2)}\n`;
+                        });
+                } else {
+                    results.textContent += `分析失败: ${result.error}\n`;
+                }
+            } catch (error) {
+                results.textContent += `分析出错: ${error.message}\n`;
+            }
+            
+            testAnalyticsBtn.disabled = false;
+        });
+    </script>
+</body>
+</html>

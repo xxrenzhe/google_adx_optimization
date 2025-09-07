@@ -102,7 +102,7 @@ generate_deployment_commands() {
     echo "  - NEXT_PUBLIC_DEPLOYMENT_ENV=production"
     echo "  - DATABASE_URL=postgresql://postgres:w8mhnnqh@dbprovider.sg-members-1.clawcloudrun.com:32404/adx_optimization?directConnection=true"
     echo "  - REDIS_URL=redis://default:9xdjb8nf@dbprovider.sg-members-1.clawcloudrun.com:32284"
-    echo "  - CRON_SECRET=请生成随机密钥"
+    echo "  - # CRON_SECRET不再需要（已移除cron任务）"
     echo ""
     echo "资源配置: 1C2G (推荐 2C4G)"
     echo "----------------------------------------"

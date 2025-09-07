@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function main() {
+export async function initializeDatabase() {
   console.log('[DB-INIT] Starting database initialization...')
   
   try {
@@ -42,6 +42,10 @@ async function main() {
   } finally {
     console.log('[DB-INIT] Database initialization completed')
   }
+}
+
+async function main() {
+  await initializeDatabase()
 }
 
 main()

@@ -88,6 +88,9 @@ export async function GET(request: NextRequest) {
     
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : ''
     
+    // Add query hints for large tables
+    const queryHints = sessionInfo.recordCount > 500000 ? '/*+ MAX_EXECUTION_TIME(60000) */' : ''
+    
     // Generate cache key
     const cacheKey = `data:${session.id}:${cursor || 'first'}:${limit}:${search}:${sortBy}:${sortOrder}`
     
@@ -106,12 +109,13 @@ export async function GET(request: NextRequest) {
     
     // Set timeout for database operations
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Database query timeout')), 30000)
+      setTimeout(() => reject(new Error('Database query timeout')), 60000) // Increased to 60s
     })
     
     // Build the query with additional safety checks
     const offset = params.length + 1
     const query = `
+      ${queryHints}
       SELECT 
         id,
         dataDate,
@@ -142,6 +146,7 @@ export async function GET(request: NextRequest) {
     
     // Get count query
     const countQuery = `
+      ${queryHints}
       SELECT COUNT(*) as total
       FROM ${sessionInfo.tempTableName}
       ${whereClause.replace(/id > \$\d+ AND /, '')}

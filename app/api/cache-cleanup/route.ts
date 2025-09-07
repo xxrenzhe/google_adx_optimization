@@ -5,11 +5,7 @@ import { createClient } from 'redis'
 // 缓存清理API
 export async function GET(request: NextRequest) {
   try {
-    // 验证权限
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // 注意：CRON_SECRET已移除，如需保护此端点，请实现其他认证方式
     
     const results = await performCacheCleanup()
     
@@ -52,17 +48,17 @@ async function performCacheCleanup() {
     
     // 1. 清理过期的查询缓存
     const now = Date.now()
-    const expiredQueries = await redis.zrangebyscore('query_keys', 0, now)
+    const expiredQueries = await redis.zRangeByScore('query_keys', 0, now)
     
     if (expiredQueries.length > 0) {
-      await redis.del(...expiredQueries)
-      await redis.zremrangebyscore('query_keys', 0, now)
+      await redis.del(expiredQueries)
+      await redis.zRemRangeByScore('query_keys', 0, now)
       results.expiredQueryKeys = expiredQueries.length
       results.totalKeysCleaned += expiredQueries.length
     }
     
     // 2. 清理过期的分析缓存
-    const expiredAnalytics = await redis.zrangebyscore('analytics_keys', 0, now)
+    const expiredAnalytics = await redis.zRangeByScore('analytics_keys', 0, now)
     
     if (expiredAnalytics.length > 0) {
       const keysToDelete = []
@@ -76,8 +72,8 @@ async function performCacheCleanup() {
       }
       
       if (keysToDelete.length > 0) {
-        await redis.del(...keysToDelete)
-        await redis.zremrangebyscore('analytics_keys', 0, now)
+        await redis.del(keysToDelete)
+        await redis.zRemRangeByScore('analytics_keys', 0, now)
         results.expiredAnalyticsKeys = expiredAnalytics.length
         results.totalKeysCleaned += keysToDelete.length
       }
@@ -88,11 +84,11 @@ async function performCacheCleanup() {
     const allPageKeys = await redis.keys(pagePattern)
     
     for (const pageKey of allPageKeys) {
-      const expiredPages = await redis.zrangebyscore(pageKey, 0, now)
+      const expiredPages = await redis.zRangeByScore(pageKey, 0, now)
       if (expiredPages.length > 0) {
         const pageKeysToDelete = expiredPages.map((page: string) => `page:${pageKey.split(':')[1]}:${page}`)
-        await redis.del(...pageKeysToDelete)
-        await redis.zremrangebyscore(pageKey, 0, now)
+        await redis.del(pageKeysToDelete)
+        await redis.zRemRangeByScore(pageKey, 0, now)
         results.expiredPageKeys += expiredPages.length
         results.totalKeysCleaned += expiredPages.length
       }

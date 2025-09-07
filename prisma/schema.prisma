@@ -37,6 +37,8 @@ model AdReport {
   @@index([sessionId, dataDate])
   @@index([dataDate, website])
   @@index([website, country])
+  @@index([dataDate, website, country])
+  @@index([sessionId, dataDate, revenue])
 }
 
 model UploadSession {

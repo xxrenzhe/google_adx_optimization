@@ -3,8 +3,6 @@ import { prisma } from '@/lib/prisma'
 import { Readable } from 'stream'
 import { createClient } from 'redis'
 import { generateSessionId } from '@/lib/session'
-import { pipeline } from 'stream/promises'
-import { Writable } from 'stream'
 
 // Redis client for caching
 const redis = createClient({
@@ -33,8 +31,10 @@ export async function POST(request: NextRequest) {
 
     // Create upload session record
     const sessionId = generateSessionId()
+    // Safe table name generation to prevent SQL injection
     const tempTableName = `temp_ad_data_${sessionId.replace(/[^a-zA-Z0-9_]/g, '_')}`
     
+    // Validate table name format
     if (!/^[a-zA-Z_][a-zA-Z0-9_]{1,60}$/.test(tempTableName)) {
       return NextResponse.json({ error: 'Invalid session ID' }, { status: 400 })
     }
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Create temporary table with optimized indexes
+    // Create UNLOGGED table for faster bulk inserts
     await prisma.$executeRawUnsafe(`
       CREATE UNLOGGED TABLE ${tempTableName} (
         id SERIAL PRIMARY KEY,
@@ -74,274 +74,245 @@ export async function POST(request: NextRequest) {
         fillRate DECIMAL(10, 4),
         arpu DECIMAL(15, 6)
       )
-      
-      -- Create indexes after data load for faster bulk insert
     `)
 
-    // Process file with optimized streaming
-    const processingResult = await processFileStream(file.stream(), tempTableName, sessionId)
+    // Process file stream with optimized batch size
+    let recordCount = 0
+    const batchSize = 100000 // Increased batch size for better performance
+    let batch: any[] = []
     
-    // Create indexes after data is loaded
-    await prisma.$executeRawUnsafe(`
-      CREATE INDEX idx_${tempTableName}_date_website ON ${tempTableName} (dataDate, website);
-      CREATE INDEX idx_${tempTableName}_country ON ${tempTableName} (country);
-      CREATE INDEX idx_${tempTableName}_device ON ${tempTableName} (device);
-    `)
+    const stream = file.stream()
+    const reader = stream.getReader()
+    const decoder = new TextDecoder('utf-8', { fatal: false })
     
-    // Update session status
-    await prisma.uploadSession.update({
-      where: { id: sessionId },
-      data: {
-        status: 'completed',
-        recordCount: processingResult.recordCount,
-        processedAt: new Date()
+    let headers: string[] = []
+    let isFirstRow = true
+    let lastProgressUpdate = 0
+    
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        
+        if (done) {
+          break
+        }
+        
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n')
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim()
+          if (!line) continue
+          
+          if (isFirstRow) {
+            // Parse headers
+            headers = line.split(',').map(h => h.trim().replace(/^"|"$/g, ''))
+            isFirstRow = false
+            continue
+          }
+          
+          // Parse CSV row (simple approach)
+          const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''))
+          if (values.length !== headers.length) continue
+          
+          // Map columns to database fields
+          const record = mapCsvToRecord(headers, values)
+          if (record) {
+            batch.push(record)
+            recordCount++
+            
+            // Insert batch when it reaches the batch size
+            if (batch.length >= batchSize) {
+              await insertBatch(tempTableName, batch)
+              batch = []
+              
+              // Update progress less frequently to reduce Redis overhead
+              const now = Date.now()
+              if (now - lastProgressUpdate > 5000) { // Update every 5 seconds
+                await redis.set(`upload_progress:${sessionId}`, JSON.stringify({
+                  processed: recordCount,
+                  total: file.size,
+                  progress: (recordCount * 100 / (file.size / 1000)).toFixed(1) // Rough estimate
+                }))
+                lastProgressUpdate = now
+              }
+            }
+          }
+        }
       }
-    })
-    
-    // Cache session info
-    await redis.setEx(`session:${sessionId}`, 3600 * 24, JSON.stringify({
-      id: sessionId,
-      filename: file.name,
-      recordCount: processingResult.recordCount,
-      tempTableName
-    }))
-    
-    const response = NextResponse.json({ 
-      message: 'File uploaded successfully',
-      sessionId,
-      recordsProcessed: processingResult.recordCount,
-      processingTime: processingResult.processingTime
-    })
-    
-    response.cookies.set('adx_session_id', sessionId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7
-    })
-    
-    return response
+      
+      // Insert remaining records
+      if (batch.length > 0) {
+        await insertBatch(tempTableName, batch)
+      }
+      
+      // Create indexes after data load for faster bulk inserts
+      await createIndexes(tempTableName)
+      
+      // Update session status
+      await prisma.uploadSession.update({
+        where: { id: sessionId },
+        data: {
+          status: 'completed',
+          recordCount,
+          uploadedAt: new Date()
+        }
+      })
+      
+      // Cache session info
+      await redis.setex(`session:${sessionId}`, 3600, JSON.stringify({
+        id: sessionId,
+        filename: file.name,
+        recordCount,
+        tempTableName
+      }))
+      
+      return NextResponse.json({
+        sessionId,
+        filename: file.name,
+        recordCount,
+        message: 'File uploaded successfully'
+      })
+      
+    } catch (error) {
+      console.error('Upload processing error:', error)
+      
+      // Update session status to failed
+      await prisma.uploadSession.update({
+        where: { id: sessionId },
+        data: { status: 'failed' }
+      })
+      
+      return NextResponse.json(
+        { error: 'Failed to process file' },
+        { status: 500 }
+      )
+    }
     
   } catch (error) {
     console.error('Upload error:', error)
     return NextResponse.json(
-      { error: 'Failed to process file' },
+      { error: 'Upload failed' },
       { status: 500 }
     )
   }
 }
 
-async function processFileStream(stream: ReadableStream, tempTableName: string, sessionId: string) {
-  const startTime = Date.now()
-  let recordCount = 0
-  let lastProgressUpdate = 0
-  
-  // Use PostgreSQL COPY for maximum efficiency
-  const copyStream = new Writable({
-    objectMode: true,
-    highWaterMark: 100000 // Larger buffer for better performance
-  })
-  
-  const batchBuffer: string[] = []
-  const batchSize = 100000 // Increased batch size
-  
-  copyStream._write = async (record, encoding, callback) => {
-    try {
-      batchBuffer.push(formatRecordForCopy(record))
-      
-      if (batchBuffer.length >= batchSize) {
-        await flushBatchToDatabase(batchBuffer.splice(0, batchSize))
-        recordCount += batchSize
-        
-        // Update progress less frequently
-        if (recordCount - lastProgressUpdate > 50000) {
-          lastProgressUpdate = recordCount
-          await redis.set(`upload_progress:${sessionId}`, recordCount)
-        }
-      }
-      
-      callback()
-    } catch (error) {
-      callback(error)
-    }
-  }
-  
-  copyStream._final = async (callback) => {
-    try {
-      // Flush remaining records
-      if (batchBuffer.length > 0) {
-        await flushBatchToDatabase(batchBuffer)
-        recordCount += batchBuffer.length
-      }
-      
-      callback()
-    } catch (error) {
-      callback(error)
-    }
-  }
-  
-  // Process the stream
-  await pipeline(
-    Readable.fromWeb(stream),
-    createCSVParser(),
-    copyStream
-  )
-  
-  return {
-    recordCount,
-    processingTime: Date.now() - startTime
-  }
-}
-
-async function flushBatchToDatabase(records: string[]) {
-  const csvContent = records.join('\n')
-  
-  // Use a temporary file for COPY
-  const tempFilePath = `/tmp/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.csv`
-  
-  try {
-    require('fs').writeFileSync(tempFilePath, csvContent, 'utf8')
-    
-    await prisma.$executeRawUnsafe(`
-      COPY ad_reports_temp (
-        dataDate, website, country, adFormat, adUnit, advertiser, domain,
-        device, browser, requests, impressions, clicks, ctr, ecpm, revenue,
-        viewableImpressions, viewabilityRate, measurableImpressions, fillRate, arpu
-      ) FROM '${tempFilePath}' WITH (FORMAT CSV, HEADER FALSE)
-    `)
-    
-    // Clean up temp file
-    require('fs').unlinkSync(tempFilePath)
-  } catch (error) {
-    // Clean up on error
-    try {
-      require('fs').unlinkSync(tempFilePath)
-    } catch (e) {}
-    throw error
-  }
-}
-
-function formatRecordForCopy(record: any): string {
-  return [
-    record.dataDate ? record.dataDate.toISOString().split('T')[0] : '',
-    record.website || '',
-    record.country || '',
-    record.adFormat || '',
-    record.adUnit || '',
-    record.advertiser || '',
-    record.domain || '',
-    record.device || '',
-    record.browser || '',
-    record.requests || '',
-    record.impressions || '',
-    record.clicks || '',
-    record.ctr || '',
-    record.ecpm || '',
-    record.revenue || '',
-    record.viewableImpressions || '',
-    record.viewabilityRate || '',
-    record.measurableImpressions || '',
-    record.fillRate || '',
-    record.arpu || ''
-  ].map(v => v === null ? '' : String(v))
-    .map(v => v.replace(/"/g, '""'))
-    .map(v => v.includes(',') || v.includes('"') || v.includes('\n') ? `"${v}"` : v)
-    .join(',')
-}
-
-function createCSVParser() {
-  let headers: string[] = []
-  let isFirstRow = true
-  
-  return new TransformStream({
-    transform(chunk, controller) {
-      const lines = chunk.toString().split('\n')
-      
-      for (const line of lines) {
-        if (!line.trim()) continue
-        
-        const values = parseCSVLine(line)
-        
-        if (isFirstRow) {
-          headers = values
-          isFirstRow = false
-          continue
-        }
-        
-        if (values.length === headers.length) {
-          const record = createRecordFromCSV(headers, values)
-          if (record) {
-            controller.enqueue(record)
-          }
-        }
-      }
-    }
-  })
-}
-
-function parseCSVLine(line: string): string[] {
-  const result: string[] = []
-  let current = ''
-  let inQuotes = false
-  
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i]
-    
-    if (char === '"') {
-      inQuotes = !inQuotes
-    } else if (char === ',' && !inQuotes) {
-      result.push(current.trim())
-      current = ''
-    } else {
-      current += char
-    }
-  }
-  
-  result.push(current.trim())
-  return result
-}
-
-function createRecordFromCSV(headers: string[], values: string[]): any {
+// Helper function to map CSV columns to database fields
+function mapCsvToRecord(headers: string[], values: string[]) {
   const record: any = {}
   
+  // Column mapping (Chinese and English column names)
+  const columnMap: Record<string, string> = {
+    '网站': 'website',
+    'Website': 'website',
+    '国家/地区': 'country',
+    'Country': 'country',
+    '广告资源格式': 'adFormat',
+    'Ad format': 'adFormat',
+    '广告单元（所有级别）': 'adUnit',
+    'Ad unit': 'adUnit',
+    '广告客户（已分类）': 'advertiser',
+    'Advertiser': 'advertiser',
+    '广告客户网域': 'domain',
+    'Advertiser domain': 'domain',
+    '设备': 'device',
+    'Device': 'device',
+    '浏览器': 'browser',
+    'Browser': 'browser',
+    '日期': 'dataDate',
+    'Date': 'dataDate',
+    'Ad Exchange 请求总数': 'requests',
+    'Ad requests': 'requests',
+    'Ad Exchange 展示次数': 'impressions',
+    'Ad impressions': 'impressions',
+    'Ad Exchange 点击次数': 'clicks',
+    'Ad clicks': 'clicks',
+    'Ad Exchange 点击率': 'ctr',
+    'Ad ctr': 'ctr',
+    'Ad Exchange 平均 eCPM': 'ecpm',
+    'Ad eCPM': 'ecpm',
+    'Ad Exchange 收入': 'revenue',
+    'Ad revenue': 'revenue',
+    'Ad Exchange Active View可见展示次数': 'viewableImpressions',
+    'Active view viewable impressions': 'viewableImpressions',
+    'Ad Exchange Active View可见展示次数百分比': 'viewabilityRate',
+    'Active view viewable percentage': 'viewabilityRate',
+    'Ad Exchange Active View可衡量展示次数': 'measurableImpressions',
+    'Active view measurable impressions': 'measurableImpressions'
+  }
+  
+  // Map each column
   for (let i = 0; i < headers.length; i++) {
-    const header = headers[i].toLowerCase().replace(/[^\w\u4e00-\u9fff]/g, '')
-    const value = values[i]?.trim()
+    const header = headers[i]
+    const field = columnMap[header] || header
+    const value = values[i]
     
-    if (!value) continue
-    
-    // Column mappings (same as before)
-    switch (header) {
-      case 'date':
-      case 'data_date':
-      case '日期':
-        record.dataDate = new Date(value)
-        break
-      case 'website':
-      case '网站':
-        record.website = value
-        break
-      case 'country':
-      case '国家地区':
-      case '国家':
-        record.country = value
-        break
-      // ... other mappings remain the same
+    if (field === 'dataDate') {
+      record.dataDate = new Date(value)
+    } else if (['requests', 'impressions', 'clicks', 'viewableImpressions', 'measurableImpressions'].includes(field)) {
+      record[field] = parseInt(value) || 0
+    } else if (['ctr', 'ecpm', 'revenue', 'viewabilityRate'].includes(field)) {
+      record[field] = parseFloat(value) || 0
+    } else {
+      record[field] = value
     }
   }
   
-  if (!record.website || !record.dataDate) {
-    return null
+  // Calculate derived fields
+  if (record.impressions && record.requests) {
+    record.fillRate = record.impressions / record.requests
   }
   
-  // Calculate derived metrics
-  if (record.requests && record.impressions) {
-    record.fillRate = (Number(record.impressions) / Number(record.requests)) * 100
-  }
-  
-  if (record.revenue && record.requests) {
-    record.arpu = (record.revenue / Number(record.requests)) * 1000
+  if (record.revenue && record.impressions) {
+    record.arpu = record.revenue / record.impressions * 1000
   }
   
   return record
+}
+
+// Optimized batch insert using parameterized query
+async function insertBatch(tableName: string, batch: any[]) {
+  const values = batch.map(record => [
+    record.dataDate,
+    record.website,
+    record.country,
+    record.adFormat,
+    record.adUnit,
+    record.advertiser,
+    record.domain,
+    record.device,
+    record.browser,
+    record.requests || 0,
+    record.impressions || 0,
+    record.clicks || 0,
+    record.ctr || 0,
+    record.ecpm || 0,
+    record.revenue || 0,
+    record.viewableImpressions || 0,
+    record.viewabilityRate || 0,
+    record.measurableImpressions || 0,
+    record.fillRate || 0,
+    record.arpu || 0
+  ])
+  
+  await prisma.$executeRawUnsafe(`
+    INSERT INTO ${tableName} (
+      dataDate, website, country, adFormat, adUnit, advertiser, domain,
+      device, browser, requests, impressions, clicks, ctr, ecpm, revenue,
+      viewableImpressions, viewabilityRate, measurableImpressions, fillRate, arpu
+    ) VALUES ${values.map((_, i) => `(
+      $${i * 20 + 1}, $${i * 20 + 2}, $${i * 20 + 3}, $${i * 20 + 4}, $${i * 20 + 5}, 
+      $${i * 20 + 6}, $${i * 20 + 7}, $${i * 20 + 8}, $${i * 20 + 9}, $${i * 20 + 10},
+      $${i * 20 + 11}, $${i * 20 + 12}, $${i * 20 + 13}, $${i * 20 + 14}, $${i * 20 + 15},
+      $${i * 20 + 16}, $${i * 20 + 17}, $${i * 20 + 18}, $${i * 20 + 19}, $${i * 20 + 20}
+    )`).join(', ')}
+  `, values.flat())
+}
+
+// Create indexes after data load for better performance
+async function createIndexes(tableName: string) {
+  await prisma.$executeRawUnsafe(`CREATE INDEX ON ${tableName} (dataDate)`)
+  await prisma.$executeRawUnsafe(`CREATE INDEX ON ${tableName} (website)`)
+  await prisma.$executeRawUnsafe(`CREATE INDEX ON ${tableName} (country)`)
 }

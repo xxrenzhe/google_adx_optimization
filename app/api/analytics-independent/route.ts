@@ -126,7 +126,7 @@ async function getBasicStats(tempTableName: string) {
     WHERE dataDate IS NOT NULL
   `)
   
-  const stats = result[0]
+  const stats = (result as any[])[0]
   
   return {
     totalRecords: Number(stats.total_records),
@@ -159,7 +159,7 @@ async function getTimeSeriesAnalysis(tempTableName: string) {
     ORDER BY dataDate
   `)
   
-  return result.map((row: any) => ({
+  return (result as any[]).map((row: any) => ({
     date: row.dataDate,
     records: Number(row.records),
     revenue: Number(row.revenue),
@@ -189,7 +189,7 @@ async function getWebsitePerformance(tempTableName: string) {
     LIMIT 20
   `)
   
-  return result.map((row: any) => ({
+  return (result as any[]).map((row: any) => ({
     website: row.website,
     records: Number(row.records),
     revenue: Number(row.revenue),
@@ -217,7 +217,7 @@ async function getGeoAnalysis(tempTableName: string) {
     LIMIT 15
   `)
   
-  return result.map((row: any) => ({
+  return (result as any[]).map((row: any) => ({
     country: row.country,
     records: Number(row.records),
     revenue: Number(row.revenue),
@@ -242,7 +242,7 @@ async function getDeviceAnalysis(tempTableName: string) {
     ORDER BY revenue DESC
   `)
   
-  return result.map((row: any) => ({
+  return (result as any[]).map((row: any) => ({
     device: row.device,
     records: Number(row.records),
     revenue: Number(row.revenue),
@@ -268,7 +268,7 @@ async function getAdFormatAnalysis(tempTableName: string) {
     ORDER BY revenue DESC
   `)
   
-  return result.map((row: any) => ({
+  return (result as any[]).map((row: any) => ({
     adFormat: row.adformat,
     records: Number(row.records),
     revenue: Number(row.revenue),
@@ -292,7 +292,7 @@ async function getRevenueAnalysis(tempTableName: string) {
     WHERE revenue IS NOT NULL
   `)
   
-  const stats = result[0]
+  const stats = (result as any[])[0]
   
   return {
     median: Number(stats.median_revenue),
@@ -332,7 +332,7 @@ async function getTrendsAnalysis(tempTableName: string) {
     LIMIT 14
   `)
   
-  return result.map((row: any) => ({
+  return (result as any[]).map((row: any) => ({
     date: row.dataDate,
     revenue: Number(row.daily_revenue),
     impressions: Number(row.daily_impressions),

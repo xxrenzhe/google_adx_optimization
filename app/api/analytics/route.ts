@@ -7,7 +7,8 @@ import { createClient } from 'redis'
 const redis = createClient({
   url: process.env.REDIS_URL || '',
   socket: {
-    reconnectStrategy: (retries) => Math.min(retries * 50, 500)
+    reconnectStrategy: (retries) => Math.min(retries * 50, 500),
+    timeout: 10000
   }
 })
 
@@ -49,8 +50,12 @@ export async function GET(request: NextRequest) {
     
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : ''
     
+    // Add query hints for large tables
+    const queryHints = sessionInfo.recordCount > 500000 ? '/*+ MAX_EXECUTION_TIME(120000) */' : ''
+    
     // Get all analytics data in a single query for better performance
     const analyticsQuery = `
+      ${queryHints}
       WITH revenue_data AS (
         SELECT 
           SUM(revenue) as total_revenue,
@@ -103,6 +108,7 @@ export async function GET(request: NextRequest) {
     
     // Calculate fill rate distribution
     const fillRateQuery = `
+      ${queryHints}
       SELECT 
         CASE 
           WHEN fillRate < 20 THEN '0-20%'
