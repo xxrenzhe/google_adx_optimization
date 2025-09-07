@@ -9,6 +9,7 @@ interface UploadResult {
   message: string;
   fileName: string;
   fileSize: number;
+  error?: string;
 }
 
 interface AnalysisStatus {
@@ -69,10 +70,10 @@ const FileUploadOptimized: React.FC = () => {
   };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const newFiles = acceptedFiles.map(file => ({
+    const newFiles: FileWithProgress[] = acceptedFiles.map(file => ({
       file,
       id: crypto.randomUUID(),
-      status: 'uploading' as const,
+      status: 'uploading',
       progress: 0
     }));
 

@@ -256,7 +256,7 @@ async function processFile(fileId: string, filePath: string, statusPath: string)
     console.error('Processing error:', error);
     await updateStatus(statusPath, {
       status: 'failed',
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
       failedAt: new Date().toISOString()
     });
   }
