@@ -184,7 +184,7 @@ export async function GET(request: NextRequest) {
         return current
       }
       return best
-    })
+    }, null as any)
 
     if (bestDevice && bestDevice.device) {
       recommendations.push({
@@ -401,10 +401,11 @@ export async function GET(request: NextRequest) {
 
     // Find peak and low performance hours
     const hourlyAvg = hourlyRevenue.map(h => h.count > 0 ? h.total / h.count : 0)
-    const peakHour = hourlyAvg.indexOf(Math.max(...hourlyAvg))
-    const lowHour = hourlyAvg.indexOf(Math.min(...hourlyAvg.filter(h => h > 0)))
+    const validHourlyAvg = hourlyAvg.filter(h => h > 0)
+    const peakHour = validHourlyAvg.length > 0 ? hourlyAvg.indexOf(Math.max(...validHourlyAvg)) : -1
+    const lowHour = validHourlyAvg.length > 0 ? hourlyAvg.indexOf(Math.min(...validHourlyAvg)) : -1
 
-    if (hourlyAvg[peakHour] > hourlyAvg[lowHour] * 2) {
+    if (peakHour >= 0 && lowHour >= 0 && hourlyAvg[peakHour] > hourlyAvg[lowHour] * 2) {
       recommendations.push({
         id: 'timing-optimization',
         type: 'timing',
