@@ -57,13 +57,16 @@ RUN if [ -d "/app/public" ]; then \
       mkdir -p ./public; \
     fi
 
+# Copy start script
+COPY start.sh ./start.sh
+RUN chmod +x start.sh
+
 # Set the correct permission for prerender cache
 RUN mkdir -p .next
 RUN chown nextjs:nodejs .next
 
-# Copy Prisma schema and start script
+# Copy Prisma schema
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./start.sh
 
 # Automatically leverage output traces to reduce image size
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./

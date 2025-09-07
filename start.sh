@@ -5,6 +5,9 @@
 
 echo "🚀 Starting Google ADX Optimization System..."
 
+# 确保我们在正确的目录
+cd /app
+
 # 等待数据库就绪
 echo "⏳ Waiting for database to be ready..."
 until npx prisma db execute --stdin --command="SELECT 1" > /dev/null 2>&1; do
