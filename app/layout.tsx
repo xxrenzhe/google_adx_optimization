@@ -25,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="zh-CN">
+      <body className={`${inter.className} ${notoSansSC.variable} font-sans`}>{children}</body>
     </html>
   )
 }
