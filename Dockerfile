@@ -47,8 +47,11 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Install OpenSSL for Prisma
+# Install OpenSSL for Prisma and increase Node.js memory limit
 RUN apk add --no-cache openssl-dev openssl
+
+# Set Node.js memory limit to 1.5GB for processing large files
+ENV NODE_OPTIONS="--max-old-space-size=1536"
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

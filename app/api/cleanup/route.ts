@@ -1,123 +1,139 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { createClient } from 'redis'
+import { NextRequest, NextResponse } from 'next/server';
+import { readdir, unlink, readFile } from 'fs/promises';
+import { join } from 'path';
 
-// Redis client for caching
-const redis = createClient({
-  url: process.env.REDIS_URL || '',
-  socket: {
-    reconnectStrategy: (retries) => Math.min(retries * 50, 500)
-  }
-})
+const RESULTS_DIR = './results';
+const UPLOAD_DIR = './uploads';
 
-// 清理过期会话和临时表
-export async function POST() {
-  try {
-    const cleanedCount = await cleanupExpiredSessions()
-    
-    return NextResponse.json({ 
-      message: `Cleaned up ${cleanedCount} expired sessions`,
-      cleanedCount 
-    })
-  } catch (error) {
-    console.error('Cleanup error:', error)
-    return NextResponse.json(
-      { error: 'Failed to cleanup sessions' },
-      { status: 500 }
-    )
-  }
-}
+// 清理超过24小时的文件
+const CLEANUP_HOURS = 24;
 
-// 自动清理函数（可以通过定时任务调用）
 export async function GET() {
   try {
-    const cleanedCount = await cleanupExpiredSessions()
+    const now = Date.now();
+    const maxAge = CLEANUP_HOURS * 60 * 60 * 1000;
     
-    return NextResponse.json({ 
-      message: `Auto-cleaned ${cleanedCount} expired sessions`,
-      cleanedCount 
-    })
+    // 获取所有结果文件
+    const resultFiles = await readdir(RESULTS_DIR);
+    const uploadFiles = await readdir(UPLOAD_DIR);
+    
+    let cleanedCount = 0;
+    let totalSize = 0;
+    
+    // 清理过期的结果文件
+    for (const file of resultFiles) {
+      const filePath = join(RESULTS_DIR, file);
+      const stats = await import('fs').then(fs => fs.promises.stat(filePath));
+      
+      if (now - stats.mtime.getTime() > maxAge) {
+        const size = stats.size;
+        await unlink(filePath);
+        cleanedCount++;
+        totalSize += size;
+        
+        // 如果是.status文件，同时清理对应的上传文件
+        if (file.endsWith('.status')) {
+          const fileId = file.replace('.status', '');
+          const uploadFile = uploadFiles.find(f => f.startsWith(fileId));
+          if (uploadFile) {
+            try {
+              await unlink(join(UPLOAD_DIR, uploadFile));
+            } catch (e) {
+              console.warn(`Failed to delete upload file: ${uploadFile}`);
+            }
+          }
+        }
+      }
+    }
+    
+    // 获取当前处理中的任务
+    const processingFiles = resultFiles
+      .filter(f => f.endsWith('.status'))
+      .map(f => f.replace('.status', ''));
+    
+    const processingStatus = [];
+    for (const fileId of processingFiles) {
+      try {
+        const statusPath = join(RESULTS_DIR, `${fileId}.status`);
+        const statusData = await readFile(statusPath, 'utf-8');
+        const status = JSON.parse(statusData);
+        processingStatus.push({
+          fileId,
+          status: status.status,
+          progress: status.progress || 0,
+          fileName: status.fileName,
+          uploadTime: status.uploadTime
+        });
+      } catch (e) {
+        // 忽略错误
+      }
+    }
+    
+    return NextResponse.json({
+      cleaned: {
+        files: cleanedCount,
+        size: totalSize
+      },
+      processing: processingStatus,
+      cleanupHours: CLEANUP_HOURS
+    });
+    
   } catch (error) {
-    console.error('Auto cleanup error:', error)
+    console.error('Cleanup error:', error);
     return NextResponse.json(
-      { error: 'Failed to auto cleanup' },
+      { error: '清理失败' },
       { status: 500 }
-    )
+    );
   }
 }
 
-async function cleanupExpiredSessions(): Promise<number> {
-  let cleanedCount = 0
-  
+// 手动清理特定文件
+export async function DELETE(request: NextRequest) {
   try {
-    // 查找过期会话（24小时前）
-    const expiredSessions = await prisma.uploadSession.findMany({
-      where: {
-        OR: [
-          {
-            analyzedAt: { 
-              lt: new Date(Date.now() - 24 * 60 * 60 * 1000) 
-            }
-          },
-          {
-            uploadedAt: { 
-              lt: new Date(Date.now() - 48 * 60 * 60 * 1000) 
-            },
-            analyzedAt: null
-          }
-        ]
-      },
-      select: {
-        id: true,
-        tempTableName: true
-      }
-    })
+    const { searchParams } = new URL(request.url);
+    const fileId = searchParams.get('fileId');
     
-    if (expiredSessions.length === 0) {
-      return 0
+    if (!fileId) {
+      return NextResponse.json(
+        { error: '缺少fileId参数' },
+        { status: 400 }
+      );
     }
     
-    // 清理每个过期会话
-    for (const session of expiredSessions) {
-      try {
-        // 删除临时表
-        await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS ${session.tempTableName}`)
-        
-        // 删除Redis缓存
-        await redis.del(`session:${session.id}`)
-        await redis.del(`upload_progress:${session.id}`)
-        
-        // 删除相关的数据缓存
-        const cacheKeys = await redis.keys(`data:${session.id}:*`)
-        if (cacheKeys.length > 0) {
-          await redis.del(cacheKeys)
-        }
-        
-        const analyticsKeys = await redis.keys(`analytics:${session.id}:*`)
-        if (analyticsKeys.length > 0) {
-          await redis.del(analyticsKeys)
-        }
-        
-        cleanedCount++
-      } catch (error) {
-        console.error(`Failed to cleanup session ${session.id}:`, error)
+    let deletedFiles = [];
+    
+    // 删除结果文件
+    try {
+      await unlink(join(RESULTS_DIR, `${fileId}.json`));
+      deletedFiles.push('result.json');
+    } catch (e) {}
+    
+    // 删除状态文件
+    try {
+      await unlink(join(RESULTS_DIR, `${fileId}.status`));
+      deletedFiles.push('status');
+    } catch (e) {}
+    
+    // 删除上传文件
+    try {
+      const uploadFiles = await readdir(UPLOAD_DIR);
+      const uploadFile = uploadFiles.find(f => f.startsWith(fileId));
+      if (uploadFile) {
+        await unlink(join(UPLOAD_DIR, uploadFile));
+        deletedFiles.push('upload');
       }
-    }
+    } catch (e) {}
     
-    // 批量删除会话记录
-    await prisma.uploadSession.deleteMany({
-      where: {
-        id: {
-          in: expiredSessions.map(s => s.id)
-        }
-      }
-    })
+    return NextResponse.json({
+      deletedFiles,
+      message: '文件已删除'
+    });
     
-    console.log(`Cleaned up ${cleanedCount} expired sessions`)
-    
-    return cleanedCount
   } catch (error) {
-    console.error('Cleanup failed:', error)
-    throw error
+    console.error('Delete error:', error);
+    return NextResponse.json(
+      { error: '删除失败' },
+      { status: 500 }
+    );
   }
 }

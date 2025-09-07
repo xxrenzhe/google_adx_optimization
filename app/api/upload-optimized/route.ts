@@ -1,337 +1,297 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { createClient } from 'redis'
-import { generateSessionId } from '../../../lib/session'
+import { NextRequest, NextResponse } from 'next/server';
+import { mkdir, writeFile, readFile } from 'fs/promises';
+import { join } from 'path';
+import { createReadStream, createWriteStream } from 'fs';
+import { pipeline } from 'stream/promises';
+import { createInterface } from 'readline';
 
-// Redis client for caching
-const redis = createClient({
-  url: process.env.REDIS_URL || '',
-  socket: {
-    reconnectStrategy: (retries) => Math.min(retries * 50, 500)
-  }
-})
-
-// Connect to Redis
-redis.on('error', (err) => console.log('Redis Client Error', err))
-redis.connect().catch(console.error)
+const UPLOAD_DIR = './uploads';
+const RESULTS_DIR = './results';
+const MAX_FILE_SIZE = 200 * 1024 * 1024; // 200MB
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData()
-    const file = formData.get('file') as File
-    
+    // 确保目录存在
+    await mkdir(UPLOAD_DIR, { recursive: true });
+    await mkdir(RESULTS_DIR, { recursive: true });
+
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+
     if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
+      return NextResponse.json({ error: '没有找到文件' }, { status: 400 });
     }
 
+    // 检查文件大小
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: '文件过大，请上传小于200MB的文件' },
+        { status: 400 }
+      );
+    }
+
+    // 检查文件类型
     if (!file.name.endsWith('.csv')) {
-      return NextResponse.json({ error: 'Only CSV files are allowed' }, { status: 400 })
+      return NextResponse.json(
+        { error: '只支持CSV格式文件' },
+        { status: 400 }
+      );
     }
 
-    // Create upload session record
-    const sessionId = generateSessionId()
-    const tempTableName = `temp_ad_data_${sessionId.replace(/[^a-zA-Z0-9_]/g, '_')}`
-    
-    // Validate table name format
-    if (!/^[a-zA-Z_][a-zA-Z0-9_]{1,60}$/.test(tempTableName)) {
-      return NextResponse.json({ error: 'Invalid session ID' }, { status: 400 })
-    }
-    
-    const uploadSession = await prisma.uploadSession.create({
-      data: {
-        id: sessionId,
-        filename: file.name,
-        fileSize: file.size,
-        tempTableName,
-        status: 'uploading'
-      }
-    })
+    const fileId = crypto.randomUUID();
+    const fileName = `${fileId}${file.name.endsWith('.csv') ? '' : '.csv'}`;
+    const filePath = join(UPLOAD_DIR, fileName);
 
-    // Create UNLOGGED table for faster bulk inserts
-    await prisma.$executeRawUnsafe(`
-      CREATE UNLOGGED TABLE ${tempTableName} (
-        id SERIAL PRIMARY KEY,
-        dataDate DATE,
-        website VARCHAR(500),
-        country VARCHAR(100),
-        adFormat VARCHAR(200),
-        adUnit VARCHAR(500),
-        advertiser VARCHAR(500),
-        domain VARCHAR(500),
-        device VARCHAR(100),
-        browser VARCHAR(100),
-        requests BIGINT,
-        impressions BIGINT,
-        clicks BIGINT,
-        ctr DECIMAL(10, 4),
-        ecpm DECIMAL(15, 6),
-        revenue DECIMAL(15, 6),
-        viewableImpressions BIGINT,
-        viewabilityRate DECIMAL(10, 4),
-        measurableImpressions BIGINT,
-        fillRate DECIMAL(10, 4),
-        arpu DECIMAL(15, 6)
-      )
-    `)
+    // 保存上传的文件
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    await writeFile(filePath, fileBuffer);
 
-    // Process file with optimized streaming
-    const result = await processFileStream(file, tempTableName, sessionId)
-    
-    // Create indexes after data load
-    await prisma.$executeRawUnsafe(`CREATE INDEX ON ${tempTableName} (dataDate)`)
-    await prisma.$executeRawUnsafe(`CREATE INDEX ON ${tempTableName} (website)`)
-    await prisma.$executeRawUnsafe(`CREATE INDEX ON ${tempTableName} (country)`)
-    
-    // Update session status
-    await prisma.uploadSession.update({
-      where: { id: sessionId },
-      data: {
-        status: 'completed',
-        recordCount: result.recordCount,
-        uploadedAt: new Date()
-      }
-    })
-    
-    // Cache session info
-    await redis.setEx(`session:${sessionId}`, 3600, JSON.stringify({
-      id: sessionId,
-      filename: file.name,
-      recordCount: result.recordCount,
-      tempTableName
-    }))
-    
+    // 创建状态文件
+    const statusPath = join(RESULTS_DIR, `${fileId}.status`);
+    await writeFile(statusPath, JSON.stringify({
+      status: 'processing',
+      fileName: file.name,
+      fileSize: file.size,
+      uploadTime: new Date().toISOString(),
+      progress: 0
+    }));
+
+    // 异步处理文件（不等待）
+    processFile(fileId, filePath, statusPath).catch(console.error);
+
     return NextResponse.json({
-      sessionId,
-      filename: file.name,
-      recordCount: result.recordCount,
-      message: 'File uploaded successfully'
-    })
-    
+      fileId,
+      message: '文件上传成功，正在分析中...',
+      fileName: file.name,
+      fileSize: file.size
+    });
+
   } catch (error) {
-    console.error('Upload error:', error)
+    console.error('Upload error:', error);
     return NextResponse.json(
-      { error: 'Failed to process file', details: (error instanceof Error ? error.message : String(error)) },
+      { error: '文件上传失败' },
       { status: 500 }
-    )
+    );
   }
 }
 
-// Optimized file stream processing
-async function processFileStream(file: File, tempTableName: string, sessionId: string) {
-  let recordCount = 0
-  const batchSize = 50000 // Optimized batch size
-  let batch: any[] = []
-  let buffer = ''
-  
-  const stream = file.stream()
-  const reader = stream.getReader()
-  const decoder = new TextDecoder('utf-8', { fatal: false })
-  
-  let headers: string[] = []
-  let isFirstChunk = true
-  let lastProgressUpdate = 0
-  
+async function processFile(fileId: string, filePath: string, statusPath: string) {
   try {
-    while (true) {
-      const { done, value } = await reader.read()
-      
-      if (done) {
-        // Process remaining buffer
-        if (buffer.trim()) {
-          processLine(buffer.trim(), headers, batch)
-        }
-        break
+    const stream = createReadStream(filePath);
+    const rl = createInterface({
+      input: stream,
+      crlfDelay: Infinity,
+      terminal: false
+    });
+
+    // 聚合器
+    const aggregator = {
+      summary: {
+        totalRows: 0,
+        totalRevenue: 0,
+        totalImpressions: 0,
+        totalClicks: 0,
+        totalRequests: 0,
+        avgEcpm: 0,
+        avgCtr: 0
+      },
+      websites: new Map<string, {
+        revenue: number;
+        impressions: number;
+        clicks: number;
+        requests: number;
+      }>(),
+      countries: new Map<string, {
+        revenue: number;
+        impressions: number;
+        clicks: number;
+        requests: number;
+      }>(),
+      dates: new Map<string, {
+        revenue: number;
+        impressions: number;
+        clicks: number;
+        requests: number;
+      }>(),
+      devices: new Map<string, {
+        revenue: number;
+        impressions: number;
+        clicks: number;
+        requests: number;
+      }>(),
+      adFormats: new Map<string, {
+        revenue: number;
+        impressions: number;
+        clicks: number;
+        requests: number;
+      }>(),
+      sampleData: [] as any[]
+    };
+
+    let lineCount = 0;
+    let processedLines = 0;
+
+    for await (const line of rl) {
+      if (lineCount === 0) {
+        lineCount++;
+        continue; // 跳过标题行
       }
-      
-      // Decode chunk and add to buffer
-      buffer += decoder.decode(value, { stream: true })
-      
-      // Process complete lines
-      const lines = buffer.split('\n')
-      buffer = lines.pop() || '' // Keep incomplete line in buffer
-      
-      for (const line of lines) {
-        if (isFirstChunk) {
-          // Parse headers from first line
-          headers = line.split(',').map(h => h.trim().replace(/^"|"$/g, ''))
-          isFirstChunk = false
-          continue
+
+      // 快速解析CSV
+      const cols = line.split(',');
+      if (cols.length < 17) continue;
+
+      try {
+        const website = cols[0]?.trim() || 'Unknown';
+        const country = cols[1]?.trim() || 'Unknown';
+        const adFormat = cols[2]?.trim() || 'Unknown';
+        const device = cols[6]?.trim() || 'Unknown';
+        const date = cols[8]?.trim();
+        const requests = parseInt(cols[9]) || 0;
+        const impressions = parseInt(cols[10]) || 0;
+        const clicks = parseInt(cols[11]) || 0;
+        const revenue = parseFloat(cols[14]) || 0;
+
+        // 更新汇总数据
+        aggregator.summary.totalRevenue += revenue;
+        aggregator.summary.totalImpressions += impressions;
+        aggregator.summary.totalClicks += clicks;
+        aggregator.summary.totalRequests += requests;
+
+        // 聚合数据
+        updateAggregator(aggregator.websites, website, { revenue, impressions, clicks, requests });
+        updateAggregator(aggregator.countries, country, { revenue, impressions, clicks, requests });
+        if (date) updateAggregator(aggregator.dates, date, { revenue, impressions, clicks, requests });
+        updateAggregator(aggregator.devices, device, { revenue, impressions, clicks, requests });
+        updateAggregator(aggregator.adFormats, adFormat, { revenue, impressions, clicks, requests });
+
+        // 保存样本数据（限制3000行）
+        if (aggregator.sampleData.length < 3000) {
+          aggregator.sampleData.push({
+            website,
+            country,
+            adFormat,
+            device,
+            date,
+            requests,
+            impressions,
+            clicks,
+            ctr: impressions > 0 ? (clicks / impressions * 100) : 0,
+            ecpm: impressions > 0 ? (revenue / impressions * 1000) : 0,
+            revenue
+          });
         }
-        
-        if (line.trim()) {
-          processLine(line.trim(), headers, batch)
-          recordCount++
+
+        processedLines++;
+
+        // 每10万行更新进度并强制GC
+        if (processedLines % 100000 === 0) {
+          const progress = Math.min(95, Math.floor((processedLines / 500000) * 100));
+          await updateStatus(statusPath, { progress, processedLines });
           
-          // Insert batch when it reaches the batch size
-          if (batch.length >= batchSize) {
-            await insertBatch(tempTableName, batch)
-            batch = []
-            
-            // Update progress less frequently
-            const now = Date.now()
-            if (now - lastProgressUpdate > 10000) { // Update every 10 seconds
-              await redis.set(`upload_progress:${sessionId}`, JSON.stringify({
-                processed: recordCount,
-                progress: 'Processing...'
-              }))
-              lastProgressUpdate = now
-            }
+          if (global.gc) {
+            global.gc();
           }
         }
+      } catch (e) {
+        console.warn('Error processing line:', lineCount, e);
       }
+
+      lineCount++;
     }
-    
-    // Insert remaining records
-    if (batch.length > 0) {
-      await insertBatch(tempTableName, batch)
-    }
-    
-    return { recordCount }
-    
+
+    // 计算最终结果
+    aggregator.summary.totalRows = processedLines;
+    aggregator.summary.avgEcpm = aggregator.summary.totalImpressions > 0 
+      ? (aggregator.summary.totalRevenue / aggregator.summary.totalImpressions) * 1000 
+      : 0;
+    aggregator.summary.avgCtr = aggregator.summary.totalImpressions > 0
+      ? (aggregator.summary.totalClicks / aggregator.summary.totalImpressions * 100)
+      : 0;
+
+    // 处理聚合数据
+    const result = {
+      fileId,
+      fileName: filePath.split('/').pop(),
+      summary: aggregator.summary,
+      topWebsites: getTopItems(aggregator.websites, 20),
+      topCountries: getTopItems(aggregator.countries, 20),
+      dailyTrend: Object.entries(aggregator.dates)
+        .map(([date, data]: [string, any]) => ({
+          date,
+          ...data,
+          avgEcpm: data.impressions > 0 ? (data.revenue / data.impressions * 1000) : 0,
+          ctr: data.impressions > 0 ? (data.clicks / data.impressions * 100) : 0
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date)),
+      devices: getTopItems(aggregator.devices, 10),
+      adFormats: getTopItems(aggregator.adFormats, 10),
+      sampleData: aggregator.sampleData,
+      processedAt: new Date().toISOString()
+    };
+
+    // 保存结果
+    const resultPath = join(RESULTS_DIR, `${fileId}.json`);
+    await writeFile(resultPath, JSON.stringify(result, null, 2));
+
+    // 更新状态为完成
+    await updateStatus(statusPath, {
+      status: 'completed',
+      progress: 100,
+      processedLines,
+      completedAt: new Date().toISOString(),
+      resultPath
+    });
+
+    // 清理大Map
+    aggregator.websites.clear();
+    aggregator.countries.clear();
+    aggregator.dates.clear();
+    aggregator.devices.clear();
+    aggregator.adFormats.clear();
+
+    console.log(`File ${fileId} processed successfully. ${processedLines} rows.`);
+
   } catch (error) {
-    console.error('Stream processing error:', error)
-    throw error
+    console.error('Processing error:', error);
+    await updateStatus(statusPath, {
+      status: 'failed',
+      error: error.message,
+      failedAt: new Date().toISOString()
+    });
   }
 }
 
-// Process a single CSV line
-function processLine(line: string, headers: string[], batch: any[]) {
-  // Simple CSV parsing (handles quoted commas)
-  const values: string[] = []
-  let current = ''
-  let inQuotes = false
-  
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i]
-    
-    if (char === '"') {
-      inQuotes = !inQuotes
-    } else if (char === ',' && !inQuotes) {
-      values.push(current.trim())
-      current = ''
-    } else {
-      current += char
-    }
-  }
-  values.push(current.trim()) // Add last value
-  
-  if (values.length !== headers.length) return
-  
-  // Map to database record
-  const record = mapCsvToRecord(headers, values)
-  if (record) {
-    batch.push(record)
-  }
+function updateAggregator(
+  map: Map<string, any>,
+  key: string,
+  data: { revenue: number; impressions: number; clicks: number; requests: number }
+) {
+  const current = map.get(key) || { revenue: 0, impressions: 0, clicks: 0, requests: 0 };
+  current.revenue += data.revenue;
+  current.impressions += data.impressions;
+  current.clicks += data.clicks;
+  current.requests += data.requests;
+  map.set(key, current);
 }
 
-// Map CSV columns to database fields
-function mapCsvToRecord(headers: string[], values: string[]) {
-  const record: any = {}
-  
-  const columnMap: Record<string, string> = {
-    '网站': 'website',
-    'Website': 'website',
-    '国家/地区': 'country',
-    'Country': 'country',
-    '广告资源格式': 'adFormat',
-    'Ad format': 'adFormat',
-    '广告单元（所有级别）': 'adUnit',
-    'Ad unit': 'adUnit',
-    '广告客户（已分类）': 'advertiser',
-    'Advertiser': 'advertiser',
-    '广告客户网域': 'domain',
-    'Advertiser domain': 'domain',
-    '设备': 'device',
-    'Device': 'device',
-    '浏览器': 'browser',
-    'Browser': 'browser',
-    '日期': 'dataDate',
-    'Date': 'dataDate',
-    'Ad Exchange 请求总数': 'requests',
-    'Ad requests': 'requests',
-    'Ad Exchange 展示次数': 'impressions',
-    'Ad impressions': 'impressions',
-    'Ad Exchange 点击次数': 'clicks',
-    'Ad clicks': 'clicks',
-    'Ad Exchange 点击率': 'ctr',
-    'Ad ctr': 'ctr',
-    'Ad Exchange 平均 eCPM': 'ecpm',
-    'Ad eCPM': 'ecpm',
-    'Ad Exchange 收入': 'revenue',
-    'Ad revenue': 'revenue',
-    'Ad Exchange Active View可见展示次数': 'viewableImpressions',
-    'Active view viewable impressions': 'viewableImpressions',
-    'Ad Exchange Active View可见展示次数百分比': 'viewabilityRate',
-    'Active view viewable percentage': 'viewabilityRate',
-    'Ad Exchange Active View可衡量展示次数': 'measurableImpressions',
-    'Active view measurable impressions': 'measurableImpressions'
-  }
-  
-  // Map each column
-  for (let i = 0; i < headers.length; i++) {
-    const header = headers[i]
-    const field = columnMap[header] || header
-    const value = values[i]
-    
-    if (field === 'dataDate') {
-      record.dataDate = new Date(value)
-    } else if (['requests', 'impressions', 'clicks', 'viewableImpressions', 'measurableImpressions'].includes(field)) {
-      record[field] = parseInt(value.replace(/,/g, '')) || 0
-    } else if (['ctr', 'ecpm', 'revenue', 'viewabilityRate'].includes(field)) {
-      record[field] = parseFloat(value.replace(/,/g, '')) || 0
-    } else {
-      record[field] = value
-    }
-  }
-  
-  // Calculate derived fields
-  if (record.impressions && record.requests) {
-    record.fillRate = record.impressions / record.requests
-  }
-  
-  if (record.revenue && record.impressions) {
-    record.arpu = record.revenue / record.impressions * 1000
-  }
-  
-  return record
+function getTopItems(map: Map<string, any>, limit: number) {
+  return Array.from(map.entries())
+    .map(([name, data]: [string, any]) => ({
+      name,
+      ...data,
+      avgEcpm: data.impressions > 0 ? (data.revenue / data.impressions * 1000) : 0,
+      ctr: data.impressions > 0 ? (data.clicks / data.impressions * 100) : 0
+    }))
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, limit);
 }
 
-// Optimized batch insert using COPY for better performance
-async function insertBatch(tableName: string, batch: any[]) {
-  // Use parameterized query for safety
-  const values = batch.map(record => [
-    record.dataDate,
-    record.website,
-    record.country,
-    record.adFormat,
-    record.adUnit,
-    record.advertiser,
-    record.domain,
-    record.device,
-    record.browser,
-    record.requests || 0,
-    record.impressions || 0,
-    record.clicks || 0,
-    record.ctr || 0,
-    record.ecpm || 0,
-    record.revenue || 0,
-    record.viewableImpressions || 0,
-    record.viewabilityRate || 0,
-    record.measurableImpressions || 0,
-    record.fillRate || 0,
-    record.arpu || 0
-  ])
-  
-  await prisma.$executeRawUnsafe(`
-    INSERT INTO ${tableName} (
-      dataDate, website, country, adFormat, adUnit, advertiser, domain,
-      device, browser, requests, impressions, clicks, ctr, ecpm, revenue,
-      viewableImpressions, viewabilityRate, measurableImpressions, fillRate, arpu
-    ) VALUES ${values.map((_, i) => `(
-      $${i * 20 + 1}, $${i * 20 + 2}, $${i * 20 + 3}, $${i * 20 + 4}, $${i * 20 + 5}, 
-      $${i * 20 + 6}, $${i * 20 + 7}, $${i * 20 + 8}, $${i * 20 + 9}, $${i * 20 + 10},
-      $${i * 20 + 11}, $${i * 20 + 12}, $${i * 20 + 13}, $${i * 20 + 14}, $${i * 20 + 15},
-      $${i * 20 + 16}, $${i * 20 + 17}, $${i * 20 + 18}, $${i * 20 + 19}, $${i * 20 + 20}
-    )`).join(', ')}
-  `, values.flat())
+async function updateStatus(statusPath: string, data: any) {
+  try {
+    const currentStatus = JSON.parse(await readFile(statusPath, 'utf-8'));
+    await writeFile(statusPath, JSON.stringify({ ...currentStatus, ...data }, null, 2));
+  } catch (error) {
+    console.error('Error updating status:', error);
+  }
 }
