@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Upload from '@/components/upload-native'
 import UploadOptimized from '@/components/upload-optimized'
 import DataTable from '@/components/data-table'
 import Analytics from '@/components/analytics'
@@ -12,6 +13,7 @@ import AutomationDashboard from '@/components/automation-dashboard'
 export default function Home() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [activeTab, setActiveTab] = useState<'upload' | 'analytics' | 'alerts' | 'enhanced' | 'predictive' | 'automation'>('upload')
+  const [useOptimizedUpload, setUseOptimizedUpload] = useState(true)
 
   const handleUploadComplete = () => {
     setRefreshTrigger(prev => prev + 1)
@@ -84,9 +86,40 @@ export default function Home() {
         <div className="px-4 py-6 sm:px-0">
           {activeTab === 'upload' && (
             <div className="space-y-6">
+              {/* Upload Mode Toggle */}
+              <div className="bg-white shadow rounded-lg p-4">
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm font-medium text-gray-700">上传模式：</span>
+                  <button
+                    onClick={() => setUseOptimizedUpload(false)}
+                    className={`px-3 py-1 text-sm rounded-md ${!useOptimizedUpload ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                  >
+                    标准模式
+                  </button>
+                  <button
+                    onClick={() => setUseOptimizedUpload(true)}
+                    className={`px-3 py-1 text-sm rounded-md ${useOptimizedUpload ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                  >
+                    优化模式（支持大文件）
+                  </button>
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  {useOptimizedUpload 
+                    ? '优化模式：支持50万行数据，独立分析，不读取历史数据' 
+                    : '标准模式：传统数据库存储方式'}
+                </p>
+              </div>
+
+              {/* Upload Component */}
               <div className="bg-white shadow rounded-lg p-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">上传CSV文件（优化版）</h2>
-                <UploadOptimized />
+                <h2 className="text-lg font-medium text-gray-900 mb-4">
+                  {useOptimizedUpload ? '上传CSV文件（优化版）' : '上传CSV文件'}
+                </h2>
+                {useOptimizedUpload ? (
+                  <UploadOptimized />
+                ) : (
+                  <Upload onUploadComplete={handleUploadComplete} onDataCleared={handleDataCleared} />
+                )}
               </div>
               
               <div className="bg-white shadow rounded-lg p-6">
@@ -98,10 +131,12 @@ export default function Home() {
                 <h3 className="text-lg font-medium text-gray-900 mb-4">CSV格式要求</h3>
                 <div className="space-y-2 text-sm text-gray-600">
                   <p>• 文件必须为CSV格式</p>
-                  <p>• 最大文件大小：200MB（支持50万行数据）</p>
+                  <p>• {useOptimizedUpload ? '最大文件大小：200MB（支持50万行数据）' : '最大文件大小：50MB'}</p>
                   <p>• 必需列：日期(Date)、网站(Website)</p>
                   <p>• 可选列：国家(Country)、设备(Device)、广告格式(Ad Format)、请求数(Requests)、展示数(Impressions)、点击数(Clicks)、收入(Revenue)等</p>
-                  <p>• 优化版本：独立分析每个上传文件，不读取历史数据</p>
+                  {useOptimizedUpload && (
+                    <p>• 优化版本：独立分析每个上传文件，不读取历史数据</p>
+                  )}
                 </div>
               </div>
             </div>
