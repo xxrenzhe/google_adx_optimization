@@ -109,7 +109,7 @@ export async function batchCleanupExpiredData() {
     console.error('Batch cleanup failed:', error)
     return {
       success: false,
-      error: error.message
+      error: error instanceof Error ? error.message : String(error)
     }
   }
 }

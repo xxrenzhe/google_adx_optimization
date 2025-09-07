@@ -11,9 +11,9 @@ export class CacheManager {
       url: process.env.REDIS_URL || '',
       socket: {
         reconnectStrategy: (retries) => Math.min(retries * 50, 500),
-        timeout: 5000
-      },
-      commandTimeout: 5000
+        timeout: 5000,
+        connectTimeout: 5000
+      }
     })
     
     this.client.on('error', (err: Error) => {
@@ -52,8 +52,8 @@ export class CacheManager {
       
       // 使用管道减少网络往返
       const pipeline = this.client.multi()
-      pipeline.setex(key, ttl, JSON.stringify(data))
-      pipeline.zadd('query_keys', Date.now() + ttl * 1000, key)
+      pipeline.setEx(key, ttl, JSON.stringify(data))
+      pipeline.zAdd('query_keys', { score: Date.now() + ttl * 1000, value: key })
       await pipeline.exec()
       
       return true
@@ -91,13 +91,13 @@ export class CacheManager {
       const pipeline = this.client.multi()
       
       // 缓存各个维度的分析数据
-      pipeline.setex(keys[0], 3600, JSON.stringify(analytics.daily))
-      pipeline.setex(keys[1], 3600, JSON.stringify(analytics.byWebsite))
-      pipeline.setex(keys[2], 3600, JSON.stringify(analytics.byCountry))
-      pipeline.setex(keys[3], 3600, JSON.stringify(analytics.byDevice))
+      pipeline.setEx(keys[0], 3600, JSON.stringify(analytics.daily))
+      pipeline.setEx(keys[1], 3600, JSON.stringify(analytics.byWebsite))
+      pipeline.setEx(keys[2], 3600, JSON.stringify(analytics.byCountry))
+      pipeline.setEx(keys[3], 3600, JSON.stringify(analytics.byDevice))
       
       // 设置过期时间标记
-      pipeline.zadd('analytics_keys', Date.now() + 3600 * 1000, sessionId)
+      pipeline.zAdd('analytics_keys', { score: Date.now() + 3600 * 1000, value: sessionId })
       
       await pipeline.exec()
       return true
@@ -120,7 +120,7 @@ export class CacheManager {
       
       const results = await pipeline.exec()
       
-      if (!results || results.some(r => !r[1])) return null
+      if (!results || results.some((r: any[]) => !r[1])) return null
       
       return {
         daily: JSON.parse(results[0][1]),
@@ -140,11 +140,11 @@ export class CacheManager {
     
     try {
       // 存储页面数据
-      await this.client.setex(key, 1800, JSON.stringify(data))
+      await this.client.setEx(key, 1800, JSON.stringify(data))
       
       // 维护页面列表
       const pageKey = `pages:${sessionId}:${filters}`
-      await this.client.zadd(pageKey, Date.now() + 1800 * 1000, String(page))
+      await this.client.zAdd(pageKey, { score: Date.now() + 1800 * 1000, value: String(page) })
       
       return true
     } catch (error) {
@@ -187,14 +187,14 @@ export class CacheManager {
       const now = Date.now()
       
       // 清理查询缓存
-      const expiredQueries = await this.client.zrangebyscore('query_keys', 0, now)
+      const expiredQueries = await this.client.zRangeByScore('query_keys', 0, now)
       if (expiredQueries.length > 0) {
         await this.client.del(...expiredQueries)
-        await this.client.zremrangebyscore('query_keys', 0, now)
+        await this.client.zRemRangeByScore('query_keys', 0, now)
       }
       
       // 清理分析缓存
-      const expiredAnalytics = await this.client.zrangebyscore('analytics_keys', 0, now)
+      const expiredAnalytics = await this.client.zRangeByScore('analytics_keys', 0, now)
       if (expiredAnalytics.length > 0) {
         const keysToDelete = []
         for (const sessionId of expiredAnalytics) {
@@ -206,7 +206,7 @@ export class CacheManager {
           )
         }
         await this.client.del(...keysToDelete)
-        await this.client.zremrangebyscore('analytics_keys', 0, now)
+        await this.client.zRemRangeByScore('analytics_keys', 0, now)
       }
       
       console.log(`Cleaned up ${expiredQueries.length} query caches and ${expiredAnalytics.length} analytics caches`)
@@ -242,7 +242,7 @@ export class CacheManager {
       if (!this.connected) return []
       
       const results = await this.client.mget(keys)
-      return results.map(r => r ? JSON.parse(r) : null)
+      return results.map((r: string | null) => r ? JSON.parse(r) : null)
     } catch (error) {
       console.error('Batch get failed:', error)
       return []

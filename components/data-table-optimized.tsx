@@ -292,17 +292,17 @@ export default function DataTableOptimized({ refreshTrigger }: DataTableOptimize
   
   // 列定义
   const columns = useMemo(() => [
-    { key: 'dataDate', label: '日期', format: (value: string) => new Date(value).toLocaleDateString(), width: '120px' },
+    { key: 'dataDate', label: '日期', format: (value: string | null) => value ? new Date(value).toLocaleDateString() : '-', width: '120px' },
     { key: 'website', label: '网站', width: '200px' },
     { key: 'country', label: '国家', width: '100px' },
     { key: 'adFormat', label: '广告格式', width: '120px' },
     { key: 'device', label: '设备', width: '100px' },
-    { key: 'requests', label: '请求数', format: (value: number) => value?.toLocaleString() || '0', width: '100px' },
-    { key: 'impressions', label: '展示数', format: (value: number) => value?.toLocaleString() || '0', width: '100px' },
-    { key: 'clicks', label: '点击数', format: (value: number) => value?.toLocaleString() || '0', width: '100px' },
-    { key: 'ctr', label: '点击率', format: (value: number) => value ? `${(value * 100).toFixed(2)}%` : '0%', width: '100px' },
-    { key: 'ecpm', label: 'eCPM', format: (value: number) => value ? `$${value.toFixed(2)}` : '$0.00', width: '100px' },
-    { key: 'revenue', label: '收入', format: (value: number) => value ? `$${value.toFixed(2)}` : '$0.00', width: '100px' }
+    { key: 'requests', label: '请求数', format: (value: number | null) => value?.toLocaleString() || '0', width: '100px' },
+    { key: 'impressions', label: '展示数', format: (value: number | null) => value?.toLocaleString() || '0', width: '100px' },
+    { key: 'clicks', label: '点击数', format: (value: number | null) => value?.toLocaleString() || '0', width: '100px' },
+    { key: 'ctr', label: '点击率', format: (value: number | null) => value ? `${(value * 100).toFixed(2)}%` : '0%', width: '100px' },
+    { key: 'ecpm', label: 'eCPM', format: (value: number | null) => value ? `$${value.toFixed(2)}` : '$0.00', width: '100px' },
+    { key: 'revenue', label: '收入', format: (value: number | null) => value ? `$${value.toFixed(2)}` : '$0.00', width: '100px' }
   ], [])
   
   // 计算渲染的行
@@ -443,7 +443,7 @@ export default function DataTableOptimized({ refreshTrigger }: DataTableOptimize
                         className="px-6 py-4 whitespace-nowrap text-sm"
                         style={{ width: column.width }}
                       >
-                        {column.format ? column.format(row[column.key]) : row[column.key] || '-'}
+                        {column.format ? column.format(row[column.key as keyof AdReport] as any) : (row[column.key as keyof AdReport] || '-')}
                       </td>
                     ))}
                   </tr>

@@ -192,7 +192,7 @@ async function performLightMaintenance() {
 }
 
 // 导出清理函数供API使用
-export { cleanupExpiredData } from './data-cleanup'
+export { batchCleanupExpiredData } from './data-cleanup'
 
 // 如果直接运行此脚本
 if (require.main === module) {

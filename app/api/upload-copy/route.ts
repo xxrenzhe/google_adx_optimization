@@ -189,7 +189,7 @@ async function processFileWithCopy(
   }
   
   // Save file to disk temporarily
-  tempFilePath = join(tempDir, `${sessionId}-${file.name}`)
+  let tempFilePath = join(tempDir, `${sessionId}-${file.name}`)
   const fileBuffer = Buffer.from(await file.arrayBuffer())
   await writeFile(tempFilePath, fileBuffer)
   
