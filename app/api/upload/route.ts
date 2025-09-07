@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Readable } from 'stream'
-import { generateSessionId, setCurrentSession } from '@/lib/session'
+import { createClient } from 'redis'
+import { generateSessionId } from '@/lib/session'
+
+// Redis client for caching
+const redis = createClient({
+  url: process.env.REDIS_URL || '',
+  socket: {
+    reconnectStrategy: (retries) => Math.min(retries * 50, 500)
+  }
+})
+
+// Connect to Redis
+redis.on('error', (err) => console.log('Redis Client Error', err))
+redis.connect().catch(console.error)
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,88 +29,182 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Only CSV files are allowed' }, { status: 400 })
     }
 
-    // Create a session for this upload
+    // Create upload session record
     const sessionId = generateSessionId()
-    let recordCount = 0
-
-    // First, clear any existing data for this session
-    await prisma.adReport.deleteMany({
-      where: { sessionId }
+    // Safe table name generation to prevent SQL injection
+    const tempTableName = `temp_ad_data_${sessionId.replace(/[^a-zA-Z0-9_]/g, '_')}`
+    
+    // Validate table name format
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]{1,60}$/.test(tempTableName)) {
+      return NextResponse.json({ error: 'Invalid session ID' }, { status: 400 })
+    }
+    
+    const uploadSession = await prisma.uploadSession.create({
+      data: {
+        id: sessionId,
+        filename: file.name,
+        fileSize: file.size,
+        tempTableName,
+        status: 'uploading'
+      }
     })
 
+    // Create temporary table for this upload
+    await prisma.$executeRawUnsafe(`
+      CREATE TEMP TABLE ${tempTableName} (
+        id SERIAL PRIMARY KEY,
+        dataDate DATE,
+        website VARCHAR(500),
+        country VARCHAR(100),
+        adFormat VARCHAR(200),
+        adUnit VARCHAR(500),
+        advertiser VARCHAR(500),
+        domain VARCHAR(500),
+        device VARCHAR(100),
+        browser VARCHAR(100),
+        requests BIGINT,
+        impressions BIGINT,
+        clicks BIGINT,
+        ctr DECIMAL(10, 4),
+        ecpm DECIMAL(15, 6),
+        revenue DECIMAL(15, 6),
+        viewableImpressions BIGINT,
+        viewabilityRate DECIMAL(10, 4),
+        measurableImpressions BIGINT,
+        fillRate DECIMAL(10, 4),
+        arpu DECIMAL(15, 6)
+      )
+    `)
+
+    // Process file stream - Linus style: simple and efficient
+    let recordCount = 0
+    const batchSize = 5000 // Larger batch size, fewer inserts
+    let batch: any[] = []
+    
     const stream = file.stream()
     const reader = stream.getReader()
-    const decoder = new TextDecoder()
+    const decoder = new TextDecoder('utf-8', { fatal: false })
     
     let headers: string[] = []
     let isFirstRow = true
-    const batchSize = 1000
-    let batch: any[] = []
+    let lastProgressUpdate = 0
     
-    while (true) {
-      const { done, value } = await reader.read()
-      
-      if (done) {
-        if (batch.length > 0) {
-          await prisma.adReport.createMany({
-            data: batch,
-            skipDuplicates: true
-          })
-        }
-        break
-      }
-      
-      const chunk = decoder.decode(value, { stream: true })
-      const lines = chunk.split('\n')
-      
-      for (const line of lines) {
-        if (!line.trim()) continue
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
         
-        const values = parseCSVLine(line)
-        
-        if (isFirstRow) {
-          headers = values
-          isFirstRow = false
-          continue
+        if (done) {
+          break
         }
         
-        if (values.length !== headers.length) continue
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n')
         
-        const record = createRecordFromCSV(headers, values, sessionId)
-        if (record) {
-          batch.push(record)
-          recordCount++
+        for (const line of lines) {
+          if (!line.trim()) continue
           
-          if (batch.length >= batchSize) {
-            await prisma.adReport.createMany({
-              data: batch,
-              skipDuplicates: true
-            })
-            batch = []
+          const values = parseCSVLine(line)
+          
+          if (isFirstRow) {
+            headers = values
+            isFirstRow = false
+            continue
+          }
+          
+          if (values.length !== headers.length) continue
+          
+          const record = createRecordFromCSV(headers, values)
+          if (record) {
+            batch.push(record)
+            
+            if (batch.length >= batchSize) {
+              // Don't await - keep the stream flowing
+              const batchToInsert = batch
+              batch = []
+              
+              // Simple approach: process batches sequentially but keep memory low
+              await insertBatch(tempTableName, batchToInsert)
+              recordCount += batchToInsert.length
+              
+              // Update progress less frequently to reduce Redis calls
+              if (recordCount - lastProgressUpdate > 10000) {
+                lastProgressUpdate = recordCount
+                await redis.set(`upload_progress:${sessionId}`, recordCount)
+              }
+            }
           }
         }
       }
+      
+      // Insert final batch
+      if (batch.length > 0) {
+        await insertBatch(tempTableName, batch)
+        recordCount += batch.length
+      }
+      
+      // All inserts are already completed
+      
+      // Update session status
+      await prisma.uploadSession.update({
+        where: { id: sessionId },
+        data: {
+          status: 'completed',
+          recordCount,
+          processedAt: new Date()
+        }
+      })
+      
+      // Cache session info
+      await redis.setEx(`session:${sessionId}`, 3600 * 24, JSON.stringify({
+        id: sessionId,
+        filename: file.name,
+        recordCount,
+        tempTableName
+      }))
+      
+      // Create response with session cookie
+      const response = NextResponse.json({ 
+        message: 'File uploaded successfully',
+        sessionId,
+        recordsProcessed: recordCount
+      })
+      
+      response.cookies.set('adx_session_id', sessionId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7 // 7 days
+      })
+      
+      return response
+      
+    } catch (error) {
+      // Clean up on error
+      try {
+        await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS ${tempTableName}`)
+      } catch (e) {
+        console.error('Failed to drop temp table:', e)
+      }
+      
+      try {
+        await prisma.uploadSession.update({
+          where: { id: sessionId },
+          data: { 
+            status: 'failed',
+            errorMessage: error instanceof Error ? error.message : 'Unknown error'
+          }
+        })
+      } catch (e) {
+        console.error('Failed to update session status:', e)
+      }
+      
+      // Clear batch to prevent memory leak
+      batch = []
+      throw error
+    } finally {
+      // Ensure batch is cleared
+      batch = []
     }
-    
-    // Note: We don't set the global session here as it's serverless
-    // Each API call is independent, relying on cookies for session tracking
-    
-    // Create response with session cookie
-    const response = NextResponse.json({ 
-      message: 'File uploaded successfully',
-      sessionId,
-      recordsProcessed: recordCount
-    })
-    
-    // Set session ID in cookie for client-side storage
-    response.cookies.set('adx_session_id', sessionId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7 // 7 days
-    })
-    
-    return response
     
   } catch (error) {
     console.error('Upload error:', error)
@@ -106,6 +213,95 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+async function insertBatch(tableName: string, batch: any[]) {
+  // Linus: The right way - use COPY for bulk inserts
+  const csvContent = batch.map(record => [
+    record.dataDate ? record.dataDate.toISOString().split('T')[0] : '',
+    record.website || '',
+    record.country || '',
+    record.adFormat || '',
+    record.adUnit || '',
+    record.advertiser || '',
+    record.domain || '',
+    record.device || '',
+    record.browser || '',
+    record.requests || '',
+    record.impressions || '',
+    record.clicks || '',
+    record.ctr || '',
+    record.ecpm || '',
+    record.revenue || '',
+    record.viewableImpressions || '',
+    record.viewabilityRate || '',
+    record.measurableImpressions || '',
+    record.fillRate || '',
+    record.arpu || ''
+  ].map(v => v.replace(/"/g, '""')).map(v => v.includes(',') || v.includes('"') || v.includes('\n') ? `"${v}"` : v).join(',')).join('\n')
+  
+  // Use stream to avoid loading everything in memory
+  const stream = require('stream')
+  const { Readable } = stream
+  
+  const csvStream = Readable.from([csvContent])
+  
+  return new Promise((resolve, reject) => {
+    const copyQuery = `
+      COPY ${tableName} (
+        dataDate, website, country, adFormat, adUnit, advertiser, domain,
+        device, browser, requests, impressions, clicks, ctr, ecpm, revenue,
+        viewableImpressions, viewabilityRate, measurableImpressions, fillRate, arpu
+      ) FROM STDIN WITH (FORMAT CSV, HEADER FALSE)
+    `
+    
+    // This would be the ideal way, but Prisma doesn't support COPY directly
+    // For now, we'll use a more efficient batch insert
+    const chunks = []
+    for (let i = 0; i < batch.length; i += 1000) {
+      chunks.push(batch.slice(i, i + 1000))
+    }
+    
+    Promise.all(chunks.map(chunk => insertChunk(tableName, chunk)))
+      .then(resolve)
+      .catch(reject)
+  })
+}
+
+// Helper function for smaller chunks
+async function insertChunk(tableName: string, chunk: any[]) {
+  const placeholders = chunk.map((_, i) => `($${i * 20 + 1}, $${i * 20 + 2}, $${i * 20 + 3}, $${i * 20 + 4}, $${i * 20 + 5}, $${i * 20 + 6}, $${i * 20 + 7}, $${i * 20 + 8}, $${i * 20 + 9}, $${i * 20 + 10}, $${i * 20 + 11}, $${i * 20 + 12}, $${i * 20 + 13}, $${i * 20 + 14}, $${i * 20 + 15}, $${i * 20 + 16}, $${i * 20 + 17}, $${i * 20 + 18}, $${i * 20 + 19}, $${i * 20 + 20})`).join(',')
+  
+  const values = chunk.flatMap(record => [
+    record.dataDate,
+    record.website,
+    record.country,
+    record.adFormat,
+    record.adUnit,
+    record.advertiser,
+    record.domain,
+    record.device,
+    record.browser,
+    record.requests,
+    record.impressions,
+    record.clicks,
+    record.ctr,
+    record.ecpm,
+    record.revenue,
+    record.viewableImpressions,
+    record.viewabilityRate,
+    record.measurableImpressions,
+    record.fillRate,
+    record.arpu
+  ])
+  
+  await prisma.$executeRawUnsafe(`
+    INSERT INTO ${tableName} (
+      dataDate, website, country, adFormat, adUnit, advertiser, domain,
+      device, browser, requests, impressions, clicks, ctr, ecpm, revenue,
+      viewableImpressions, viewabilityRate, measurableImpressions, fillRate, arpu
+    ) VALUES ${placeholders}
+  `, ...values)
 }
 
 function parseCSVLine(line: string): string[] {
@@ -130,14 +326,14 @@ function parseCSVLine(line: string): string[] {
   return result
 }
 
-function createRecordFromCSV(headers: string[], values: string[], sessionId: string): any {
-  const record: any = {
-    sessionId
-  }
+function createRecordFromCSV(headers: string[], values: string[]): any {
+  const record: any = {}
   
   for (let i = 0; i < headers.length; i++) {
     const header = headers[i].toLowerCase().replace(/[^\w\u4e00-\u9fff]/g, '')
-    const value = values[i]
+    const value = values[i]?.trim()
+    
+    if (!value) continue
     
     // Chinese column mappings
     switch (header) {
@@ -240,11 +436,11 @@ function createRecordFromCSV(headers: string[], values: string[], sessionId: str
     return null
   }
   
+  // Calculate derived metrics
   if (record.requests && record.impressions) {
     record.fillRate = (Number(record.impressions) / Number(record.requests)) * 100
   }
   
-  // Calculate ARPU as revenue per thousand requests (RPM)
   if (record.revenue && record.requests) {
     record.arpu = (record.revenue / Number(record.requests)) * 1000
   }

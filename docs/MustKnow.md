@@ -15,7 +15,7 @@
 2）启动方式：使用标准的Next.js启动方式而不是自定义服务器
 3）不同环境的域名
 - 测试环境域名：localhost
-- 生成环境域名：moretop10.com，容器内部域名是 moretop10-prod-xxx-xxx:3000
+- 生成环境域名：moretop10.com，容器内部域名是 adx-prod-xxx-xxx:3000
 5）301强制跳转
 - 生产环境，用户访问 https://moretop10.com 会301跳转到 https://www.moretop10.com
 6）生产环境核心环境变量

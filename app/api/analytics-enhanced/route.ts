@@ -1,8 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentSession } from '@/lib/session'
+import { createClient } from 'redis'
+
+// Redis connection manager (same as in data route)
+class RedisManager {
+  private static instance: any = null
+  
+  static async getClient() {
+    if (!this.instance) {
+      try {
+        this.instance = createClient({
+          url: process.env.REDIS_URL || '',
+          socket: {
+            reconnectStrategy: (retries) => Math.min(retries * 50, 500),
+            timeout: 5000
+          }
+        })
+        
+        await this.instance.ping()
+      } catch (error) {
+        console.error('Redis connection failed:', error)
+        this.instance = null
+        return {
+          get: async () => null,
+          set: async () => {},
+          setex: async () => {},
+          del: async () => {},
+          keys: async () => []
+        }
+      }
+    }
+    return this.instance
+  }
+}
 
 export async function GET(request: NextRequest) {
+  const redis = await RedisManager.getClient()
+  
   try {
     const session = getCurrentSession(request)
     if (!session) {
@@ -13,8 +48,20 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
     
-    // Create cache key
-    const cacheKey = `enhanced-analytics:${startDate || 'all'}:${endDate || 'all'}`
+    // Get session info
+    const sessionInfo = await getSessionInfo(session.id, redis)
+    if (!sessionInfo) {
+      return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+    }
+    
+    // Generate cache key
+    const cacheKey = `enhanced-analytics:${session.id}:${startDate || 'all'}:${endDate || 'all'}:${new Date().toISOString().slice(0, 10)}`
+    
+    // Try cache first
+    const cached = await redis.get(cacheKey)
+    if (cached) {
+      return NextResponse.json(JSON.parse(cached))
+    }
     
     // Validate date range
     if (startDate && endDate) {
@@ -30,333 +77,264 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Build date conditions for raw SQL
-    const dateConditions = []
-    if (startDate) dateConditions.push(`data_date >= '${startDate}'::date`)
-    if (endDate) dateConditions.push(`data_date <= '${endDate}'::date`)
-    const whereClause = dateConditions.length > 0 ? `AND ${dateConditions.join(' AND ')}` : ''
+    // Build where conditions
+    const whereConditions = []
+    const params: any[] = []
+    
+    if (startDate && endDate) {
+      whereConditions.push(`dataDate BETWEEN $${params.length + 1} AND $${params.length + 2}`)
+      params.push(startDate, endDate)
+    }
+    
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : ''
 
-    // 1. Advertiser Value Analysis
-    const advertiserAnalysis = await prisma.adReport.groupBy({
-      by: ['advertiser', 'domain'],
-      where: {
-        sessionId: session.id,
-        ...(startDate || endDate ? {
-          dataDate: {
-            ...(startDate && { gte: new Date(startDate) }),
-            ...(endDate && { lte: new Date(endDate) })
-          }
-        } : {})
-      },
-      _avg: {
-        ecpm: true,
-        ctr: true,
-        fillRate: true,
-        viewabilityRate: true
-      },
-      _sum: {
-        revenue: true,
-        impressions: true,
-        clicks: true
-      },
-      _count: true,
-      orderBy: {
-        _sum: {
-          revenue: 'desc'
-        }
-      },
-      take: 20
+    // Set timeout for long-running queries
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Enhanced analytics timeout')), 60000) // 60 second timeout
     })
 
-    // 2. Device-Browser Performance Matrix
-    const deviceBrowserMatrix = await prisma.adReport.groupBy({
-      by: ['device', 'browser'],
-      where: {
-        sessionId: session.id,
-        ...(startDate || endDate ? {
-          dataDate: {
-            ...(startDate && { gte: new Date(startDate) }),
-            ...(endDate && { lte: new Date(endDate) })
-          }
-        } : {}),
-        device: { not: null },
-        browser: { not: null }
-      },
-      _avg: {
-        ecpm: true,
-        ctr: true,
-        fillRate: true
-      },
-      _sum: {
-        revenue: true,
-        impressions: true
-      },
-      _count: true
-    })
-
-    // 3. Ad Unit Performance Analysis
-    const adUnitAnalysis = await prisma.adReport.groupBy({
-      by: ['adFormat', 'adUnit'],
-      where: {
-        sessionId: session.id,
-        ...(startDate || endDate ? {
-          dataDate: {
-            ...(startDate && { gte: new Date(startDate) }),
-            ...(endDate && { lte: new Date(endDate) })
-          }
-        } : {})
-      },
-      _avg: {
-        ecpm: true,
-        ctr: true,
-        fillRate: true
-      },
-      _sum: {
-        revenue: true,
-        impressions: true,
-        requests: true
-      },
-      _count: true,
-      orderBy: {
-        _avg: {
-          ecpm: 'desc'
-        }
-      }
-    })
-
-    // 4. Geographic Deep Dive
-    const geoAnalysis = await prisma.adReport.groupBy({
-      by: ['country', 'device'],
-      where: {
-        sessionId: session.id,
-        ...(startDate || endDate ? {
-          dataDate: {
-            ...(startDate && { gte: new Date(startDate) }),
-            ...(endDate && { lte: new Date(endDate) })
-          }
-        } : {}),
-        country: { not: null }
-      },
-      _avg: {
-        ecpm: true,
-        ctr: true,
-        fillRate: true
-      },
-      _sum: {
-        revenue: true,
-        impressions: true
-      },
-      _count: true
-    })
-
-    // 5. eCPM Distribution Analysis
-    const ecpmBuckets = [
-      { range: '< $1', count: 0, avg_revenue: 0, total_revenue: 0 },
-      { range: '$1-$5', count: 0, avg_revenue: 0, total_revenue: 0 },
-      { range: '$5-$10', count: 0, avg_revenue: 0, total_revenue: 0 },
-      { range: '$10-$20', count: 0, avg_revenue: 0, total_revenue: 0 },
-      { range: '$20-$50', count: 0, avg_revenue: 0, total_revenue: 0 },
-      { range: '$50-$100', count: 0, avg_revenue: 0, total_revenue: 0 },
-      { range: '> $100', count: 0, avg_revenue: 0, total_revenue: 0 }
-    ]
-
-    // Fetch all records with eCPM to populate buckets
-    const ecpmRecords = await prisma.adReport.findMany({
-      where: {
-        sessionId: session.id,
-        ecpm: { not: null },
-        ...(startDate || endDate ? {
-          dataDate: {
-            ...(startDate && { gte: new Date(startDate) }),
-            ...(endDate && { lte: new Date(endDate) })
-          }
-        } : {})
-      },
-      select: {
-        ecpm: true,
-        revenue: true
-      }
-    })
-
-    // Populate eCPM buckets
-    ecpmRecords.forEach(record => {
-      const ecpm = record.ecpm || 0
-      const revenue = record.revenue || 0
+    // Execute all analytics queries in parallel
+    const analyticsPromise = Promise.all([
+      // 1. Advertiser Value Analysis
+      prisma.$queryRawUnsafe(`
+        SELECT 
+          advertiser,
+          domain,
+          AVG(ecpm) as avg_ecpm,
+          AVG(ctr) as avg_ctr,
+          AVG(fillRate) as avg_fillRate,
+          AVG(viewabilityRate) as avg_viewabilityRate,
+          SUM(revenue) as total_revenue,
+          SUM(impressions) as total_impressions,
+          SUM(clicks) as total_clicks,
+          COUNT(*) as record_count
+        FROM ${sessionInfo.tempTableName}
+        ${whereClause}
+        GROUP BY advertiser, domain
+        ORDER BY total_revenue DESC
+        LIMIT 20
+      `, ...params),
       
-      if (ecpm < 1) {
-        ecpmBuckets[0].count++
-        ecpmBuckets[0].total_revenue += revenue
-      } else if (ecpm < 5) {
-        ecpmBuckets[1].count++
-        ecpmBuckets[1].total_revenue += revenue
-      } else if (ecpm < 10) {
-        ecpmBuckets[2].count++
-        ecpmBuckets[2].total_revenue += revenue
-      } else if (ecpm < 20) {
-        ecpmBuckets[3].count++
-        ecpmBuckets[3].total_revenue += revenue
-      } else if (ecpm < 50) {
-        ecpmBuckets[4].count++
-        ecpmBuckets[4].total_revenue += revenue
-      } else if (ecpm < 100) {
-        ecpmBuckets[5].count++
-        ecpmBuckets[5].total_revenue += revenue
-      } else {
-        ecpmBuckets[6].count++
-        ecpmBuckets[6].total_revenue += revenue
+      // 2. Device-Browser Performance Matrix
+      prisma.$queryRawUnsafe(`
+        SELECT 
+          device,
+          browser,
+          AVG(ecpm) as avg_ecpm,
+          AVG(ctr) as avg_ctr,
+          AVG(fillRate) as avg_fillRate,
+          SUM(revenue) as total_revenue,
+          SUM(impressions) as total_impressions,
+          COUNT(*) as record_count
+        FROM ${sessionInfo.tempTableName}
+        ${whereClause}
+        AND device IS NOT NULL AND browser IS NOT NULL
+        GROUP BY device, browser
+        ORDER BY total_revenue DESC
+      `, ...params),
+      
+      // 3. Ad Unit Performance Analysis
+      prisma.$queryRawUnsafe(`
+        SELECT 
+          adFormat,
+          adUnit,
+          AVG(ecpm) as avg_ecpm,
+          AVG(ctr) as avg_ctr,
+          AVG(fillRate) as avg_fillRate,
+          SUM(revenue) as total_revenue,
+          SUM(impressions) as total_impressions,
+          COUNT(*) as record_count
+        FROM ${sessionInfo.tempTableName}
+        ${whereClause}
+        AND adFormat IS NOT NULL AND adUnit IS NOT NULL
+        GROUP BY adFormat, adUnit
+        ORDER BY avg_ecpm DESC
+        LIMIT 50
+      `, ...params),
+      
+      // 4. Geographic Performance
+      prisma.$queryRawUnsafe(`
+        SELECT 
+          country,
+          COUNT(DISTINCT website) as unique_websites,
+          SUM(revenue) as total_revenue,
+          AVG(ecpm) as avg_ecpm,
+          SUM(impressions) as total_impressions,
+          AVG(fillRate) as avg_fillRate
+        FROM ${sessionInfo.tempTableName}
+        ${whereClause}
+        AND country IS NOT NULL
+        GROUP BY country
+        ORDER BY total_revenue DESC
+        LIMIT 20
+      `, ...params),
+      
+      // 5. Performance Distribution
+      prisma.$queryRawUnsafe(`
+        SELECT 
+          CASE 
+            WHEN ecpm < 1 THEN '< $1'
+            WHEN ecpm < 5 THEN '$1-$5'
+            WHEN ecpm < 10 THEN '$5-$10'
+            WHEN ecpm < 20 THEN '$10-$20'
+            ELSE '> $20'
+          END as ecpm_range,
+          COUNT(*) as count,
+          AVG(revenue) as avg_revenue,
+          SUM(impressions) as total_impressions
+        FROM ${sessionInfo.tempTableName}
+        ${whereClause}
+        GROUP BY ecpm_range
+        ORDER BY ecpm_range
+      `, ...params),
+      
+      // 6. Time-based Analysis
+      prisma.$queryRawUnsafe(`
+        SELECT 
+          EXTRACT(DOW FROM dataDate) as day_of_week,
+          AVG(revenue) as avg_revenue,
+          AVG(ecpm) as avg_ecpm,
+          AVG(fillRate) as avg_fillRate,
+          SUM(impressions) as total_impressions
+        FROM ${sessionInfo.tempTableName}
+        ${whereClause}
+        GROUP BY day_of_week
+        ORDER BY day_of_week
+      `, ...params)
+    ])
+
+    // Execute with timeout
+    const results = await Promise.race([
+      analyticsPromise,
+      timeoutPromise
+    ]) as any[][]
+
+    // Process results
+    const response = {
+      advertiserAnalysis: results[0].map(item => ({
+        advertiser: item.advertiser || 'Unknown',
+        domain: item.domain || 'Unknown',
+        avgEcpm: Number(item.avg_ecpm || 0),
+        avgCtr: Number(item.avg_ctr || 0),
+        avgFillRate: Number(item.avg_fillRate || 0),
+        avgViewabilityRate: Number(item.avg_viewabilityRate || 0),
+        totalRevenue: Number(item.total_revenue || 0),
+        totalImpressions: Number(item.total_impressions || 0),
+        totalClicks: Number(item.total_clicks || 0),
+        recordCount: Number(item.record_count || 0)
+      })),
+      
+      deviceBrowserMatrix: results[1].map(item => ({
+        device: item.device || 'Unknown',
+        browser: item.browser || 'Unknown',
+        avgEcpm: Number(item.avg_ecpm || 0),
+        avgCtr: Number(item.avg_ctr || 0),
+        avgFillRate: Number(item.avg_fillRate || 0),
+        totalRevenue: Number(item.total_revenue || 0),
+        totalImpressions: Number(item.total_impressions || 0),
+        recordCount: Number(item.record_count || 0)
+      })),
+      
+      adUnitAnalysis: results[2].map(item => ({
+        adFormat: item.adFormat || 'Unknown',
+        adUnit: item.adUnit || 'Unknown',
+        avgEcpm: Number(item.avg_ecpm || 0),
+        avgCtr: Number(item.avg_ctr || 0),
+        avgFillRate: Number(item.avg_fillRate || 0),
+        totalRevenue: Number(item.total_revenue || 0),
+        totalImpressions: Number(item.total_impressions || 0),
+        recordCount: Number(item.record_count || 0)
+      })),
+      
+      geographicAnalysis: results[3].map(item => ({
+        country: item.country || 'Unknown',
+        uniqueWebsites: Number(item.unique_websites || 0),
+        totalRevenue: Number(item.total_revenue || 0),
+        avgEcpm: Number(item.avg_ecpm || 0),
+        totalImpressions: Number(item.total_impressions || 0),
+        avgFillRate: Number(item.avg_fillRate || 0)
+      })),
+      
+      performanceDistribution: results[4].map(item => ({
+        ecpmRange: item.ecpm_range,
+        count: Number(item.count || 0),
+        avgRevenue: Number(item.avg_revenue || 0),
+        totalImpressions: Number(item.total_impressions || 0)
+      })),
+      
+      timeAnalysis: results[5].map(item => ({
+        dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][Number(item.day_of_week)],
+        avgRevenue: Number(item.avg_revenue || 0),
+        avgEcpm: Number(item.avg_ecpm || 0),
+        avgFillRate: Number(item.avg_fillRate || 0),
+        totalImpressions: Number(item.total_impressions || 0)
+      })),
+      
+      meta: {
+        processingMethod: 'direct',
+        warning: sessionInfo.recordCount > 500000 ? '数据量较大，分析结果基于优化的查询算法' : undefined
       }
-    })
-
-    // Calculate average revenue for each bucket
-    ecpmBuckets.forEach(bucket => {
-      if (bucket.count > 0) {
-        bucket.avg_revenue = bucket.total_revenue / bucket.count
-      }
-    })
-
-    // 6. Hourly Performance Pattern
-    const hourlyPattern = Array.from({ length: 24 }, (_, i) => ({
-      hour: i,
-      avg_ecpm: 0,
-      avg_ctr: 0,
-      total_revenue: 0,
-      records: 0
-    }))
-
-    // Fetch hourly data
-    const hourlyRecords = await prisma.adReport.findMany({
-      where: {
-        sessionId: session.id,
-        ...(startDate || endDate ? {
-          dataDate: {
-            ...(startDate && { gte: new Date(startDate) }),
-            ...(endDate && { lte: new Date(endDate) })
-          }
-        } : {})
-      },
-      select: {
-        dataDate: true,
-        ecpm: true,
-        ctr: true,
-        revenue: true
-      }
-    })
-
-    // Populate hourly pattern
-    hourlyRecords.forEach(record => {
-      const hour = new Date(record.dataDate).getHours()
-      if (hour >= 0 && hour < 24) {
-        hourlyPattern[hour].records++
-        hourlyPattern[hour].total_revenue += record.revenue || 0
-        hourlyPattern[hour].avg_ecpm += record.ecpm || 0
-        hourlyPattern[hour].avg_ctr += record.ctr || 0
-      }
-    })
-
-    // Calculate averages for each hour
-    hourlyPattern.forEach(hour => {
-      if (hour.records > 0) {
-        hour.avg_ecpm = hour.avg_ecpm / hour.records
-        hour.avg_ctr = hour.avg_ctr / hour.records
-      }
-    })
-
-    // 7. Viewability Analysis
-    const viewabilityAnalysis = await prisma.adReport.groupBy({
-      by: ['adFormat'],
-      where: {
-        sessionId: session.id,
-        ...(startDate || endDate ? {
-          dataDate: {
-            ...(startDate && { gte: new Date(startDate) }),
-            ...(endDate && { lte: new Date(endDate) })
-          }
-        } : {}),
-        viewabilityRate: { not: null }
-      },
-      _avg: {
-        viewabilityRate: true,
-        ecpm: true,
-        revenue: true
-      },
-      _count: true
-    })
-
-    // 8. Top Performing Combinations - simplified
-    const topCombinations = await prisma.adReport.groupBy({
-      by: ['country', 'device', 'adFormat'],
-      where: {
-        sessionId: session.id,
-        ...(startDate || endDate ? {
-          dataDate: {
-            ...(startDate && { gte: new Date(startDate) }),
-            ...(endDate && { lte: new Date(endDate) })
-          }
-        } : {}),
-        country: { not: null },
-        device: { not: null },
-        adFormat: { not: null }
-      },
-      _avg: {
-        ecpm: true,
-        fillRate: true
-      },
-      _sum: {
-        revenue: true
-      },
-      _count: true,
-      orderBy: {
-        _avg: {
-          ecpm: 'desc'
-        }
-      },
-      take: 15
-    }).then(results => results.map(r => ({
-      country: r.country,
-      device: r.device,
-      ad_format: r.adFormat,
-      avg_ecpm: r._avg.ecpm,
-      total_revenue: r._sum.revenue,
-      occurrences: r._count,
-      avg_fill_rate: r._avg.fillRate
-    })))
-
-    // Convert BigInt values to Number for serialization
-    const serializeData = (data: any): any => {
-      if (Array.isArray(data)) {
-        return data.map(item => serializeData(item))
-      } else if (data && typeof data === 'object') {
-        const result: any = {}
-        for (const [key, value] of Object.entries(data)) {
-          if (typeof value === 'bigint') {
-            result[key] = Number(value)
-          } else if (value && typeof value === 'object') {
-            result[key] = serializeData(value)
-          } else {
-            result[key] = value
-          }
-        }
-        return result
-      }
-      return data
     }
 
-    // Serialize ecpmBuckets and hourlyPattern
-    const serializedEcpmBuckets = serializeData(ecpmBuckets)
-    const serializedHourlyPattern = serializeData(hourlyPattern)
+    // Cache the result for 15 minutes (longer cache for complex analytics)
+    try {
+      await redis.setEx(cacheKey, 900, JSON.stringify(response))
+    } catch (error) {
+      console.error('Redis set failed:', error)
+    }
 
-    return NextResponse.json({
-      advertiserAnalysis: serializeData(advertiserAnalysis),
-      deviceBrowserMatrix: serializeData(deviceBrowserMatrix),
-      adUnitAnalysis: serializeData(adUnitAnalysis),
-      geoAnalysis: serializeData(geoAnalysis),
-      ecpmBuckets: serializedEcpmBuckets,
-      hourlyPattern: serializedHourlyPattern,
-      viewabilityAnalysis: serializeData(viewabilityAnalysis),
-      topCombinations: serializeData(topCombinations)
-    })
+    return NextResponse.json(response)
+    
   } catch (error) {
-    console.error('Error in enhanced analytics:', error)
-    return NextResponse.json({ error: 'Failed to fetch enhanced analytics' }, { status: 500 })
+    console.error('Enhanced analytics error:', error)
+    
+    if (error instanceof Error && error.message === 'Enhanced analytics timeout') {
+      return NextResponse.json(
+        { error: 'Analysis timeout, please try a smaller date range' },
+        { status: 504 }
+      )
+    }
+    
+    return NextResponse.json(
+      { error: 'Failed to fetch enhanced analytics' },
+      { status: 500 }
+    )
+  }
+}
+
+async function getSessionInfo(sessionId: string, redis: any) {
+  try {
+    const cached = await redis.get(`session:${sessionId}`)
+    if (cached) {
+      return JSON.parse(cached)
+    }
+  } catch (error) {
+    console.error('Redis get session failed:', error)
+  }
+  
+  try {
+    const session = await prisma.uploadSession.findUnique({
+      where: { id: sessionId },
+      select: {
+        id: true,
+        filename: true,
+        recordCount: true,
+        tempTableName: true,
+        status: true
+      }
+    })
+    
+    if (session) {
+      try {
+        await redis.setEx(`session:${sessionId}`, 3600, JSON.stringify(session))
+      } catch (error) {
+        console.error('Redis set session failed:', error)
+      }
+    }
+    
+    return session
+  } catch (error) {
+    console.error('Database get session failed:', error)
+    return null
   }
 }

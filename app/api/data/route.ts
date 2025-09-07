@@ -1,8 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentSession } from '@/lib/session'
+import { createClient } from 'redis'
+
+// Redis connection manager
+class RedisManager {
+  private static instance: any = null
+  
+  static async getClient() {
+    if (!this.instance) {
+      try {
+        this.instance = createClient({
+          url: process.env.REDIS_URL || '',
+          socket: {
+            reconnectStrategy: (retries) => Math.min(retries * 50, 500),
+            timeout: 5000
+          }
+        })
+        
+        // Test connection
+        await this.instance.ping()
+      } catch (error) {
+        console.error('Redis connection failed:', error)
+        this.instance = null
+        // Return a mock Redis client for fallback
+        return {
+          get: async () => null,
+          set: async () => {},
+          setex: async () => {},
+          del: async () => {},
+          keys: async () => []
+        }
+      }
+    }
+    return this.instance
+  }
+}
 
 export async function GET(request: NextRequest) {
+  const redis = await RedisManager.getClient()
+  
   try {
     const session = getCurrentSession(request)
     if (!session) {
@@ -10,43 +47,116 @@ export async function GET(request: NextRequest) {
     }
     
     const { searchParams } = new URL(request.url)
-    const page = Math.max(Number(searchParams.get('page')) || 1, 1) // 页码从1开始
-    const limit = Math.min(Number(searchParams.get('limit')) || 100, 1000) // 限制最大1000条
+    const cursor = searchParams.get('cursor')
+    const limit = Math.min(Number(searchParams.get('limit')) || 100, 1000)
     const search = searchParams.get('search') || ''
     const sortBy = searchParams.get('sortBy') || 'dataDate'
     const sortOrder = searchParams.get('sortOrder') || 'desc'
     
-    // 计算跳过的记录数
-    const skip = (page - 1) * limit
-    
-    // 构建where条件
-    const where = {
-      sessionId: session.id,
-      ...(search ? {
-        OR: [
-          { website: { contains: search, mode: 'insensitive' as const } },
-          { country: { contains: search, mode: 'insensitive' as const } },
-          { domain: { contains: search, mode: 'insensitive' as const } },
-          { device: { contains: search, mode: 'insensitive' as const } }
-        ]
-      } : {})
+    // Get session info from cache or database
+    let sessionInfo = await getSessionInfo(session.id, redis)
+    if (!sessionInfo) {
+      return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }
     
-    // 构建排序条件
-    const orderBy = { [sortBy]: sortOrder }
+    // Validate cursor if provided
+    if (cursor) {
+      const cursorExists = await validateCursor(cursor, sessionInfo.tempTableName)
+      if (!cursorExists) {
+        return NextResponse.json({ error: 'Invalid cursor' }, { status: 400 })
+      }
+    }
     
-    // 并行获取数据和总数
-    const [data, totalCount] = await Promise.all([
-      prisma.adReport.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy
-      }),
-      prisma.adReport.count({ where: { sessionId: session.id } })
-    ])
+    // Build query conditions
+    const whereConditions = []
+    const params: any[] = []
     
-    // Transform BigInt values to regular numbers for JSON serialization
+    if (search) {
+      whereConditions.push(`(
+        website ILIKE $${params.length + 1} OR
+        country ILIKE $${params.length + 2} OR
+        domain ILIKE $${params.length + 3} OR
+        device ILIKE $${params.length + 4}
+      )`)
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`)
+    }
+    
+    if (cursor) {
+      whereConditions.push(`id > $${params.length + 1}`)
+      params.push(cursor)
+    }
+    
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : ''
+    
+    // Generate cache key
+    const cacheKey = `data:${session.id}:${cursor || 'first'}:${limit}:${search}:${sortBy}:${sortOrder}`
+    
+    // Try to get from cache first with timeout
+    let cached
+    try {
+      cached = await redis.get(cacheKey)
+    } catch (error) {
+      console.error('Redis get failed:', error)
+      cached = null
+    }
+    
+    if (cached) {
+      return NextResponse.json(JSON.parse(cached))
+    }
+    
+    // Set timeout for database operations
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Database query timeout')), 30000)
+    })
+    
+    // Build the query with additional safety checks
+    const offset = params.length + 1
+    const query = `
+      SELECT 
+        id,
+        dataDate,
+        website,
+        country,
+        adFormat,
+        adUnit,
+        advertiser,
+        domain,
+        device,
+        browser,
+        requests,
+        impressions,
+        clicks,
+        ctr,
+        ecpm,
+        revenue,
+        viewableImpressions,
+        viewabilityRate,
+        measurableImpressions,
+        fillRate,
+        arpu
+      FROM ${sessionInfo.tempTableName}
+      ${whereClause}
+      ORDER BY ${sortBy} ${sortOrder}
+      LIMIT $${offset}
+    `
+    
+    // Get count query
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM ${sessionInfo.tempTableName}
+      ${whereClause.replace(/id > \$\d+ AND /, '')}
+    `
+    
+    // Execute queries with timeout
+    const [data, countResult] = await Promise.race([
+      Promise.all([
+        prisma.$queryRawUnsafe(query, ...params, limit),
+        prisma.$queryRawUnsafe(countQuery, ...params.slice(0, cursor ? params.length - 1 : params.length))
+      ]),
+      timeoutPromise
+    ]) as [any[], any[]]
+    
+    // Transform BigInt values to regular numbers
     const transformedData = data.map(record => ({
       ...record,
       requests: record.requests ? Number(record.requests) : null,
@@ -56,21 +166,93 @@ export async function GET(request: NextRequest) {
       measurableImpressions: record.measurableImpressions ? Number(record.measurableImpressions) : null
     }))
     
-    return NextResponse.json({
+    const totalCount = Number(countResult[0]?.total || 0)
+    
+    const response = {
       data: transformedData,
       pagination: {
-        nextCursor: data.length === limit ? data[data.length - 1].id : null,
-        totalCount: totalCount || await prisma.adReport.count({ where: { sessionId: session.id } }),
-        hasMore: data.length === limit,
+        nextCursor: transformedData.length === limit ? transformedData[transformedData.length - 1].id : null,
+        totalCount,
+        hasMore: transformedData.length === limit,
         limit
       }
-    })
+    }
+    
+    // Cache the result for 5 minutes
+    try {
+      await redis.setEx(cacheKey, 300, JSON.stringify(response))
+    } catch (error) {
+      console.error('Redis set failed:', error)
+    }
+    
+    return NextResponse.json(response)
     
   } catch (error) {
     console.error('Data fetch error:', error)
+    
+    if (error instanceof Error && error.message === 'Database query timeout') {
+      return NextResponse.json(
+        { error: 'Query timeout, please try again' },
+        { status: 504 }
+      )
+    }
+    
     return NextResponse.json(
       { error: 'Failed to fetch data' },
       { status: 500 }
     )
+  }
+}
+
+async function getSessionInfo(sessionId: string, redis: any) {
+  // Try to get from cache first
+  try {
+    const cached = await redis.get(`session:${sessionId}`)
+    if (cached) {
+      return JSON.parse(cached)
+    }
+  } catch (error) {
+    console.error('Redis get session failed:', error)
+  }
+  
+  // Get from database
+  try {
+    const session = await prisma.uploadSession.findUnique({
+      where: { id: sessionId },
+      select: {
+        id: true,
+        filename: true,
+        recordCount: true,
+        tempTableName: true,
+        status: true
+      }
+    })
+    
+    if (session) {
+      // Cache the session info
+      try {
+        await redis.setEx(`session:${sessionId}`, 3600, JSON.stringify(session))
+      } catch (error) {
+        console.error('Redis set session failed:', error)
+      }
+    }
+    
+    return session
+  } catch (error) {
+    console.error('Database get session failed:', error)
+    return null
+  }
+}
+
+async function validateCursor(cursor: string, tempTableName: string) {
+  try {
+    const result = await prisma.$queryRawUnsafe(
+      'SELECT 1 FROM ' + tempTableName + ' WHERE id = $1 LIMIT 1',
+      cursor
+    )
+    return (result as any[]).length > 0
+  } catch (error) {
+    console.error('Cursor validation failed:', error)
+    return false
   }
 }

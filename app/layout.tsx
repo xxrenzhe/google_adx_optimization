@@ -1,8 +1,14 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Noto_Sans_SC } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })
+const notoSansSC = Noto_Sans_SC({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-noto-sans-sc',
+  display: 'swap'
+})
 
 export const metadata: Metadata = {
   title: 'Google ADX Optimization',

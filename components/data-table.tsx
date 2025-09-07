@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback, useReducer } from 'react'
+import { useState, useEffect, useRef, useCallback, useReducer, useMemo } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface DataTableProps {
@@ -31,16 +31,15 @@ interface AdReport {
   arpu: number | null
 }
 
-// 使用 useReducer 优化状态管理 - 减少不必要的重新渲染
+// 使用 useReducer 优化状态管理
 type TableState = {
   data: AdReport[]
   loading: boolean
   error: string | null
   pagination: {
-    page: number
+    cursor: string | null
     limit: number
     total: number
-    pages: number
     hasMore: boolean
   }
   sortBy: string
@@ -55,20 +54,19 @@ type TableAction =
   | { type: 'SET_PAGINATION'; payload: Partial<TableState['pagination']> }
   | { type: 'SET_SORT'; payload: { sortBy: string; sortOrder: 'asc' | 'desc' } }
   | { type: 'SET_SEARCH'; payload: string }
-  | { type: 'RESET_PAGINATION' }
+  | { type: 'RESET_CURSOR' }
 
 const initialState: TableState = {
   data: [],
   loading: true,
   error: null,
   pagination: {
-    page: 1,
-    limit: 10,
+    cursor: null,
+    limit: 100,
     total: 0,
-    pages: 0,
-    hasMore: false
+    hasMore: true
   },
-  sortBy: 'revenue',
+  sortBy: 'dataDate',
   sortOrder: 'desc',
   search: ''
 }
@@ -87,8 +85,8 @@ function tableReducer(state: TableState, action: TableAction): TableState {
       return { ...state, sortBy: action.payload.sortBy, sortOrder: action.payload.sortOrder }
     case 'SET_SEARCH':
       return { ...state, search: action.payload }
-    case 'RESET_PAGINATION':
-      return { ...state, pagination: { ...state.pagination, page: 1 } }
+    case 'RESET_CURSOR':
+      return { ...state, pagination: { ...state.pagination, cursor: null } }
     default:
       return state
   }
@@ -96,31 +94,80 @@ function tableReducer(state: TableState, action: TableAction): TableState {
 
 export default function DataTable({ refreshTrigger }: DataTableProps) {
   const [state, dispatch] = useReducer(tableReducer, initialState)
-  const [isDataStale, setIsDataStale] = useState(false) // 标记数据是否过期
+  const [isDataStale, setIsDataStale] = useState(false)
   const tableContainerRef = useRef<HTMLDivElement>(null)
-  const savedScrollPosition = useRef(0)
-  const initialLoad = useRef(true) // 标记是否首次加载
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+  const initialLoad = useRef(true)
+  const searchTimeoutRef = useRef<NodeJS.Timeout>()
   
+  // 虚拟滚动优化
+  const { visibleRange, containerHeight, totalHeight } = useMemo(() => {
+    const rowHeight = 41 // 每行高度
+    const containerHeight = 600 // 容器高度
+    const visibleRows = Math.ceil(containerHeight / rowHeight) + 5 // 缓冲5行
+    
+    return {
+      visibleRange: { start: 0, end: visibleRows },
+      containerHeight,
+      totalHeight: state.data.length * rowHeight
+    }
+  }, [state.data.length])
+  
+  // 防抖搜索
+  const debouncedSearch = useCallback((value: string) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      dispatch({ type: 'SET_SEARCH', payload: value })
+      dispatch({ type: 'RESET_CURSOR' })
+    }, 300)
+  }, [])
+  
+  // 初始加载数据
   useEffect(() => {
     fetchData()
-  }, [state.pagination.page, state.pagination.limit, state.sortBy, state.sortOrder, state.search, refreshTrigger])
+  }, [refreshTrigger])
   
-    
-  // 只在数据变化且不在加载状态时恢复滚动位置
+  // 监听搜索和排序变化
   useEffect(() => {
-    if (!state.loading && savedScrollPosition.current > 0 && tableContainerRef.current) {
-      tableContainerRef.current.scrollLeft = savedScrollPosition.current
-      savedScrollPosition.current = 0
+    if (!initialLoad.current) {
+      dispatch({ type: 'RESET_CURSOR' })
+      fetchData(true)
     }
-  }, [state.data, state.loading])
+  }, [state.search, state.sortBy, state.sortOrder])
   
-  const fetchData = async () => {
-    // 首次加载才显示加载状态，后续操作保持视觉连续性
-    if (initialLoad.current) {
+  // 无限滚动加载更多
+  useEffect(() => {
+    if (observerRef.current) {
+      observerRef.current.disconnect()
+    }
+    
+    observerRef.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && state.pagination.hasMore && !state.loading) {
+        fetchData(false, true)
+      }
+    }, {
+      threshold: 0.1
+    })
+    
+    if (loadMoreRef.current) {
+      observerRef.current.observe(loadMoreRef.current)
+    }
+    
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+      }
+    }
+  }, [state.pagination.hasMore, state.loading])
+  
+  const fetchData = async (reset = false, loadMore = false) => {
+    if (reset) {
       dispatch({ type: 'SET_LOADING', payload: true })
-    } else {
-      // 标记数据为过期，但不清空显示
-      setIsDataStale(true)
+      setIsDataStale(false)
     }
     
     dispatch({ type: 'SET_ERROR', payload: null })
@@ -130,24 +177,30 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
         limit: state.pagination.limit.toString(),
         sortBy: state.sortBy,
         sortOrder: state.sortOrder,
-        search: state.search,
-        page: state.pagination.page.toString()
+        search: state.search
       })
+      
+      if (state.pagination.cursor && !reset) {
+        params.append('cursor', state.pagination.cursor)
+      }
       
       const response = await fetch(`/api/data?${params}`)
       if (!response.ok) throw new Error('Failed to fetch data')
       
       const result = await response.json()
       
-      // 批量更新所有状态，避免多次渲染
-      dispatch({ type: 'SET_DATA', payload: result.data })
-      setIsDataStale(false)
+      if (reset || loadMore) {
+        const newData = loadMore ? [...state.data, ...result.data] : result.data
+        dispatch({ type: 'SET_DATA', payload: newData })
+      } else {
+        dispatch({ type: 'SET_DATA', payload: result.data })
+      }
+      
       initialLoad.current = false
       
-      // Update pagination with API response
       dispatch({ type: 'SET_PAGINATION', payload: {
+        cursor: result.pagination.nextCursor,
         total: result.pagination.totalCount,
-        pages: Math.ceil(result.pagination.totalCount / state.pagination.limit),
         hasMore: result.pagination.hasMore
       }})
     } catch (err) {
@@ -158,57 +211,44 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
   }
   
   const handleSort = useCallback((column: string) => {
-    // Save current scroll position before data changes
-    savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
-    
-    // 计算新的排序状态，避免多次渲染
     const newSortOrder = state.sortBy === column ? 
       (state.sortOrder === 'asc' ? 'desc' : 'asc') : 
       'desc'
     
-    // 批量更新排序状态
     dispatch({ type: 'SET_SORT', payload: { sortBy: column, sortOrder: newSortOrder } })
-    dispatch({ type: 'RESET_PAGINATION' })
   }, [state.sortBy, state.sortOrder])
   
   const columns: Array<{
     key: keyof AdReport
     label: string
     format?: (value: any) => string
+    width?: string
   }> = [
-    { key: 'dataDate', label: '日期', format: (value: string | null) => value ? new Date(value).toLocaleDateString() : '无' },
-    { key: 'website', label: '网站' },
-    { key: 'country', label: '国家' },
-    { key: 'adFormat', label: '广告格式' },
-    { key: 'adUnit', label: '广告单元' },
-    { key: 'advertiser', label: '广告客户' },
-    { key: 'domain', label: '网域' },
-    { key: 'device', label: '设备' },
-    { key: 'browser', label: '浏览器' },
-    { key: 'requests', label: '请求数', format: (value: number | null) => value ? value.toLocaleString() : '0' },
-    { key: 'impressions', label: '展示数', format: (value: number | null) => value ? value.toLocaleString() : '0' },
-    { key: 'clicks', label: '点击数', format: (value: number | null) => value ? value.toLocaleString() : '0' },
-    { key: 'ctr', label: '点击率', format: (value: number | null) => value ? `${(value * 100).toFixed(2)}%` : '0%' },
-    { key: 'ecpm', label: '平均eCPM', format: (value: number | null) => value ? `$${value.toFixed(2)}` : '$0.00' },
-    { key: 'revenue', label: '收入', format: (value: number | null) => value ? `$${value.toFixed(2)}` : '$0.00' },
-    { key: 'viewableImpressions', label: '可见展示数', format: (value: number | null) => value ? value.toLocaleString() : '0' },
-    { key: 'viewabilityRate', label: '可见率', format: (value: number | null) => value ? `${(value * 100).toFixed(2)}%` : '0%' },
-    { key: 'measurableImpressions', label: '可衡量展示数', format: (value: number | null) => value ? value.toLocaleString() : '0' },
-    { key: 'fillRate', label: '填充率', format: (value: number | null) => value ? `${value.toFixed(1)}%` : '0%' },
-    { key: 'arpu', label: '每用户收入', format: (value: number | null) => value ? `$${value.toFixed(4)}` : '$0.0000' }
+    { key: 'dataDate', label: '日期', format: (value: string) => new Date(value).toLocaleDateString(), width: '120px' },
+    { key: 'website', label: '网站', width: '200px' },
+    { key: 'country', label: '国家', width: '100px' },
+    { key: 'adFormat', label: '广告格式', width: '120px' },
+    { key: 'device', label: '设备', width: '100px' },
+    { key: 'requests', label: '请求数', format: (value: number) => value?.toLocaleString() || '0', width: '100px' },
+    { key: 'impressions', label: '展示数', format: (value: number) => value?.toLocaleString() || '0', width: '100px' },
+    { key: 'clicks', label: '点击数', format: (value: number) => value?.toLocaleString() || '0', width: '100px' },
+    { key: 'ctr', label: '点击率', format: (value: number) => value ? `${(value * 100).toFixed(2)}%` : '0%', width: '100px' },
+    { key: 'ecpm', label: 'eCPM', format: (value: number) => value ? `$${value.toFixed(2)}` : '$0.00', width: '100px' },
+    { key: 'revenue', label: '收入', format: (value: number) => value ? `$${value.toFixed(2)}` : '$0.00', width: '100px' }
   ]
   
-  // 只在首次加载时显示骨架屏，后续操作保持数据可见
+  // 只渲染可见行
+  const visibleData = useMemo(() => {
+    return state.data.slice(visibleRange.start, visibleRange.end)
+  }, [state.data, visibleRange])
+  
   if (state.loading && initialLoad.current) {
     return (
       <div className="space-y-4">
-        {/* 搜索框骨架屏 */}
         <div className="flex gap-4">
           <Skeleton className="h-10 flex-1" />
           <Skeleton className="h-10 w-32" />
         </div>
-        
-        {/* 表格骨架屏 */}
         <div className="rounded-lg border border-gray-200">
           <div className="space-y-2 p-4">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -225,7 +265,6 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
   }
   
   if (state.error) {
-    // Check if the error is due to no data uploaded
     if (state.error.includes('No data uploaded yet')) {
       return (
         <div className="p-12 text-center">
@@ -251,51 +290,52 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
             type="text"
             placeholder="搜索网站、国家、域名或设备..."
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
-            value={state.search}
-            onChange={(e) => {
-              // Save scroll position before search
-              savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
-              dispatch({ type: 'SET_SEARCH', payload: e.target.value })
-              dispatch({ type: 'RESET_PAGINATION' })
-            }}
+            defaultValue={state.search}
+            onChange={(e) => debouncedSearch(e.target.value)}
           />
         </div>
         <select
           className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
           value={state.pagination.limit}
           onChange={(e) => {
-            // Save scroll position before changing limit
-            savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
             dispatch({ type: 'SET_PAGINATION', payload: { 
-              page: 1,
-              limit: parseInt(e.target.value)
+              limit: parseInt(e.target.value),
+              cursor: null
             }})
           }}
         >
-          <option value={10}>每页10条</option>
           <option value={50}>每页50条</option>
           <option value={100}>每页100条</option>
+          <option value={200}>每页200条</option>
         </select>
       </div>
       
-      {/* Table with transition effect */}
+      {/* Stats Bar */}
+      <div className="flex justify-between items-center text-sm text-gray-600">
+        <span>显示 {state.data.length} / {state.pagination.total} 条记录</span>
+        {state.loading && <span>加载中...</span>}
+      </div>
+      
+      {/* Virtual Scroll Table */}
       <div 
         ref={tableContainerRef} 
-        className={`overflow-x-auto rounded-lg border border-gray-200 transition-opacity duration-200 ${isDataStale ? 'opacity-60' : 'opacity-100'}`}
+        className="overflow-x-auto rounded-lg border border-gray-200"
+        style={{ height: containerHeight }}
       >
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 sticky top-0 z-10">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  style={{ width: column.width }}
                   onClick={() => handleSort(column.key)}
                 >
                   <div className="flex items-center space-x-1">
                     <span>{column.label}</span>
                     {state.sortBy === column.key && (
-                      <span className="transition-transform duration-200">{state.sortOrder === 'asc' ? '↑' : '↓'}</span>
+                      <span>{state.sortOrder === 'asc' ? '↑' : '↓'}</span>
                     )}
                   </div>
                 </th>
@@ -303,111 +343,39 @@ export default function DataTable({ refreshTrigger }: DataTableProps) {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {state.data.map((row) => (
+            {visibleData.map((row, index) => (
               <tr 
-                key={row.id} 
-                className={`hover:bg-gray-50 transition-colors duration-150 ${isDataStale ? 'animate-pulse' : ''}`}
+                key={`${row.id}-${visibleRange.start + index}`}
+                className="hover:bg-gray-50 transition-colors"
               >
                 {columns.map((column) => (
-                  <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {column.format
-                      ? column.format(row[column.key])
-                      : row[column.key] || ''
-                    }
+                  <td 
+                    key={column.key} 
+                    className="px-6 py-4 whitespace-nowrap text-sm"
+                    style={{ width: column.width }}
+                  >
+                    {column.format ? column.format(row[column.key]) : row[column.key] || '-'}
                   </td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
-      
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="text-sm text-gray-700">
-          显示第 {state.pagination.page === 1 ? 1 : (state.pagination.page - 1) * state.pagination.limit + 1} 至{' '}
-          {Math.min(state.pagination.page * state.pagination.limit, state.pagination.total)} 条，共{' '}
-          {state.pagination.total} 条记录
-        </div>
         
-        <div className="flex items-center space-x-2">
-          {/* Previous Button */}
-          <button
-            className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-            disabled={state.pagination.page === 1}
-            onClick={() => {
-              // Save scroll position before changing page
-              savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
-              dispatch({ type: 'SET_PAGINATION', payload: { page: state.pagination.page - 1 } })
-            }}
+        {/* Load More Trigger */}
+        {state.pagination.hasMore && (
+          <div 
+            ref={loadMoreRef} 
+            className="h-10 flex items-center justify-center"
           >
-            上一页
-          </button>
-          
-          {/* Page Numbers */}
-          <div className="flex space-x-1">
-            {Array.from({ length: Math.min(state.pagination.pages, 5) }, (_, i) => {
-              let pageNum
-              if (state.pagination.pages <= 5) {
-                pageNum = i + 1
-              } else if (state.pagination.page <= 3) {
-                pageNum = i + 1
-              } else if (state.pagination.page >= state.pagination.pages - 2) {
-                pageNum = state.pagination.pages - 4 + i
-              } else {
-                pageNum = state.pagination.page - 2 + i
-              }
-              
-              return (
-                <button
-                  key={pageNum}
-                  className={`px-3 py-1 border rounded-lg text-sm transition-colors ${
-                    state.pagination.page === pageNum
-                      ? 'bg-primary text-white border-primary'
-                      : 'border-gray-300 hover:bg-gray-50'
-                  }`}
-                  onClick={() => {
-                    // Save scroll position before changing page
-                    savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
-                    dispatch({ type: 'SET_PAGINATION', payload: { page: pageNum } })
-                  }}
-                >
-                  {pageNum}
-                </button>
-              )
-            })}
-            
-            {/* Ellipsis for many pages */}
-            {state.pagination.pages > 5 && state.pagination.page < state.pagination.pages - 2 && (
-              <>
-                <span className="px-2 text-gray-500">...</span>
-                <button
-                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors"
-                  onClick={() => {
-                    // Save scroll position before changing page
-                    savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
-                    dispatch({ type: 'SET_PAGINATION', payload: { page: state.pagination.pages } })
-                  }}
-                >
-                  {state.pagination.pages}
-                </button>
-              </>
+            {state.loading && (
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                <span className="text-sm text-gray-600">加载更多...</span>
+              </div>
             )}
           </div>
-          
-          {/* Next Button */}
-          <button
-            className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-            disabled={state.pagination.page >= state.pagination.pages}
-            onClick={() => {
-              // Save scroll position before changing page
-              savedScrollPosition.current = tableContainerRef.current?.scrollLeft || 0
-              dispatch({ type: 'SET_PAGINATION', payload: { page: state.pagination.page + 1 } })
-            }}
-          >
-            下一页
-          </button>
-        </div>
+        )}
       </div>
     </div>
   )
