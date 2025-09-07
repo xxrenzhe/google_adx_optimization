@@ -144,14 +144,14 @@ export async function POST(request: NextRequest) {
       const sessionId = request.headers.get('x-session-id') || 'unknown'
       await prisma.uploadSession.update({
         where: { id: sessionId },
-        data: { status: 'failed', errorMessage: error.message }
+        data: { status: 'failed', errorMessage: (error instanceof Error ? error.message : String(error)) }
       })
     } catch (e) {
       // Ignore update errors
     }
     
     return NextResponse.json(
-      { error: 'Failed to process file', details: error.message },
+      { error: 'Failed to process file', details: (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     )
   } finally {

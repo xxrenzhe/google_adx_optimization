@@ -195,7 +195,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Data fetch error:', error)
     
-    if (error instanceof Error && error.message === 'Database query timeout') {
+    if (error instanceof Error && (error instanceof Error ? error.message : String(error)) === 'Database query timeout') {
       return NextResponse.json(
         { error: 'Query timeout, please try again' },
         { status: 504 }

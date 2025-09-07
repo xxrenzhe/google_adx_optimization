@@ -191,7 +191,7 @@ export async function POST(request: NextRequest) {
           where: { id: sessionId },
           data: { 
             status: 'failed',
-            errorMessage: error instanceof Error ? error.message : 'Unknown error'
+            errorMessage: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Unknown error'
           }
         })
       } catch (e) {

@@ -288,7 +288,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Enhanced analytics error:', error)
     
-    if (error instanceof Error && error.message === 'Enhanced analytics timeout') {
+    if (error instanceof Error && (error instanceof Error ? error.message : String(error)) === 'Enhanced analytics timeout') {
       return NextResponse.json(
         { error: 'Analysis timeout, please try a smaller date range' },
         { status: 504 }

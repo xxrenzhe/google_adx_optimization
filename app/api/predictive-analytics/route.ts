@@ -225,7 +225,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Predictive analytics error:', error)
     
-    if (error instanceof Error && error.message === 'Predictive analytics timeout') {
+    if (error instanceof Error && (error instanceof Error ? error.message : String(error)) === 'Predictive analytics timeout') {
       return NextResponse.json(
         { error: 'Prediction timeout, please try with a smaller time range' },
         { status: 504 }
