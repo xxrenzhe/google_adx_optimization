@@ -65,6 +65,10 @@ RUN chown nextjs:nodejs .next
 # Copy Prisma schema
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
+# Copy package.json and package-lock.json
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/package-lock.json ./package-lock.json
+
 # Copy the entire .next directory and node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
