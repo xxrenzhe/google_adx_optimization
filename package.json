@@ -7,13 +7,9 @@
     "build": "next build",
     "start": "NODE_OPTIONS=\"--max-old-space-size=1536\" next start",
     "start:prod": "NODE_OPTIONS=\"--max-old-space-size=1536\" node server.js",
-    "lint": "next lint",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:migrate": "prisma migrate dev"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0",
     "@types/react-dropzone": "^4.2.2",
     "form-data": "^4.0.4",
     "lucide-react": "^0.536.0",
@@ -23,7 +19,6 @@
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.3.8",
     "recharts": "^2.8.0",
-    "redis": "^4.7.1",
     "tailwindcss": "^3.3.0"
   },
   "devDependencies": {
@@ -34,7 +29,6 @@
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
     "postcss": "^8",
-    "prisma": "^5.7.1",
     "typescript": "^5"
   }
 }

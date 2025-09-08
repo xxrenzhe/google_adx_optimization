@@ -1,39 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { getCurrentSession } from '@/lib/session'
-import { createClient } from 'redis'
-
-// Redis connection manager
-class RedisManager {
-  private static instance: any = null
-  
-  static async getClient() {
-    if (!this.instance) {
-      try {
-        this.instance = createClient({
-          url: process.env.REDIS_URL || '',
-          socket: {
-            reconnectStrategy: (retries) => Math.min(retries * 50, 500),
-            timeout: 5000
-          }
-        })
-        
-        await this.instance.ping()
-      } catch (error) {
-        console.error('Redis connection failed:', error)
-        this.instance = null
-        return {
-          get: async () => null,
-          set: async () => {},
-          setex: async () => {},
-          del: async () => {},
-          keys: async () => []
-        }
-      }
-    }
-    return this.instance
-  }
-}
+import { FileSystemManager } from '@/lib/fs-manager'
 
 // Automation rules database simulation
 const automationRules = [
@@ -68,17 +34,45 @@ const automationRules = [
 ]
 
 export async function GET(request: NextRequest) {
-  const redis = await RedisManager.getClient()
-  
   try {
-    const session = getCurrentSession(request)
-    if (!session) {
+    const { searchParams } = new URL(request.url)
+    const fileId = searchParams.get('fileId')
+    
+    let data
+    
+    if (fileId) {
+      // 分析单个文件
+      const result = await FileSystemManager.getAnalysisResult(fileId)
+      if (!result) {
+        return NextResponse.json({ 
+          rules: [],
+          actions: [],
+          summary: {
+            totalRules: 0,
+            enabledRules: 0,
+            triggeredRules: 0,
+            currentMetrics: {},
+            timestamp: new Date().toISOString()
+          }
+        })
+      }
+      
+      data = {
+        summary: result.summary,
+        dailyData: result.dailyTrend || []
+      }
+    } else {
+      // 没有提供fileId时，不返回任何数据
       return NextResponse.json({ 
-        rules: [],
+        rules: automationRules.map(rule => ({
+          rule,
+          triggered: false,
+          recommendation: null
+        })),
         actions: [],
         summary: {
-          totalRules: 0,
-          enabledRules: 0,
+          totalRules: automationRules.length,
+          enabledRules: automationRules.filter(r => r.enabled).length,
           triggeredRules: 0,
           currentMetrics: {},
           timestamp: new Date().toISOString()
@@ -86,38 +80,14 @@ export async function GET(request: NextRequest) {
       })
     }
     
-    // Get session info
-    const sessionInfo = await getSessionInfo(session.id, redis)
-    if (!sessionInfo) {
-      return NextResponse.json({ error: 'Session not found' }, { status: 404 })
-    }
+    // Calculate current stats from data
+    const { summary, dailyData } = data
+    const recentData = dailyData.slice(-7) // Last 7 days
     
-    // Generate cache key
-    const cacheKey = `automation:${session.id}:${new Date().toISOString().slice(0, 10)}`
-    
-    // Try cache first
-    const cached = await redis.get(cacheKey)
-    if (cached) {
-      return NextResponse.json(JSON.parse(cached))
-    }
-    
-    // Get simple current metrics
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    
-    const currentStatsResult = await prisma.$queryRawUnsafe(`
-      SELECT 
-        AVG(fillRate) as avg_fillRate,
-        AVG(ecpm) as avg_ecpm,
-        SUM(revenue) as total_revenue
-      FROM ${sessionInfo.tempTableName}
-      WHERE dataDate >= $1
-    `, today.toISOString().split('T')[0]) as any[]
-    
-    const currentStats = currentStatsResult[0] || {
-      avg_fillRate: 0,
-      avg_ecpm: 0,
-      total_revenue: 0
+    const currentStats = {
+      avg_fillRate: summary.totalImpressions > 0 ? (summary.totalImpressions / (summary.totalImpressions + (summary.totalImpressions * 0.3))) * 100 : 0, // Calculate fill rate
+      avg_ecpm: summary.avgEcpm || 0,
+      total_revenue: recentData.reduce((sum: number, day: any) => sum + (day.revenue || 0), 0)
     }
     
     // Define automation rules
@@ -175,13 +145,6 @@ export async function GET(request: NextRequest) {
         },
         timestamp: new Date().toISOString()
       }
-    }
-    
-    // Cache for 5 minutes (automation rules change frequently)
-    try {
-      await redis.setEx(cacheKey, 300, JSON.stringify(response))
-    } catch (error) {
-      console.error('Redis set failed:', error)
     }
 
     return NextResponse.json(response)
@@ -281,39 +244,3 @@ function getActionChanges(action: string): string[] {
   }
 }
 
-async function getSessionInfo(sessionId: string, redis: any) {
-  try {
-    const cached = await redis.get(`session:${sessionId}`)
-    if (cached) {
-      return JSON.parse(cached)
-    }
-  } catch (error) {
-    console.error('Redis get session failed:', error)
-  }
-  
-  try {
-    const session = await prisma.uploadSession.findUnique({
-      where: { id: sessionId },
-      select: {
-        id: true,
-        filename: true,
-        recordCount: true,
-        tempTableName: true,
-        status: true
-      }
-    })
-    
-    if (session) {
-      try {
-        await redis.setEx(`session:${sessionId}`, 3600, JSON.stringify(session))
-      } catch (error) {
-        console.error('Redis set session failed:', error)
-      }
-    }
-    
-    return session
-  } catch (error) {
-    console.error('Database get session failed:', error)
-    return null
-  }
-}

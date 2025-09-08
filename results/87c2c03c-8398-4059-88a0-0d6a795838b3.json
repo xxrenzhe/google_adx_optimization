@@ -1,0 +1,296 @@
+{
+  "fileId": "87c2c03c-8398-4059-88a0-0d6a795838b3",
+  "fileName": "87c2c03c-8398-4059-88a0-0d6a795838b3",
+  "summary": {
+    "totalRows": 5,
+    "totalRevenue": 15,
+    "totalImpressions": 4700,
+    "totalClicks": 133,
+    "totalRequests": 5400,
+    "avgEcpm": 3.1914893617021276,
+    "avgCtr": 2.8297872340425534
+  },
+  "topWebsites": [
+    {
+      "name": "facebook.com",
+      "revenue": 4,
+      "impressions": 950,
+      "clicks": 30,
+      "requests": 1200,
+      "avgEcpm": 4.2105263157894735,
+      "ctr": 3.1578947368421053
+    },
+    {
+      "name": "microsoft.com",
+      "revenue": 4,
+      "impressions": 1300,
+      "clicks": 40,
+      "requests": 1500,
+      "avgEcpm": 3.076923076923077,
+      "ctr": 3.076923076923077
+    },
+    {
+      "name": "google.com",
+      "revenue": 3,
+      "impressions": 900,
+      "clicks": 25,
+      "requests": 1000,
+      "avgEcpm": 3.3333333333333335,
+      "ctr": 2.7777777777777777
+    },
+    {
+      "name": "amazon.com",
+      "revenue": 2,
+      "impressions": 750,
+      "clicks": 20,
+      "requests": 800,
+      "avgEcpm": 2.6666666666666665,
+      "ctr": 2.666666666666667
+    },
+    {
+      "name": "apple.com",
+      "revenue": 2,
+      "impressions": 800,
+      "clicks": 18,
+      "requests": 900,
+      "avgEcpm": 2.5,
+      "ctr": 2.25
+    }
+  ],
+  "topCountries": [
+    {
+      "name": "US",
+      "revenue": 7,
+      "impressions": 2450,
+      "clicks": 63,
+      "requests": 2700,
+      "avgEcpm": 2.857142857142857,
+      "ctr": 2.571428571428571
+    },
+    {
+      "name": "JP",
+      "revenue": 4,
+      "impressions": 950,
+      "clicks": 30,
+      "requests": 1200,
+      "avgEcpm": 4.2105263157894735,
+      "ctr": 3.1578947368421053
+    },
+    {
+      "name": "CN",
+      "revenue": 4,
+      "impressions": 1300,
+      "clicks": 40,
+      "requests": 1500,
+      "avgEcpm": 3.076923076923077,
+      "ctr": 3.076923076923077
+    }
+  ],
+  "dailyTrend": [
+    {
+      "date": "2024-01-01",
+      "revenue": 7,
+      "impressions": 1850,
+      "clicks": 55,
+      "requests": 2200,
+      "avgEcpm": 3.7837837837837838,
+      "ctr": 2.9729729729729732
+    },
+    {
+      "date": "2024-01-02",
+      "revenue": 6,
+      "impressions": 2050,
+      "clicks": 60,
+      "requests": 2300,
+      "avgEcpm": 2.926829268292683,
+      "ctr": 2.9268292682926833
+    },
+    {
+      "date": "2024-01-03",
+      "revenue": 2,
+      "impressions": 800,
+      "clicks": 18,
+      "requests": 900,
+      "avgEcpm": 2.5,
+      "ctr": 2.25
+    }
+  ],
+  "devices": [
+    {
+      "name": "Mobile",
+      "revenue": 8,
+      "impressions": 2250,
+      "clicks": 70,
+      "requests": 2700,
+      "avgEcpm": 3.555555555555556,
+      "ctr": 3.111111111111111
+    },
+    {
+      "name": "Desktop",
+      "revenue": 7,
+      "impressions": 2450,
+      "clicks": 63,
+      "requests": 2700,
+      "avgEcpm": 2.857142857142857,
+      "ctr": 2.571428571428571
+    }
+  ],
+  "adFormats": [
+    {
+      "name": "Banner",
+      "revenue": 7,
+      "impressions": 2200,
+      "clicks": 65,
+      "requests": 2500,
+      "avgEcpm": 3.181818181818182,
+      "ctr": 2.9545454545454546
+    },
+    {
+      "name": "Interstitial",
+      "revenue": 4,
+      "impressions": 950,
+      "clicks": 30,
+      "requests": 1200,
+      "avgEcpm": 4.2105263157894735,
+      "ctr": 3.1578947368421053
+    },
+    {
+      "name": "Video",
+      "revenue": 2,
+      "impressions": 750,
+      "clicks": 20,
+      "requests": 800,
+      "avgEcpm": 2.6666666666666665,
+      "ctr": 2.666666666666667
+    },
+    {
+      "name": "Native",
+      "revenue": 2,
+      "impressions": 800,
+      "clicks": 18,
+      "requests": 900,
+      "avgEcpm": 2.5,
+      "ctr": 2.25
+    }
+  ],
+  "samplePreview": [
+    {
+      "date": "2024-01-01",
+      "website": "google.com",
+      "country": "US",
+      "adFormat": "Banner",
+      "adUnit": "ad-unit-1",
+      "advertiser": "Google",
+      "domain": "google.com",
+      "device": "Desktop",
+      "browser": "Chrome",
+      "requests": 1000,
+      "impressions": 900,
+      "clicks": 25,
+      "ctr": 2.94,
+      "ecpm": 3.53,
+      "revenue": 3,
+      "viewableImpressions": 800,
+      "viewabilityRate": 94.12,
+      "measurableImpressions": 900,
+      "fillRate": 90,
+      "arpu": 0.003
+    },
+    {
+      "date": "2024-01-01",
+      "website": "facebook.com",
+      "country": "JP",
+      "adFormat": "Interstitial",
+      "adUnit": "ad-unit-2",
+      "advertiser": "Facebook",
+      "domain": "facebook.com",
+      "device": "Mobile",
+      "browser": "Safari",
+      "requests": 1200,
+      "impressions": 950,
+      "clicks": 30,
+      "ctr": 3.33,
+      "ecpm": 4.44,
+      "revenue": 4,
+      "viewableImpressions": 850,
+      "viewabilityRate": 94.44,
+      "measurableImpressions": 950,
+      "fillRate": 79.16666666666666,
+      "arpu": 0.0033333333333333335
+    },
+    {
+      "date": "2024-01-02",
+      "website": "amazon.com",
+      "country": "US",
+      "adFormat": "Video",
+      "adUnit": "ad-unit-3",
+      "advertiser": "Amazon",
+      "domain": "amazon.com",
+      "device": "Desktop",
+      "browser": "Firefox",
+      "requests": 800,
+      "impressions": 750,
+      "clicks": 20,
+      "ctr": 2.86,
+      "ecpm": 2.86,
+      "revenue": 2,
+      "viewableImpressions": 650,
+      "viewabilityRate": 92.86,
+      "measurableImpressions": 750,
+      "fillRate": 93.75,
+      "arpu": 0.0025
+    },
+    {
+      "date": "2024-01-02",
+      "website": "microsoft.com",
+      "country": "CN",
+      "adFormat": "Banner",
+      "adUnit": "ad-unit-4",
+      "advertiser": "Microsoft",
+      "domain": "microsoft.com",
+      "device": "Mobile",
+      "browser": "Chrome",
+      "requests": 1500,
+      "impressions": 1300,
+      "clicks": 40,
+      "ctr": 3.33,
+      "ecpm": 3.33,
+      "revenue": 4,
+      "viewableImpressions": 1100,
+      "viewabilityRate": 91.67,
+      "measurableImpressions": 1300,
+      "fillRate": 86.66666666666667,
+      "arpu": 0.0026666666666666666
+    },
+    {
+      "date": "2024-01-03",
+      "website": "apple.com",
+      "country": "US",
+      "adFormat": "Native",
+      "adUnit": "ad-unit-5",
+      "advertiser": "Apple",
+      "domain": "apple.com",
+      "device": "Desktop",
+      "browser": "Safari",
+      "requests": 900,
+      "impressions": 800,
+      "clicks": 18,
+      "ctr": 2.4,
+      "ecpm": 2.67,
+      "revenue": 2,
+      "viewableImpressions": 700,
+      "viewabilityRate": 93.33,
+      "measurableImpressions": 800,
+      "fillRate": 88.88888888888889,
+      "arpu": 0.0022222222222222222
+    }
+  ],
+  "fillRateDistribution": {
+    "0-20%": 0,
+    "20-40%": 0,
+    "40-60%": 0,
+    "60-80%": 1,
+    "80-100%": 4
+  },
+  "processedAt": "2025-09-08T04:03:31.550Z"
+}

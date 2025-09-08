@@ -1,0 +1,5 @@
+Revenue,Website,Date,Country,Device,Ad Format,Advertiser,Clicks,Impressions,CTR,eCPM,Requests,Viewable Impressions,Viewability Rate,Measurable Impressions
+10.00,example.com,2024-01-01,美国,Mobile,横幅广告,Google Ads,10,800,1.25%,12.5,1000,750,93.75%,820
+6.00,example.com,2024-01-01,英国,Desktop,插页式广告,Facebook Ads,5,400,1.25%,15.0,500,380,95.00%,410
+15.00,testsite.com,2024-01-02,中国,Mobile,视频广告,TikTok Ads,15,600,2.5%,25.0,800,550,91.67%,620
+10.00,testsite.com,2024-01-02,日本,Tablet,原生广告,Amazon Ads,8,500,1.6%,20.0,600,450,90.00%,520

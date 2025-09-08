@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useFileSession } from '@/contexts/file-session'
 import {
   LineChart,
   Line,
@@ -18,6 +19,7 @@ import {
 } from 'recharts'
 
 interface AnalyticsProps {
+  fileId: string | null;
   filters?: {
     startDate?: string
     endDate?: string
@@ -28,9 +30,12 @@ interface AnalyticsData {
   summary: {
     totalRevenue: number
     totalImpressions: number
-    totalRequests: number
-    avgFillRate: number
-    arpu: number
+    totalRequests?: number
+    totalClicks?: number
+    avgEcpm?: number
+    avgCtr?: number
+    avgFillRate?: number
+    arpu?: number
   }
   charts: {
     revenueByDate: { date: string; revenue: number }[]
@@ -42,14 +47,14 @@ interface AnalyticsData {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8']
 
-export default function Analytics({ filters }: AnalyticsProps) {
+export default function Analytics({ fileId, filters }: AnalyticsProps) {
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
   useEffect(() => {
     fetchAnalytics()
-  }, [filters])
+  }, [filters, fileId])
   
   const fetchAnalytics = async () => {
     setLoading(true)
@@ -59,6 +64,7 @@ export default function Analytics({ filters }: AnalyticsProps) {
       const params = new URLSearchParams()
       if (filters?.startDate) params.append('startDate', filters.startDate)
       if (filters?.endDate) params.append('endDate', filters.endDate)
+      if (fileId) params.append('fileId', fileId)
       
       const response = await fetch(`/api/analytics?${params}`)
       if (!response.ok) throw new Error('Failed to fetch analytics')
@@ -73,6 +79,36 @@ export default function Analytics({ filters }: AnalyticsProps) {
   }
   
   if (loading) return <div className="p-8">加载分析数据中...</div>
+  
+  // 如果没有选择文件，显示提示
+  if (!fileId) {
+    return (
+      <div className="p-12 text-center">
+        <div className="mb-4">
+          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">请先上传数据文件</h3>
+        <p className="text-gray-600 mb-6">上传CSV文件后，系统将仅分析该文件的数据</p>
+        <button
+          onClick={() => {
+            const uploadTab = document.querySelector('button[onclick*="upload"]') as HTMLElement;
+            if (uploadTab) {
+              uploadTab.click();
+            } else {
+              window.location.hash = 'upload';
+              window.location.reload();
+            }
+          }}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+        >
+          前往上传
+        </button>
+      </div>
+    )
+  }
+  
   if (error) {
     // Check if the error is due to no data uploaded
     if (error.includes('No data uploaded yet')) {
@@ -125,19 +161,23 @@ export default function Analytics({ filters }: AnalyticsProps) {
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-sm font-medium text-gray-500">Requests</h3>
           <p className="text-2xl font-bold">
-            {data.summary.totalRequests.toLocaleString()}
+            {data.summary.totalRequests?.toLocaleString() || 'N/A'}
           </p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-sm font-medium text-gray-500">填充率</h3>
           <p className="text-2xl font-bold">
-            {data.summary.avgFillRate.toFixed(1)}%
+            {data.summary.avgFillRate?.toFixed(1) ?? 
+             (data.summary.totalRequests && data.summary.totalImpressions ? 
+              ((data.summary.totalImpressions / data.summary.totalRequests) * 100).toFixed(1) + '%' : 'N/A')}
           </p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-sm font-medium text-gray-500">ARPU</h3>
           <p className="text-2xl font-bold">
-            ${data.summary.arpu.toFixed(4)}
+            {data.summary.arpu?.toFixed(4) ?? 
+             (data.summary.totalRequests && data.summary.totalRevenue ? 
+              '$' + (data.summary.totalRevenue / data.summary.totalRequests).toFixed(4) : 'N/A')}
           </p>
         </div>
       </div>
@@ -148,7 +188,7 @@ export default function Analytics({ filters }: AnalyticsProps) {
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">收入趋势</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data.charts.revenueByDate}>
+            <LineChart data={data.charts.revenueByDate || []}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis />
@@ -164,7 +204,7 @@ export default function Analytics({ filters }: AnalyticsProps) {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={data.charts.revenueByCountry}
+                data={data.charts.revenueByCountry || []}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -173,7 +213,7 @@ export default function Analytics({ filters }: AnalyticsProps) {
                 fill="#8884d8"
                 dataKey="revenue"
               >
-                {data.charts.revenueByCountry.map((entry, index) => (
+                {(data.charts.revenueByCountry || []).map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -186,7 +226,7 @@ export default function Analytics({ filters }: AnalyticsProps) {
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">按设备统计收入</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.charts.revenueByDevice}>
+            <BarChart data={data.charts.revenueByDevice || []}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="device" />
               <YAxis />
@@ -200,7 +240,7 @@ export default function Analytics({ filters }: AnalyticsProps) {
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">填充率分布</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.charts.fillRateDistribution}>
+            <BarChart data={data.charts.fillRateDistribution || []}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="range" />
               <YAxis />
@@ -215,16 +255,19 @@ export default function Analytics({ filters }: AnalyticsProps) {
       <div className="bg-white p-6 rounded-lg shadow">
         <h3 className="text-lg font-semibold mb-4">Insights</h3>
         <div className="space-y-2">
-          {data.summary.avgFillRate < 50 && (
+          {(data.summary.avgFillRate || (data.summary.totalRequests && data.summary.totalImpressions ? 
+            (data.summary.totalImpressions / data.summary.totalRequests) * 100 : 100)) < 50 && (
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">
               <p className="text-yellow-800">
-                ⚠️ Low fill rate detected ({data.summary.avgFillRate.toFixed(1)}%). 
-                Consider optimizing ad placements.
+                ⚠️ Low fill rate detected ({
+                  (data.summary.avgFillRate || (data.summary.totalRequests && data.summary.totalImpressions ? 
+                    (data.summary.totalImpressions / data.summary.totalRequests) * 100 : 0)).toFixed(1)
+                }%). Consider optimizing ad placements.
               </p>
             </div>
           )}
           
-          {data.charts.revenueByCountry.length > 0 && (
+          {data.charts.revenueByCountry && data.charts.revenueByCountry.length > 0 && (
             <div className="p-4 bg-green-50 border border-green-200 rounded">
               <p className="text-green-800">
                 💡 表现最佳国家：{data.charts.revenueByCountry[0].country} 
@@ -233,7 +276,7 @@ export default function Analytics({ filters }: AnalyticsProps) {
             </div>
           )}
           
-          {data.charts.revenueByDevice.length > 0 && (
+          {data.charts.revenueByDevice && data.charts.revenueByDevice.length > 0 && (
             <div className="p-4 bg-blue-50 border border-blue-200 rounded">
               <p className="text-blue-800">
                 📱 最佳设备类型：{data.charts.revenueByDevice[0].device}

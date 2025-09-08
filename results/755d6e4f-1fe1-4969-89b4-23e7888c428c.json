@@ -1,0 +1,155 @@
+{
+  "fileId": "755d6e4f-1fe1-4969-89b4-23e7888c428c",
+  "fileName": "755d6e4f-1fe1-4969-89b4-23e7888c428c",
+  "summary": {
+    "totalRows": 3,
+    "totalRevenue": 18.22,
+    "totalImpressions": 367,
+    "totalClicks": 84,
+    "totalRequests": 838,
+    "avgEcpm": 49.64577656675749,
+    "avgCtr": 22.888283378746593
+  },
+  "topWebsites": [
+    {
+      "name": "qwerpdf.com",
+      "revenue": 18.22,
+      "impressions": 367,
+      "clicks": 84,
+      "requests": 838,
+      "avgEcpm": 49.64577656675749,
+      "ctr": 22.888283378746593
+    }
+  ],
+  "topCountries": [
+    {
+      "name": "意大利",
+      "revenue": 18.22,
+      "impressions": 367,
+      "clicks": 84,
+      "requests": 838,
+      "avgEcpm": 49.64577656675749,
+      "ctr": 22.888283378746593
+    }
+  ],
+  "dailyTrend": [
+    {
+      "date": "2025-08-29",
+      "revenue": 7.3,
+      "impressions": 170,
+      "clicks": 39,
+      "requests": 419,
+      "avgEcpm": 42.94117647058823,
+      "ctr": 22.941176470588236
+    },
+    {
+      "date": "2025-08-30",
+      "revenue": 6.09,
+      "impressions": 105,
+      "clicks": 21,
+      "requests": 234,
+      "avgEcpm": 57.99999999999999,
+      "ctr": 20
+    },
+    {
+      "date": "2025-08-31",
+      "revenue": 4.83,
+      "impressions": 92,
+      "clicks": 24,
+      "requests": 185,
+      "avgEcpm": 52.5,
+      "ctr": 26.08695652173913
+    }
+  ],
+  "devices": [
+    {
+      "name": "（非移动设备）",
+      "revenue": 18.22,
+      "impressions": 367,
+      "clicks": 84,
+      "requests": 838,
+      "avgEcpm": 49.64577656675749,
+      "ctr": 22.888283378746593
+    }
+  ],
+  "adFormats": [
+    {
+      "name": "插页式广告",
+      "revenue": 18.22,
+      "impressions": 367,
+      "clicks": 84,
+      "requests": 838,
+      "avgEcpm": 49.64577656675749,
+      "ctr": 22.888283378746593
+    }
+  ],
+  "sampleData": [
+    {
+      "date": "2025-08-29",
+      "website": "qwerpdf.com",
+      "country": "意大利",
+      "adFormat": "插页式广告",
+      "adUnit": "All-PDF,Qwer-XY",
+      "advertiser": "AdWords small businesses",
+      "domain": "Unknown",
+      "device": "（非移动设备）",
+      "browser": "Google Chrome",
+      "requests": 419,
+      "impressions": 170,
+      "clicks": 39,
+      "ctr": 0.2294,
+      "ecpm": 42.93,
+      "revenue": 7.3,
+      "viewableImpressions": 161,
+      "viewabilityRate": 0.9471,
+      "measurableImpressions": 170,
+      "fillRate": 40.572792362768496,
+      "arpu": 0.017422434367541765
+    },
+    {
+      "date": "2025-08-30",
+      "website": "qwerpdf.com",
+      "country": "意大利",
+      "adFormat": "插页式广告",
+      "adUnit": "All-PDF,Qwer-XY",
+      "advertiser": "AdWords small businesses",
+      "domain": "Unknown",
+      "device": "（非移动设备）",
+      "browser": "Google Chrome",
+      "requests": 234,
+      "impressions": 105,
+      "clicks": 21,
+      "ctr": 0.2,
+      "ecpm": 57.98,
+      "revenue": 6.09,
+      "viewableImpressions": 100,
+      "viewabilityRate": 0.9524,
+      "measurableImpressions": 105,
+      "fillRate": 44.871794871794876,
+      "arpu": 0.026025641025641026
+    },
+    {
+      "date": "2025-08-31",
+      "website": "qwerpdf.com",
+      "country": "意大利",
+      "adFormat": "插页式广告",
+      "adUnit": "All-PDF,Qwer-XY",
+      "advertiser": "AdWords small businesses",
+      "domain": "Unknown",
+      "device": "（非移动设备）",
+      "browser": "Google Chrome",
+      "requests": 185,
+      "impressions": 92,
+      "clicks": 24,
+      "ctr": 0.2609,
+      "ecpm": 52.51,
+      "revenue": 4.83,
+      "viewableImpressions": 85,
+      "viewabilityRate": 0.9341,
+      "measurableImpressions": 91,
+      "fillRate": 49.72972972972973,
+      "arpu": 0.026108108108108107
+    }
+  ],
+  "processedAt": "2025-09-07T16:26:27.937Z"
+}

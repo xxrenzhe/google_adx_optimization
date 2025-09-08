@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useFileSession } from '@/contexts/file-session'
 
 interface AutomationRule {
   id: string
@@ -13,10 +14,11 @@ interface AutomationRule {
 }
 
 interface AutomationDashboardProps {
-  refreshTrigger?: number
+  refreshTrigger?: number;
+  fileId: string | null;
 }
 
-export default function AutomationDashboard({ refreshTrigger }: AutomationDashboardProps) {
+export default function AutomationDashboard({ refreshTrigger, fileId }: AutomationDashboardProps) {
   const [rules, setRules] = useState<AutomationRule[]>([])
   const [actions, setActions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -24,12 +26,15 @@ export default function AutomationDashboard({ refreshTrigger }: AutomationDashbo
 
   useEffect(() => {
     fetchAutomationStatus()
-  }, [refreshTrigger])
+  }, [refreshTrigger, fileId])
 
   const fetchAutomationStatus = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/automation-engine')
+      const params = new URLSearchParams()
+      if (fileId) params.append('fileId', fileId)
+      
+      const response = await fetch(`/api/automation-engine?${params}`)
       if (!response.ok) throw new Error('Failed to fetch automation status')
       
       const data = await response.json()
@@ -61,7 +66,8 @@ export default function AutomationDashboard({ refreshTrigger }: AutomationDashbo
         body: JSON.stringify({
           ruleId,
           action,
-          parameters: {}
+          parameters: {},
+          fileId
         })
       })
       
@@ -83,6 +89,38 @@ export default function AutomationDashboard({ refreshTrigger }: AutomationDashbo
     } catch (error) {
       console.error('Error toggling rule:', error)
     }
+  }
+
+  // 如果没有选择文件，显示提示
+  if (!fileId) {
+    return (
+      <div className="bg-white shadow rounded-lg p-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">自动化</h2>
+        <div className="text-center py-8">
+          <div className="mb-4">
+            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">请先上传数据文件</h3>
+          <p className="text-gray-600 mb-6">上传CSV文件后，系统将基于该文件提供自动化功能</p>
+          <button
+            onClick={() => {
+              const uploadTab = document.querySelector('button[onclick*="upload"]') as HTMLElement;
+              if (uploadTab) {
+                uploadTab.click();
+              } else {
+                window.location.hash = 'upload';
+                window.location.reload();
+              }
+            }}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            前往上传
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (loading) {

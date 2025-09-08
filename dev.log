@@ -7,37 +7,445 @@
   - Environments: .env.local, .env
 
  ✓ Starting...
- ✓ Ready in 1350ms
- ✓ Compiled /middleware in 140ms (72 modules)
-[ACCESS] GET http://localhost:3000/page-optimized - curl/8.7.1
- ○ Compiling /page-optimized ...
- ✓ Compiled /page-optimized in 3.8s (481 modules)
- ✓ Compiled /_not-found in 59ms (466 modules)
-[DB-INIT] Starting database initialization...
-[DB-INIT] DATABASE_URL: postgresql://postgres:***@dbprovider.sg-members-1.clawcloudrun.com:32404/adx_optimization?directConnection=true&charset=utf8&pool_timeout=20&connect_timeout=10
-[DB-INIT] Checking if database tables exist...
-🚀 Starting database initialization...
-[DB-INIT] Starting database initialization...
-[DB-INIT] DATABASE_URL: postgresql://postgres:***@dbprovider.sg-members-1.clawcloudrun.com:32404/adx_optimization?directConnection=true&charset=utf8&pool_timeout=20&connect_timeout=10
-[DB-INIT] Checking if database tables exist...
- GET /page-optimized 404 in 148ms
-[DB-INIT] Database tables already exist. Current record count: 347216
-[DB-INIT] Database initialization completed
-[DB-INIT] Disconnecting from database...
-[DB-INIT] Database tables already exist. Current record count: 347216
-[DB-INIT] Database initialization completed
-✅ Database initialization completed
-[DB-INIT] Disconnected from database
+ ✓ Ready in 1306ms
+ ✓ Compiled /middleware in 63ms (72 modules)
+[ACCESS] GET http://localhost:3000/api/result/d01233d1-2f1b-456b-9795-271fae12e476 - curl/8.7.1
+ ✓ Compiled /api/result/[fileId] in 141ms (59 modules)
+ GET /api/result/d01233d1-2f1b-456b-9795-271fae12e476 200 in 332ms
+[ACCESS] GET http://localhost:3000/api/result/d01233d1-2f1b-456b-9795-271fae12e476 - curl/8.7.1
+ GET /api/result/d01233d1-2f1b-456b-9795-271fae12e476 200 in 8ms
+[ACCESS] GET http://localhost:3000/ - curl/8.7.1
+ ○ Compiling / ...
+ ✓ Compiled / in 1306ms (1574 modules)
+ GET / 200 in 1439ms
+ ✓ Compiled in 132ms (795 modules)
 [ACCESS] POST http://localhost:3000/api/upload-optimized - curl/8.7.1
- ✓ Compiled /api/upload-optimized in 118ms (261 modules)
- POST /api/upload-optimized 200 in 225ms
-File 312556b3-72c1-46ee-a9c6-f27a0783a123 processed successfully. 217402 rows.
-[ACCESS] GET http://localhost:3000/api/result/312556b3-72c1-46ee-a9c6-f27a0783a123 - curl/8.7.1
- ✓ Compiled /api/result/[fileId] in 63ms (58 modules)
- GET /api/result/312556b3-72c1-46ee-a9c6-f27a0783a123 200 in 300ms
-[ACCESS] GET http://localhost:3000/api/cleanup - curl/8.7.1
- ✓ Compiled /api/cleanup in 48ms (62 modules)
- GET /api/cleanup 200 in 64ms
-[ACCESS] DELETE http://localhost:3000/api/cleanup?fileId=312556b3-72c1-46ee-a9c6-f27a0783a123 - curl/8.7.1
- DELETE /api/cleanup?fileId=312556b3-72c1-46ee-a9c6-f27a0783a123 200 in 4ms
+ ✓ Compiled /api/upload-optimized in 75ms (813 modules)
+ POST /api/upload-optimized 200 in 115ms
+[ACCESS] GET http://localhost:3000/api/result/40dca657-df7c-44db-8e67-9d3313e14df9 - curl/8.7.1
+ ✓ Compiled /api/result/[fileId] in 62ms (816 modules)
+Error reading analysis result: Error: ENOENT: no such file or directory, open '/Users/jason/Documents/Kiro/google_adx_optimization/results/40dca657-df7c-44db-8e67-9d3313e14df9.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAnalysisResult (webpack-internal:///(rsc)/./lib/fs-manager.ts:62:29)
+    at async GET (webpack-internal:///(rsc)/./app/api/result/[fileId]/route.ts:20:24)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1576:40)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/jason/Documents/Kiro/google_adx_optimization/results/40dca657-df7c-44db-8e67-9d3313e14df9.json'
+}
+ GET /api/result/40dca657-df7c-44db-8e67-9d3313e14df9 202 in 79ms
+[DEBUG] Headers detected: [
+  'Date',
+  'Website',
+  'Country',
+  'Device',
+  'Ad Format',
+  'Ad Unit',
+  'Requests',
+  'Impressions',
+  'Clicks',
+  'CTR',
+  'eCPM',
+  'Revenue',
+  'Viewable Impressions',
+  'Viewability Rate',
+  'Measurable Impressions',
+  'Fill Rate',
+  'ARPU'
+]
+[DEBUG] Mapped column "Date" to date at index 0
+[DEBUG] Mapped column "Website" to website at index 1
+[DEBUG] Mapped column "Country" to country at index 2
+[DEBUG] Mapped column "Device" to device at index 3
+[DEBUG] Mapped column "Ad Format" to adFormat at index 4
+[DEBUG] Mapped column "Ad Unit" to adUnit at index 5
+[DEBUG] Mapped column "Requests" to requests at index 6
+[DEBUG] Mapped column "Impressions" to impressions at index 7
+[DEBUG] Mapped column "Clicks" to clicks at index 8
+[DEBUG] Mapped column "CTR" to ctr at index 9
+[DEBUG] Mapped column "eCPM" to ecpm at index 10
+[DEBUG] Mapped column "Revenue" to revenue at index 11
+[DEBUG] Mapped column "Viewable Impressions" to viewableImpressions at index 12
+[DEBUG] Mapped column "Viewability Rate" to viewabilityRate at index 13
+[DEBUG] Mapped column "Measurable Impressions" to measurableImpressions at index 14
+[DEBUG] Column mapping created:
+  date: column 0 ("Date")
+  website: column 1 ("Website")
+  country: column 2 ("Country")
+  device: column 3 ("Device")
+  adFormat: column 4 ("Ad Format")
+  adUnit: column 5 ("Ad Unit")
+  requests: column 6 ("Requests")
+  impressions: column 7 ("Impressions")
+  clicks: column 8 ("Clicks")
+  ctr: column 9 ("CTR")
+  ecpm: column 10 ("eCPM")
+  revenue: column 11 ("Revenue")
+  viewableImpressions: column 12 ("Viewable Impressions")
+  viewabilityRate: column 13 ("Viewability Rate")
+  measurableImpressions: column 14 ("Measurable Impressions")
+[DEBUG] Adding date: 2025-01-01, revenue: 55.25, impressions: 8500, clicks: 170, requests: 10000
+[DEBUG] Dates map size: 1
+[DEBUG] Updating progress: 10%, processedLines: 1
+[DEBUG] Adding date: 2025-01-01, revenue: 102, impressions: 12000, clicks: 360, requests: 15000
+[DEBUG] Dates map size: 1
+[DEBUG] Adding date: 2025-01-01, revenue: 55.2, impressions: 6000, clicks: 120, requests: 8000
+[DEBUG] Dates map size: 1
+[DEBUG] Adding date: 2025-01-02, revenue: 72, impressions: 10000, clicks: 250, requests: 12000
+[DEBUG] Dates map size: 2
+[DEBUG] Adding date: 2025-01-02, revenue: 147, impressions: 15000, clicks: 450, requests: 18000
+[DEBUG] Dates map size: 2
+[DEBUG] Updating progress: 14%, processedLines: 10
+[DEBUG] Final dates map size: 4
+[DEBUG] Sample dates entries:
+  2025-01-01: revenue=212.45, impressions=26500
+  2025-01-02: revenue=270, impressions=32500
+  2025-01-03: revenue=321.1, impressions=33000
+[DEBUG] Saving result with 12 sample data rows
+File 40dca657-df7c-44db-8e67-9d3313e14df9 processed successfully. 12 rows.
+[ACCESS] GET http://localhost:3000/api/result/40dca657-df7c-44db-8e67-9d3313e14df9 - curl/8.7.1
+ GET /api/result/40dca657-df7c-44db-8e67-9d3313e14df9 200 in 5ms
+[ACCESS] GET http://localhost:3000/api/result/08f58600-283d-4c59-9339-6a5f32c22311 - curl/8.7.1
+ GET /api/result/08f58600-283d-4c59-9339-6a5f32c22311 200 in 27ms
+[ACCESS] GET http://localhost:3000/api/result/0b6e4165-d6f0-41ca-911e-d5e574c2d370 - curl/8.7.1
+ GET /api/result/0b6e4165-d6f0-41ca-911e-d5e574c2d370 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/2a020af4-3559-456b-a47e-de1d63e8f2df - curl/8.7.1
+ GET /api/result/2a020af4-3559-456b-a47e-de1d63e8f2df 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/333c1552-e8c9-4276-8883-1704b5a12ddb - curl/8.7.1
+ GET /api/result/333c1552-e8c9-4276-8883-1704b5a12ddb 200 in 4ms
+[ACCESS] GET http://localhost:3000/api/result/4b1e63f0-0733-4b93-b8c5-f890501f4ec8 - curl/8.7.1
+ GET /api/result/4b1e63f0-0733-4b93-b8c5-f890501f4ec8 200 in 10ms
+[ACCESS] GET http://localhost:3000/api/result/558768df-8962-4020-a8ce-cac63ee63d27 - curl/8.7.1
+ GET /api/result/558768df-8962-4020-a8ce-cac63ee63d27 200 in 24ms
+[ACCESS] GET http://localhost:3000/api/result/68985190-d411-476a-9b52-32e571feb289 - curl/8.7.1
+ GET /api/result/68985190-d411-476a-9b52-32e571feb289 200 in 34ms
+[ACCESS] GET http://localhost:3000/api/result/6abf7beb-3006-426e-b202-86c49f7c2bd1 - curl/8.7.1
+ GET /api/result/6abf7beb-3006-426e-b202-86c49f7c2bd1 200 in 16ms
+[ACCESS] GET http://localhost:3000/api/result/6ec570ac-559a-4bb5-b75f-31c32807ba91 - curl/8.7.1
+ GET /api/result/6ec570ac-559a-4bb5-b75f-31c32807ba91 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/6fb642a5-fc4e-405c-8623-a96d1c06b59a - curl/8.7.1
+ GET /api/result/6fb642a5-fc4e-405c-8623-a96d1c06b59a 200 in 13ms
+[ACCESS] GET http://localhost:3000/api/result/71e5a8fc-9b71-433b-932d-172bf581a349 - curl/8.7.1
+ GET /api/result/71e5a8fc-9b71-433b-932d-172bf581a349 200 in 2ms
+[ACCESS] GET http://localhost:3000/api/result/7c052a9a-602e-4bcd-82d2-639b0587acfa - curl/8.7.1
+ GET /api/result/7c052a9a-602e-4bcd-82d2-639b0587acfa 200 in 4ms
+[ACCESS] GET http://localhost:3000/api/result/7c532d96-f2d5-4ccb-ace2-81070b03721d - curl/8.7.1
+ GET /api/result/7c532d96-f2d5-4ccb-ace2-81070b03721d 200 in 4ms
+[ACCESS] GET http://localhost:3000/api/result/7f746447-1b70-4d72-b973-068a222d1cfd - curl/8.7.1
+ GET /api/result/7f746447-1b70-4d72-b973-068a222d1cfd 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/81cba924-cd9f-4c08-947b-40b6fb327571 - curl/8.7.1
+ GET /api/result/81cba924-cd9f-4c08-947b-40b6fb327571 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/83d70287-5a7e-4fe7-91d4-58699073e79c - curl/8.7.1
+ GET /api/result/83d70287-5a7e-4fe7-91d4-58699073e79c 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/8c02132b-f319-4fbc-a43b-3c73b5af7968 - curl/8.7.1
+ GET /api/result/8c02132b-f319-4fbc-a43b-3c73b5af7968 200 in 9ms
+[ACCESS] GET http://localhost:3000/api/result/9f0a46f0-00e0-4942-93e2-a573b6badae1 - curl/8.7.1
+ GET /api/result/9f0a46f0-00e0-4942-93e2-a573b6badae1 200 in 15ms
+[ACCESS] GET http://localhost:3000/api/result/afd49058-9847-43b4-9757-853d692b7291 - curl/8.7.1
+ GET /api/result/afd49058-9847-43b4-9757-853d692b7291 200 in 4ms
+[ACCESS] GET http://localhost:3000/api/result/bc10be37-cc1b-4250-963b-f1598f5c3410 - curl/8.7.1
+ GET /api/result/bc10be37-cc1b-4250-963b-f1598f5c3410 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/d01233d1-2f1b-456b-9795-271fae12e476 - curl/8.7.1
+ GET /api/result/d01233d1-2f1b-456b-9795-271fae12e476 200 in 4ms
+[ACCESS] GET http://localhost:3000/api/result/d09ae1c0-c085-4209-be59-48e9959f458f - curl/8.7.1
+ GET /api/result/d09ae1c0-c085-4209-be59-48e9959f458f 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/f3511e2e-a4ee-46ea-88ed-ef2330e61703 - curl/8.7.1
+ GET /api/result/f3511e2e-a4ee-46ea-88ed-ef2330e61703 200 in 15ms
+[ACCESS] GET http://localhost:3000/api/result/ff213509-8522-4652-b6e6-ebf806c70df5 - curl/8.7.1
+ GET /api/result/ff213509-8522-4652-b6e6-ebf806c70df5 200 in 2ms
+ ✓ Compiled in 279ms (854 modules)
+ ✓ Compiled in 92ms (795 modules)
+ ✓ Compiled in 104ms (795 modules)
+[ACCESS] POST http://localhost:3000/api/upload-optimized - curl/8.7.1
+ ✓ Compiled /api/upload-optimized in 33ms (60 modules)
+ POST /api/upload-optimized 200 in 66ms
+[DEBUG] Headers detected: [
+  'Date',
+  'Website',
+  'Country',
+  'Device',
+  'Ad Format',
+  'Ad Unit',
+  'Requests',
+  'Impressions',
+  'Clicks',
+  'CTR',
+  'eCPM',
+  'Revenue',
+  'Viewable Impressions',
+  'Viewability Rate',
+  'Measurable Impressions',
+  'Fill Rate',
+  'ARPU'
+]
+[DEBUG] Mapped column "Date" to date at index 0
+[DEBUG] Mapped column "Website" to website at index 1
+[DEBUG] Mapped column "Country" to country at index 2
+[DEBUG] Mapped column "Device" to device at index 3
+[DEBUG] Mapped column "Ad Format" to adFormat at index 4
+[DEBUG] Mapped column "Ad Unit" to adUnit at index 5
+[DEBUG] Mapped column "Requests" to requests at index 6
+[DEBUG] Mapped column "Impressions" to impressions at index 7
+[DEBUG] Mapped column "Clicks" to clicks at index 8
+[DEBUG] Mapped column "CTR" to ctr at index 9
+[DEBUG] Mapped column "eCPM" to ecpm at index 10
+[DEBUG] Mapped column "Revenue" to revenue at index 11
+[DEBUG] Mapped column "Viewable Impressions" to viewableImpressions at index 12
+[DEBUG] Mapped column "Viewability Rate" to viewabilityRate at index 13
+[DEBUG] Mapped column "Measurable Impressions" to measurableImpressions at index 14
+[DEBUG] Column mapping created:
+  date: column 0 ("Date")
+  website: column 1 ("Website")
+  country: column 2 ("Country")
+  device: column 3 ("Device")
+  adFormat: column 4 ("Ad Format")
+  adUnit: column 5 ("Ad Unit")
+  requests: column 6 ("Requests")
+  impressions: column 7 ("Impressions")
+  clicks: column 8 ("Clicks")
+  ctr: column 9 ("CTR")
+  ecpm: column 10 ("eCPM")
+  revenue: column 11 ("Revenue")
+  viewableImpressions: column 12 ("Viewable Impressions")
+  viewabilityRate: column 13 ("Viewability Rate")
+  measurableImpressions: column 14 ("Measurable Impressions")
+[DEBUG] Adding date: 2025-01-01, revenue: 55.25, impressions: 8500, clicks: 170, requests: 10000
+[DEBUG] Dates map size: 1
+[DEBUG] Updating progress: 10%, processedLines: 1
+[DEBUG] Adding date: 2025-01-01, revenue: 102, impressions: 12000, clicks: 360, requests: 15000
+[DEBUG] Dates map size: 1
+[DEBUG] Adding date: 2025-01-01, revenue: 55.2, impressions: 6000, clicks: 120, requests: 8000
+[DEBUG] Dates map size: 1
+[DEBUG] Adding date: 2025-01-02, revenue: 72, impressions: 10000, clicks: 250, requests: 12000
+[DEBUG] Dates map size: 2
+[DEBUG] Adding date: 2025-01-02, revenue: 147, impressions: 15000, clicks: 450, requests: 18000
+[DEBUG] Dates map size: 2
+[DEBUG] Updating progress: 14%, processedLines: 10
+[DEBUG] Final dates map size: 4
+[DEBUG] Sample dates entries:
+  2025-01-01: revenue=212.45, impressions=26500
+  2025-01-02: revenue=270, impressions=32500
+  2025-01-03: revenue=321.1, impressions=33000
+[DEBUG] Saving result with 12 sample data rows
+File a786646e-8c40-4b03-8292-100f9420c2ff processed successfully. 12 rows.
+[ACCESS] GET http://localhost:3000/api/result/a786646e-8c40-4b03-8292-100f9420c2ff - curl/8.7.1
+ ✓ Compiled /api/result/[fileId] in 9ms (63 modules)
+ GET /api/result/a786646e-8c40-4b03-8292-100f9420c2ff 200 in 26ms
+ ✓ Compiled in 249ms (795 modules)
+ ✓ Compiled in 130ms (795 modules)
+[ACCESS] POST http://localhost:3000/api/upload-optimized - curl/8.7.1
+ ✓ Compiled /api/upload-optimized in 98ms (60 modules)
+ POST /api/upload-optimized 200 in 119ms
+[DEBUG] Headers detected: [
+  'Date',
+  'Website',
+  'Country',
+  'Device',
+  'Ad Format',
+  'Ad Unit',
+  'Requests',
+  'Impressions',
+  'Clicks',
+  'CTR',
+  'eCPM',
+  'Revenue',
+  'Viewable Impressions',
+  'Viewability Rate',
+  'Measurable Impressions',
+  'Fill Rate',
+  'ARPU'
+]
+[DEBUG] Mapped column "Date" to date at index 0
+[DEBUG] Mapped column "Website" to website at index 1
+[DEBUG] Mapped column "Country" to country at index 2
+[DEBUG] Mapped column "Device" to device at index 3
+[DEBUG] Mapped column "Ad Format" to adFormat at index 4
+[DEBUG] Mapped column "Ad Unit" to adUnit at index 5
+[DEBUG] Mapped column "Requests" to requests at index 6
+[DEBUG] Mapped column "Impressions" to impressions at index 7
+[DEBUG] Mapped column "Clicks" to clicks at index 8
+[DEBUG] Mapped column "CTR" to ctr at index 9
+[DEBUG] Mapped column "eCPM" to ecpm at index 10
+[DEBUG] Mapped column "Revenue" to revenue at index 11
+[DEBUG] Mapped column "Viewable Impressions" to viewableImpressions at index 12
+[DEBUG] Mapped column "Viewability Rate" to viewabilityRate at index 13
+[DEBUG] Mapped column "Measurable Impressions" to measurableImpressions at index 14
+[DEBUG] Column mapping created:
+  date: column 0 ("Date")
+  website: column 1 ("Website")
+  country: column 2 ("Country")
+  device: column 3 ("Device")
+  adFormat: column 4 ("Ad Format")
+  adUnit: column 5 ("Ad Unit")
+  requests: column 6 ("Requests")
+  impressions: column 7 ("Impressions")
+  clicks: column 8 ("Clicks")
+  ctr: column 9 ("CTR")
+  ecpm: column 10 ("eCPM")
+  revenue: column 11 ("Revenue")
+  viewableImpressions: column 12 ("Viewable Impressions")
+  viewabilityRate: column 13 ("Viewability Rate")
+  measurableImpressions: column 14 ("Measurable Impressions")
+[DEBUG] Adding date: 2025-01-01, revenue: 55.25, impressions: 8500, clicks: 170, requests: 10000
+[DEBUG] Dates map size: 1
+[DEBUG] Updating progress: 10%, processedLines: 1
+[DEBUG] Adding date: 2025-01-01, revenue: 102, impressions: 12000, clicks: 360, requests: 15000
+[DEBUG] Dates map size: 1
+[DEBUG] Adding date: 2025-01-01, revenue: 55.2, impressions: 6000, clicks: 120, requests: 8000
+[DEBUG] Dates map size: 1
+[DEBUG] Adding date: 2025-01-02, revenue: 72, impressions: 10000, clicks: 250, requests: 12000
+[DEBUG] Dates map size: 2
+[DEBUG] Adding date: 2025-01-02, revenue: 147, impressions: 15000, clicks: 450, requests: 18000
+[DEBUG] Dates map size: 2
+[DEBUG] Updating progress: 14%, processedLines: 10
+[DEBUG] Final dates map size: 4
+[DEBUG] Sample dates entries:
+  2025-01-01: revenue=212.45, impressions=26500
+  2025-01-02: revenue=270, impressions=32500
+  2025-01-03: revenue=321.1, impressions=33000
+[DEBUG] Saving result with 12 sample data rows
+File 3a303107-adce-4305-8b51-56618f4859c7 processed successfully. 12 rows.
+[ACCESS] GET http://localhost:3000/api/result/3a303107-adce-4305-8b51-56618f4859c7 - curl/8.7.1
+ ✓ Compiled /api/result/[fileId] in 26ms (63 modules)
+ GET /api/result/3a303107-adce-4305-8b51-56618f4859c7 200 in 52ms
+[ACCESS] GET http://localhost:3000/api/result/08f58600-283d-4c59-9339-6a5f32c22311 - curl/8.7.1
+ GET /api/result/08f58600-283d-4c59-9339-6a5f32c22311 200 in 20ms
+[ACCESS] GET http://localhost:3000/api/result/0b6e4165-d6f0-41ca-911e-d5e574c2d370 - curl/8.7.1
+ GET /api/result/0b6e4165-d6f0-41ca-911e-d5e574c2d370 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/2a020af4-3559-456b-a47e-de1d63e8f2df - curl/8.7.1
+ GET /api/result/2a020af4-3559-456b-a47e-de1d63e8f2df 200 in 4ms
+[ACCESS] GET http://localhost:3000/api/result/333c1552-e8c9-4276-8883-1704b5a12ddb - curl/8.7.1
+ GET /api/result/333c1552-e8c9-4276-8883-1704b5a12ddb 200 in 2ms
+[ACCESS] GET http://localhost:3000/api/result/4b1e63f0-0733-4b93-b8c5-f890501f4ec8 - curl/8.7.1
+ GET /api/result/4b1e63f0-0733-4b93-b8c5-f890501f4ec8 200 in 10ms
+[ACCESS] GET http://localhost:3000/api/result/558768df-8962-4020-a8ce-cac63ee63d27 - curl/8.7.1
+ GET /api/result/558768df-8962-4020-a8ce-cac63ee63d27 200 in 19ms
+[ACCESS] GET http://localhost:3000/api/result/68985190-d411-476a-9b52-32e571feb289 - curl/8.7.1
+ GET /api/result/68985190-d411-476a-9b52-32e571feb289 200 in 24ms
+[ACCESS] GET http://localhost:3000/api/result/6abf7beb-3006-426e-b202-86c49f7c2bd1 - curl/8.7.1
+ GET /api/result/6abf7beb-3006-426e-b202-86c49f7c2bd1 200 in 15ms
+[ACCESS] GET http://localhost:3000/api/result/6ec570ac-559a-4bb5-b75f-31c32807ba91 - curl/8.7.1
+ GET /api/result/6ec570ac-559a-4bb5-b75f-31c32807ba91 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/6fb642a5-fc4e-405c-8623-a96d1c06b59a - curl/8.7.1
+ GET /api/result/6fb642a5-fc4e-405c-8623-a96d1c06b59a 200 in 15ms
+[ACCESS] GET http://localhost:3000/api/result/71e5a8fc-9b71-433b-932d-172bf581a349 - curl/8.7.1
+ GET /api/result/71e5a8fc-9b71-433b-932d-172bf581a349 200 in 2ms
+[ACCESS] GET http://localhost:3000/api/result/7c052a9a-602e-4bcd-82d2-639b0587acfa - curl/8.7.1
+ GET /api/result/7c052a9a-602e-4bcd-82d2-639b0587acfa 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/7c532d96-f2d5-4ccb-ace2-81070b03721d - curl/8.7.1
+ GET /api/result/7c532d96-f2d5-4ccb-ace2-81070b03721d 200 in 4ms
+[ACCESS] GET http://localhost:3000/api/result/7f746447-1b70-4d72-b973-068a222d1cfd - curl/8.7.1
+ GET /api/result/7f746447-1b70-4d72-b973-068a222d1cfd 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/81cba924-cd9f-4c08-947b-40b6fb327571 - curl/8.7.1
+ GET /api/result/81cba924-cd9f-4c08-947b-40b6fb327571 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/83d70287-5a7e-4fe7-91d4-58699073e79c - curl/8.7.1
+ GET /api/result/83d70287-5a7e-4fe7-91d4-58699073e79c 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/8c02132b-f319-4fbc-a43b-3c73b5af7968 - curl/8.7.1
+ GET /api/result/8c02132b-f319-4fbc-a43b-3c73b5af7968 200 in 9ms
+[ACCESS] GET http://localhost:3000/api/result/9f0a46f0-00e0-4942-93e2-a573b6badae1 - curl/8.7.1
+ GET /api/result/9f0a46f0-00e0-4942-93e2-a573b6badae1 200 in 16ms
+[ACCESS] GET http://localhost:3000/api/result/afd49058-9847-43b4-9757-853d692b7291 - curl/8.7.1
+ GET /api/result/afd49058-9847-43b4-9757-853d692b7291 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/bc10be37-cc1b-4250-963b-f1598f5c3410 - curl/8.7.1
+ GET /api/result/bc10be37-cc1b-4250-963b-f1598f5c3410 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/d01233d1-2f1b-456b-9795-271fae12e476 - curl/8.7.1
+ GET /api/result/d01233d1-2f1b-456b-9795-271fae12e476 200 in 3ms
+[ACCESS] GET http://localhost:3000/api/result/d09ae1c0-c085-4209-be59-48e9959f458f - curl/8.7.1
+ GET /api/result/d09ae1c0-c085-4209-be59-48e9959f458f 200 in 2ms
+[ACCESS] GET http://localhost:3000/api/result/f3511e2e-a4ee-46ea-88ed-ef2330e61703 - curl/8.7.1
+ GET /api/result/f3511e2e-a4ee-46ea-88ed-ef2330e61703 200 in 16ms
+[ACCESS] GET http://localhost:3000/api/result/ff213509-8522-4652-b6e6-ebf806c70df5 - curl/8.7.1
+ GET /api/result/ff213509-8522-4652-b6e6-ebf806c70df5 200 in 3ms
+[ACCESS] POST http://localhost:3000/api/upload-optimized - curl/8.7.1
+ POST /api/upload-optimized 200 in 4ms
+[DEBUG] Headers detected: [
+  'Date',
+  'Website',
+  'Country',
+  'Device',
+  'Ad Format',
+  'Ad Unit',
+  'Requests',
+  'Impressions',
+  'Clicks',
+  'CTR',
+  'eCPM',
+  'Revenue',
+  'Viewable Impressions',
+  'Viewability Rate',
+  'Measurable Impressions',
+  'Fill Rate',
+  'ARPU'
+]
+[DEBUG] Mapped column "Date" to date at index 0
+[DEBUG] Mapped column "Website" to website at index 1
+[DEBUG] Mapped column "Country" to country at index 2
+[DEBUG] Mapped column "Device" to device at index 3
+[DEBUG] Mapped column "Ad Format" to adFormat at index 4
+[DEBUG] Mapped column "Ad Unit" to adUnit at index 5
+[DEBUG] Mapped column "Requests" to requests at index 6
+[DEBUG] Mapped column "Impressions" to impressions at index 7
+[DEBUG] Mapped column "Clicks" to clicks at index 8
+[DEBUG] Mapped column "CTR" to ctr at index 9
+[DEBUG] Mapped column "eCPM" to ecpm at index 10
+[DEBUG] Mapped column "Revenue" to revenue at index 11
+[DEBUG] Mapped column "Viewable Impressions" to viewableImpressions at index 12
+[DEBUG] Mapped column "Viewability Rate" to viewabilityRate at index 13
+[DEBUG] Mapped column "Measurable Impressions" to measurableImpressions at index 14
+[DEBUG] Column mapping created:
+  date: column 0 ("Date")
+  website: column 1 ("Website")
+  country: column 2 ("Country")
+  device: column 3 ("Device")
+  adFormat: column 4 ("Ad Format")
+  adUnit: column 5 ("Ad Unit")
+  requests: column 6 ("Requests")
+  impressions: column 7 ("Impressions")
+  clicks: column 8 ("Clicks")
+  ctr: column 9 ("CTR")
+  ecpm: column 10 ("eCPM")
+  revenue: column 11 ("Revenue")
+  viewableImpressions: column 12 ("Viewable Impressions")
+  viewabilityRate: column 13 ("Viewability Rate")
+  measurableImpressions: column 14 ("Measurable Impressions")
+[DEBUG] Adding date: 2025-01-01, revenue: 55.25, impressions: 8500, clicks: 170, requests: 10000
+[DEBUG] Dates map size: 1
+[DEBUG] Updating progress: 10%, processedLines: 1
+[DEBUG] Adding date: 2025-01-01, revenue: 102, impressions: 12000, clicks: 360, requests: 15000
+[DEBUG] Dates map size: 1
+[DEBUG] Adding date: 2025-01-01, revenue: 55.2, impressions: 6000, clicks: 120, requests: 8000
+[DEBUG] Dates map size: 1
+[DEBUG] Adding date: 2025-01-02, revenue: 72, impressions: 10000, clicks: 250, requests: 12000
+[DEBUG] Dates map size: 2
+[DEBUG] Adding date: 2025-01-02, revenue: 147, impressions: 15000, clicks: 450, requests: 18000
+[DEBUG] Dates map size: 2
+[DEBUG] Updating progress: 14%, processedLines: 10
+[DEBUG] Final dates map size: 4
+[DEBUG] Sample dates entries:
+  2025-01-01: revenue=212.45, impressions=26500
+  2025-01-02: revenue=270, impressions=32500
+  2025-01-03: revenue=321.1, impressions=33000
+[DEBUG] Saving result with 12 sample data rows
+File b77fd278-8b8b-4c86-9ca9-a2f023245616 processed successfully. 12 rows.
+[ACCESS] GET http://localhost:3000/api/result/b77fd278-8b8b-4c86-9ca9-a2f023245616 - curl/8.7.1
+ GET /api/result/b77fd278-8b8b-4c86-9ca9-a2f023245616 200 in 7ms
 [?25h

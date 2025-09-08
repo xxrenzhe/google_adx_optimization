@@ -1,0 +1,6 @@
+Date,Website,Country,Ad Format,Ad Unit,Advertiser,Domain,Device,Browser,Requests,Impressions,Clicks,CTR,eCPM,Revenue,Viewable Impressions,Viewability Rate,Measurable Impressions
+2024-01-01,example.com,US,Banner,ad-unit-1,Google,google.com,Desktop,Chrome,1000,850,25,2.94%,3.53,3.00,800,94.12%,900
+2024-01-01,test.com,JP,Interstitial,ad-unit-2,Facebook,facebook.com,Mobile,Safari,1200,900,30,3.33%,4.44,4.00,850,94.44%,950
+2024-01-02,example.com,US,Video,ad-unit-3,Amazon,amazon.com,Desktop,Firefox,800,700,20,2.86%,2.86,2.00,650,92.86%,750
+2024-01-02,demo.com,CN,Banner,ad-unit-4,Microsoft,microsoft.com,Mobile,Chrome,1500,1200,40,3.33%,3.33,4.00,1100,91.67%,1300
+2024-01-03,example.com,US,Native,ad-unit-5,Apple,apple.com,Desktop,Safari,900,750,18,2.40%,2.67,2.00,700,93.33%,800

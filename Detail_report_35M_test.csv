@@ -1,0 +1,6 @@
+网站,国家/地区,广告资源格式,广告单元（所有级别）,广告客户（已分类）,广告客户网域,设备,浏览器,日期,Ad Exchange 请求总数,Ad Exchange 展示次数,Ad Exchange 点击次数,Ad Exchange 点击率,Ad Exchange 平均 eCPM,Ad Exchange 收入,Ad Exchange Active View可见展示次数,Ad Exchange Active View可见展示次数百分比,Ad Exchange Active View可衡量展示次数
+example.com,US,Banner,leaderboard,广告客户1,example.com,Desktop,Chrome,2025-01-01,10000,8500,170,2.00%,6.50,55.25,7500,88.24%,8000
+test.com,UK,Interstitial,interstitial,广告客户2,test.com,Mobile,Safari,2025-01-01,15000,12000,360,3.00%,8.50,102.00,10500,87.50%,11500
+demo.com,CA,Video,preroll,广告客户3,demo.com,Tablet,Firefox,2025-01-02,8000,6000,120,2.00%,9.20,55.20,5200,86.67%,5800
+example.com,US,Banner,leaderboard,广告客户1,example.com,Mobile,Chrome,2025-01-02,12000,10000,250,2.50%,7.20,72.00,8800,88.00%,9500
+test.com,UK,Interstitial,interstitial,广告客户2,test.com,Desktop,Safari,2025-01-03,18000,15000,450,3.00%,8.50,127.50,13200,88.00%,14000

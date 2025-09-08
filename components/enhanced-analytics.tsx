@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useFileSession } from '@/contexts/file-session'
 import {
   LineChart,
   Line,
@@ -21,6 +22,7 @@ import {
 } from 'recharts'
 
 interface EnhancedAnalyticsProps {
+  fileId: string | null;
   filters?: {
     startDate?: string
     endDate?: string
@@ -29,7 +31,7 @@ interface EnhancedAnalyticsProps {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF7C7C']
 
-export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
+export default function EnhancedAnalytics({ fileId, filters }: EnhancedAnalyticsProps) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -37,7 +39,7 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
 
   useEffect(() => {
     fetchEnhancedAnalytics()
-  }, [filters])
+  }, [filters, fileId])
 
   const fetchEnhancedAnalytics = async () => {
     setLoading(true)
@@ -46,6 +48,7 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
       const params = new URLSearchParams()
       if (filters?.startDate) params.append('startDate', filters.startDate)
       if (filters?.endDate) params.append('endDate', filters.endDate)
+      if (fileId) params.append('fileId', fileId)
       
       const response = await fetch(`/api/analytics-enhanced?${params}`)
       if (!response.ok) {
@@ -61,6 +64,35 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
     } finally {
       setLoading(false)
     }
+  }
+
+  // 如果没有选择文件，显示提示
+  if (!fileId) {
+    return (
+      <div className="p-12 text-center">
+        <div className="mb-4">
+          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">请先上传数据文件</h3>
+        <p className="text-gray-600 mb-6">上传CSV文件后，系统将仅分析该文件的数据</p>
+        <button
+          onClick={() => {
+            const uploadTab = document.querySelector('button[onclick*="upload"]') as HTMLElement;
+            if (uploadTab) {
+              uploadTab.click();
+            } else {
+              window.location.hash = 'upload';
+              window.location.reload();
+            }
+          }}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+        >
+          前往上传
+        </button>
+      </div>
+    )
   }
 
   if (loading) {
@@ -146,7 +178,7 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {data.advertiserAnalysis.slice(0, 10).map((item: any, index: number) => (
+                  {(data.advertiserAnalysis || []).slice(0, 10).map((item: any, index: number) => (
                     <tr key={index} className={item._avg.ecpm > 50 ? 'bg-green-50' : ''}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.advertiser || '未知'}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.domain || '-'}</td>
@@ -165,7 +197,7 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-medium mb-4">eCPM 分布分析</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data.ecpmBuckets}>
+              <BarChart data={data.ecmpBuckets || []}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="range" />
                 <YAxis />
@@ -183,7 +215,7 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-medium mb-4">设备-浏览器性能矩阵</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {data.deviceBrowserMatrix
+              {(data.deviceBrowserMatrix || [])
                 .filter((item: any) => item._sum.revenue > 1)
                 .sort((a: any, b: any) => b._avg.ecpm - a._avg.ecpm)
                 .slice(0, 12)
@@ -225,7 +257,7 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-medium mb-4">24小时表现模式</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={data.hourlyPattern}>
+              <LineChart data={data.hourlyPattern || []}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="hour" />
                 <YAxis yAxisId="left" />
@@ -250,21 +282,12 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
               <ResponsiveContainer width="100%" height={400}>
                 <PieChart>
                   <Pie
-                    data={data.geoAnalysis.reduce((acc: any[], item: any) => {
-                      const existing = acc.find(a => a.country === item.country)
-                      if (existing) {
-                        existing.totalRevenue += (item._sum.revenue || 0)
-                        existing.totalImpressions += (item._sum.impressions || 0)
-                      } else {
-                        acc.push({
-                          country: item.country,
-                          totalRevenue: (item._sum.revenue || 0),
-                          totalImpressions: (item._sum.impressions || 0),
-                          avgEcpm: (item._avg.ecpm || 0)
-                        })
-                      }
-                      return acc
-                    }, [])}
+                    data={data.geoAnalysis?.map((item: any) => ({
+                      country: item.country,
+                      totalRevenue: item._sum.revenue,
+                      totalImpressions: item._sum.impressions,
+                      avgEcpm: item._avg.ecpm
+                    })) || []}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
@@ -273,7 +296,7 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
                     fill="#8884d8"
                     dataKey="totalRevenue"
                   >
-                    {data.geoAnalysis.map((entry: any, index: number) => (
+                    {data.geoAnalysis?.map((entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -286,7 +309,10 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium mb-4">最优组合配置</h3>
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {data.topCombinations.map((item: any, index: number) => (
+                {data.topCombinations
+                  ?.filter((item: any) => item.total_revenue > 0)
+                  .sort((a: any, b: any) => b.avg_ecpm - a.avg_ecpm)
+                  .map((item: any, index: number) => (
                   <div key={index} className="border rounded-lg p-3 bg-gradient-to-r from-green-50 to-blue-50">
                     <div className="flex justify-between items-start mb-2">
                       <div>
@@ -294,7 +320,7 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
                         <p className="text-sm text-gray-600">{item.device} · {item.ad_format}</p>
                       </div>
                       <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                        ${item.avg_ecpm.toFixed(2)}
+                        ${(item.avg_ecpm || 0).toFixed(2)}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm text-gray-500">
@@ -327,7 +353,7 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {data.adUnitAnalysis.map((item: any, index: number) => (
+                  {data.adUnitAnalysis?.map((item: any, index: number) => (
                     <tr key={index}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.adFormat}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.adUnit}</td>
@@ -353,7 +379,7 @@ export default function EnhancedAnalytics({ filters }: EnhancedAnalyticsProps) {
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-medium mb-4">可见度分析</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data.viewabilityAnalysis}>
+              <BarChart data={data.viewabilityAnalysis || []}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="adFormat" />
                 <YAxis />

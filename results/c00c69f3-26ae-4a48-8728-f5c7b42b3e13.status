@@ -1,0 +1,10 @@
+{
+  "status": "completed",
+  "fileName": "Detail_report.csv",
+  "fileSize": 591005,
+  "uploadTime": "2025-09-07T18:41:51.843Z",
+  "progress": 100,
+  "processedLines": 3882,
+  "completedAt": "2025-09-07T18:41:51.999Z",
+  "resultPath": "results/c00c69f3-26ae-4a48-8728-f5c7b42b3e13.json"
+}

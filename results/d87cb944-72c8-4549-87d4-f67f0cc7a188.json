@@ -1,0 +1,93 @@
+{
+  "fileId": "d87cb944-72c8-4549-87d4-f67f0cc7a188",
+  "fileName": "d87cb944-72c8-4549-87d4-f67f0cc7a188",
+  "summary": {
+    "totalRows": 1,
+    "totalRevenue": 8,
+    "totalImpressions": 800,
+    "totalClicks": 20,
+    "totalRequests": 1000,
+    "avgEcpm": 10,
+    "avgCtr": 2.5
+  },
+  "topWebsites": [
+    {
+      "name": "single.com",
+      "revenue": 8,
+      "impressions": 800,
+      "clicks": 20,
+      "requests": 1000,
+      "avgEcpm": 10,
+      "ctr": 2.5
+    }
+  ],
+  "topCountries": [
+    {
+      "name": "美国",
+      "revenue": 8,
+      "impressions": 800,
+      "clicks": 20,
+      "requests": 1000,
+      "avgEcpm": 10,
+      "ctr": 2.5
+    }
+  ],
+  "dailyTrend": [
+    {
+      "date": "2025-08-29",
+      "revenue": 8,
+      "impressions": 800,
+      "clicks": 20,
+      "requests": 1000,
+      "avgEcpm": 10,
+      "ctr": 2.5
+    }
+  ],
+  "devices": [
+    {
+      "name": "移动设备",
+      "revenue": 8,
+      "impressions": 800,
+      "clicks": 20,
+      "requests": 1000,
+      "avgEcpm": 10,
+      "ctr": 2.5
+    }
+  ],
+  "adFormats": [
+    {
+      "name": "横幅",
+      "revenue": 8,
+      "impressions": 800,
+      "clicks": 20,
+      "requests": 1000,
+      "avgEcpm": 10,
+      "ctr": 2.5
+    }
+  ],
+  "sampleData": [
+    {
+      "date": "2025-08-29",
+      "website": "single.com",
+      "country": "美国",
+      "adFormat": "横幅",
+      "adUnit": "测试单元",
+      "advertiser": "测试客户",
+      "domain": "single.com",
+      "device": "移动设备",
+      "browser": "Safari",
+      "requests": 1000,
+      "impressions": 800,
+      "clicks": 20,
+      "ctr": 2.5,
+      "ecpm": 10,
+      "revenue": 8,
+      "viewableImpressions": 750,
+      "viewabilityRate": 93.75,
+      "measurableImpressions": 820,
+      "fillRate": 80,
+      "arpu": 0.008
+    }
+  ],
+  "processedAt": "2025-09-07T16:40:59.132Z"
+}

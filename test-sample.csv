@@ -1,0 +1,6 @@
+Date,Website,Country,Device,Ad Format,Requests,Impressions,Clicks,Revenue
+2025-01-01,example.com,US,Desktop,Banner,1000,800,20,5.00
+2025-01-01,test.com,UK,Mobile,Interstitial,1500,1200,35,8.50
+2025-01-02,example.com,US,Mobile,Banner,1200,1000,25,6.20
+2025-01-02,demo.com,CA,Desktop,Video,800,600,15,4.80
+2025-01-03,test.com,UK,Mobile,Interstitial,1800,1500,45,10.50
