@@ -21,6 +21,7 @@ export async function GET(
       let pollCount = 0;
       const maxPolls = 1800; // 最多轮询30分钟（大文件需要更长时间）
       let lastActivity = Date.now();
+      let isClosed = false;
       
       const poll = async () => {
         try {
@@ -43,17 +44,23 @@ export async function GET(
                 const resultData = await readFile(resultPath, 'utf-8');
                 const result = JSON.parse(resultData);
                 
-                controller.enqueue(`data: ${JSON.stringify({ type: 'completed', result })}\n\n`);
-                console.log(`[DEBUG] SSE stream completed for file ${fileId}`);
-                controller.close();
+                if (!isClosed) {
+                  controller.enqueue(`data: ${JSON.stringify({ type: 'completed', result })}\n\n`);
+                  console.log(`[DEBUG] SSE stream completed for file ${fileId}`);
+                  controller.close();
+                  isClosed = true;
+                }
                 return;
               } catch (error) {
                 console.error(`[DEBUG] Error reading result file:`, error);
               }
             } else if (status.status === 'failed') {
               // 处理失败
-              controller.enqueue(`data: ${JSON.stringify({ type: 'failed', error: status.error })}\n\n`);
-              controller.close();
+              if (!isClosed) {
+                controller.enqueue(`data: ${JSON.stringify({ type: 'failed', error: status.error })}\n\n`);
+                controller.close();
+                isClosed = true;
+              }
               return;
             }
           } catch (error) {
@@ -65,23 +72,50 @@ export async function GET(
           
           pollCount++;
           if (pollCount >= maxPolls) {
-            controller.enqueue(`data: ${JSON.stringify({ type: 'timeout', message: '处理超时' })}\n\n`);
-            controller.close();
+            if (!isClosed) {
+              controller.enqueue(`data: ${JSON.stringify({ type: 'timeout', message: '处理超时' })}\n\n`);
+              controller.close();
+              isClosed = true;
+            }
             return;
           }
           
           // 发送心跳保持连接（每30秒）
           if (pollCount % 30 === 0) {
-            controller.enqueue(`data: ${JSON.stringify({ type: 'heartbeat', timestamp: Date.now() })}\n\n`);
+            if (!isClosed) {
+              try {
+                controller.enqueue(`data: ${JSON.stringify({ type: 'heartbeat', timestamp: Date.now() })}\n\n`);
+              } catch (error) {
+                console.log(`[DEBUG] Controller closed, stopping poll`);
+                isClosed = true;
+                return;
+              }
+            }
+          }
+          
+          // 如果控制器已关闭，停止轮询
+          if (isClosed) {
+            return;
           }
           
           // 继续轮询
-          setTimeout(poll, 1000);
+          const timeoutId = setTimeout(poll, 1000);
+          
+          // 清理定时器引用
+          return () => clearTimeout(timeoutId);
           
         } catch (error) {
           console.error('SSE poll error:', error);
-          controller.enqueue(`data: ${JSON.stringify({ type: 'error', message: '连接错误' })}\n\n`);
-          controller.close();
+          if (!isClosed) {
+            try {
+              controller.enqueue(`data: ${JSON.stringify({ type: 'error', message: '连接错误' })}\n\n`);
+              controller.close();
+              isClosed = true;
+            } catch (e) {
+              // Controller already closed
+              console.log(`[DEBUG] Controller already closed when handling error`);
+            }
+          }
         }
       };
       
@@ -91,7 +125,15 @@ export async function GET(
       // 清理函数
       return () => {
         console.log(`[DEBUG] SSE stream closed for file ${fileId}`);
-        controller.close();
+        if (!isClosed) {
+          try {
+            controller.close();
+            isClosed = true;
+          } catch (e) {
+            // Controller already closed
+            console.log(`[DEBUG] Controller already closed in cleanup`);
+          }
+        }
       };
     }
   });
