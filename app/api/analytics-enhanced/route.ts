@@ -27,7 +27,7 @@ function generateAdvertiserAnalysis(result: any) {
     domain: advertiserToDomain.get(item.name) || item.name, // 使用映射或广告客户名称作为域名
     _count: Math.floor(item.revenue * 100), // 模拟计数
     _sum: { revenue: item.revenue },
-    _avg: { ecpm: item.ecpm, ctr: item.ctr }
+    _avg: { ecpm: item.avgEcpm, ctr: item.ctr }
   }))
 }
 
@@ -158,7 +158,7 @@ function generateAdUnitAnalysis(result: any) {
         requests: item.requests 
       },
       _avg: { 
-        ecpm: item.ecpm, 
+        ecpm: item.avgEcpm, 
         ctr: item.ctr, 
         fillRate: item.requests > 0 ? (item.impressions / item.requests) : 0
       }
@@ -559,7 +559,7 @@ export async function GET(request: NextRequest) {
         impressions: item.impressions || 0
       },
       _avg: {
-        ecpm: item.ecpm || 0
+        ecpm: item.avgEcpm || 0
       }
     }))
     const adUnitAnalysis = generateAdUnitAnalysis(data)
