@@ -1,0 +1,10 @@
+{
+  "status": "completed",
+  "fileName": "test-upload.csv",
+  "fileSize": 430,
+  "uploadTime": "2025-09-08T11:23:11.217Z",
+  "progress": 100,
+  "processedLines": 6,
+  "completedAt": "2025-09-08T11:23:11.831Z",
+  "resultPath": "results/344c4be0-ac26-4653-9652-33fe7da15f7d.json"
+}

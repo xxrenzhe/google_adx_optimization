@@ -1,0 +1,10 @@
+{
+  "status": "completed",
+  "fileName": "test-poll.csv",
+  "fileSize": 244,
+  "uploadTime": "2025-09-08T11:28:35.581Z",
+  "progress": 100,
+  "processedLines": 3,
+  "completedAt": "2025-09-08T11:28:36.188Z",
+  "resultPath": "results/41498e69-f50d-4683-aebe-dcddd4e10403.json"
+}

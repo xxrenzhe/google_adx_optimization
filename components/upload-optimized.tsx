@@ -13,7 +13,8 @@ export default function FileUploadOptimized({ fileId, onFileUploaded, onClearFil
     currentFile, 
     setCurrentFileId, 
     getResult,
-    clearFile 
+    clearFile,
+    files
   } = useUploadStore()
 
   // 同步外部fileId变化
@@ -24,8 +25,10 @@ export default function FileUploadOptimized({ fileId, onFileUploaded, onClearFil
   }, [fileId, currentFileId, setCurrentFileId])
 
   // 处理上传完成
-  const handleUploadComplete = (newFileId: string) => {
-    onFileUploaded(newFileId)
+  const handleUploadComplete = (fileId: string) => {
+    // 直接设置服务器返回的fileId
+    setCurrentFileId(fileId)
+    onFileUploaded(fileId)
   }
 
   // 处理清除文件
@@ -38,8 +41,9 @@ export default function FileUploadOptimized({ fileId, onFileUploaded, onClearFil
 
   // 如果没有活跃文件，显示上传组件
   if (!currentFileId || !currentFile) {
+    console.log('No current file, showing uploader - currentFileId:', currentFileId, 'currentFile:', currentFile)
     return (
-      <div className="space-y-6">
+      <div key="uploader" className="space-y-6">
         <FileUploader 
           onUploadStart={() => {}}
           onUploadComplete={handleUploadComplete}
@@ -50,8 +54,9 @@ export default function FileUploadOptimized({ fileId, onFileUploaded, onClearFil
 
   // 如果文件正在上传或处理中，显示进度
   if (currentFile.status === 'uploading' || currentFile.status === 'processing') {
+    console.log('File is uploading/processing, showing progress - currentFileId:', currentFileId, 'status:', currentFile.status)
     return (
-      <div className="space-y-6">
+      <div key={`progress-${currentFileId}-${currentFile.status}`} className="space-y-6">
         <UploadProgress fileId={currentFileId} />
       </div>
     )
@@ -64,17 +69,19 @@ export default function FileUploadOptimized({ fileId, onFileUploaded, onClearFil
     
     if (result) {
       return (
-        <UploadResults 
-          fileId={currentFileId}
-          onClear={handleClearFile}
-        />
+        <div key={`results-${currentFileId}`} className="space-y-6">
+          <UploadResults 
+            fileId={currentFileId}
+            onClear={handleClearFile}
+          />
+        </div>
       )
     }
     
     // 如果没有结果但有错误
     if (currentFile.error) {
       return (
-        <div className="space-y-6">
+        <div key={`error-${currentFileId}`} className="space-y-6">
           <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-800">{currentFile.error}</p>
           </div>

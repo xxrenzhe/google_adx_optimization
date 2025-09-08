@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Upload, FileText, AlertCircle } from 'lucide-react'
 import { useUploadStore } from '@/stores/upload'
@@ -15,8 +15,10 @@ interface FileUploaderProps {
 
 export default function FileUploader({ onUploadStart, onUploadComplete }: FileUploaderProps) {
   const { setFile, updateFileProgress } = useUploadStore()
+  const [error, setError] = useState<string | null>(null)
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    setError(null) // Clear any previous errors
     if (acceptedFiles.length === 0) return
 
     const file = acceptedFiles[0]
@@ -25,25 +27,13 @@ export default function FileUploader({ onUploadStart, onUploadComplete }: FileUp
       // 验证文件
       validateFile(file)
       
-      // 创建文件对象
-      const fileId = crypto.randomUUID()
-      const fileWithProgress: FileWithProgress = {
-        file,
-        id: fileId,
-        status: 'uploading',
-        progress: 0
-      }
-      
-      // 添加到store
-      setFile(fileId, fileWithProgress)
-      
       // 上传文件
       onUploadStart?.()
       
       const formData = new FormData()
       formData.append('file', file)
       
-      const response = await fetch('/api/upload-optimized', {
+      const response = await fetch(`/api/upload-optimized`, {
         method: 'POST',
         body: formData
       })
@@ -54,11 +44,22 @@ export default function FileUploader({ onUploadStart, onUploadComplete }: FileUp
         throw new Error(result.error || '上传失败')
       }
       
-      // 更新进度
-      updateFileProgress(fileId, 100, 'processing')
+      // 使用服务器返回的fileId
+      const serverFileId = result.fileId
+      
+      // 创建文件对象 - 使用服务器返回的fileId
+      const fileWithProgress: FileWithProgress = {
+        file,
+        id: serverFileId,
+        status: 'processing',
+        progress: 10 // 上传已完成，处理开始
+      }
+      
+      // 添加到store
+      setFile(serverFileId, fileWithProgress)
       
       // 通知完成
-      onUploadComplete?.(result.fileId)
+      onUploadComplete?.(serverFileId)
       
     } catch (error) {
       console.error('Upload error:', error)
@@ -74,8 +75,23 @@ export default function FileUploader({ onUploadStart, onUploadComplete }: FileUp
     }
   }, [setFile, updateFileProgress, onUploadStart, onUploadComplete])
 
+  const onDropRejected = useCallback((rejectedFiles: any[]) => {
+    setError(null)
+    if (rejectedFiles.length > 0) {
+      const rejection = rejectedFiles[0]
+      if (rejection.errors.some((e: any) => e.code === 'file-too-large')) {
+        setError('文件过大，请上传小于200MB的文件')
+      } else if (rejection.errors.some((e: any) => e.code === 'file-invalid-type')) {
+        setError('只支持CSV文件')
+      } else {
+        setError('文件不符合要求')
+      }
+    }
+  }, [])
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
     accept: {
       'text/csv': ['.csv']
     },
@@ -87,6 +103,7 @@ export default function FileUploader({ onUploadStart, onUploadComplete }: FileUp
     <div className="space-y-4">
       <div
         {...getRootProps()}
+        data-testid="dropzone"
         className={`
           border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
           ${isDragActive 
@@ -114,6 +131,13 @@ export default function FileUploader({ onUploadStart, onUploadComplete }: FileUp
           )}
         </div>
       </div>
+      
+      {/* Error message */}
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-800">{error}</p>
+        </div>
+      )}
       
       <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg">
         <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />

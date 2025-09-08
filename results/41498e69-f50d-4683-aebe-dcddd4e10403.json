@@ -1,0 +1,353 @@
+{
+  "fileId": "41498e69-f50d-4683-aebe-dcddd4e10403",
+  "fileName": "41498e69-f50d-4683-aebe-dcddd4e10403",
+  "summary": {
+    "totalRows": 3,
+    "totalRevenue": 19,
+    "totalImpressions": 2900,
+    "totalClicks": 75,
+    "totalRequests": 3700,
+    "avgEcpm": 6.551724137931035,
+    "avgCtr": 2.586206896551724
+  },
+  "topWebsites": [
+    {
+      "name": "test.com",
+      "revenue": 19,
+      "impressions": 2900,
+      "clicks": 75,
+      "requests": 3700,
+      "avgEcpm": 6.551724137931035,
+      "ctr": 2.586206896551724
+    }
+  ],
+  "topCountries": [
+    {
+      "name": "US",
+      "revenue": 13,
+      "impressions": 2000,
+      "clicks": 50,
+      "requests": 2500,
+      "avgEcpm": 6.5,
+      "ctr": 2.5
+    },
+    {
+      "name": "UK",
+      "revenue": 6,
+      "impressions": 900,
+      "clicks": 25,
+      "requests": 1200,
+      "avgEcpm": 6.666666666666667,
+      "ctr": 2.7777777777777777
+    }
+  ],
+  "dailyTrend": [
+    {
+      "date": "2024-01-01",
+      "revenue": 5,
+      "impressions": 800,
+      "clicks": 20,
+      "requests": 1000,
+      "avgEcpm": 6.25,
+      "ctr": 2.5
+    },
+    {
+      "date": "2024-01-02",
+      "revenue": 8,
+      "impressions": 1200,
+      "clicks": 30,
+      "requests": 1500,
+      "avgEcpm": 6.666666666666667,
+      "ctr": 2.5
+    },
+    {
+      "date": "2024-01-03",
+      "revenue": 6,
+      "impressions": 900,
+      "clicks": 25,
+      "requests": 1200,
+      "avgEcpm": 6.666666666666667,
+      "ctr": 2.7777777777777777
+    }
+  ],
+  "devices": [
+    {
+      "name": "Desktop",
+      "revenue": 11,
+      "impressions": 1700,
+      "clicks": 45,
+      "requests": 2200,
+      "avgEcpm": 6.470588235294118,
+      "ctr": 2.6470588235294117
+    },
+    {
+      "name": "Mobile",
+      "revenue": 8,
+      "impressions": 1200,
+      "clicks": 30,
+      "requests": 1500,
+      "avgEcpm": 6.666666666666667,
+      "ctr": 2.5
+    }
+  ],
+  "adFormats": [
+    {
+      "name": "Banner",
+      "revenue": 11,
+      "impressions": 1700,
+      "clicks": 45,
+      "requests": 2200,
+      "avgEcpm": 6.470588235294118,
+      "ctr": 2.6470588235294117
+    },
+    {
+      "name": "Interstitial",
+      "revenue": 8,
+      "impressions": 1200,
+      "clicks": 30,
+      "requests": 1500,
+      "avgEcpm": 6.666666666666667,
+      "ctr": 2.5
+    }
+  ],
+  "advertisers": [
+    {
+      "name": "Unknown",
+      "revenue": 19,
+      "impressions": 2900,
+      "clicks": 75,
+      "requests": 3700,
+      "avgEcpm": 6.551724137931035,
+      "ctr": 2.586206896551724
+    }
+  ],
+  "domains": [
+    {
+      "name": "Unknown",
+      "revenue": 19,
+      "impressions": 2900,
+      "clicks": 75,
+      "requests": 3700,
+      "avgEcpm": 6.551724137931035,
+      "ctr": 2.586206896551724
+    }
+  ],
+  "browsers": [
+    {
+      "name": "Unknown",
+      "revenue": 19,
+      "impressions": 2900,
+      "clicks": 75,
+      "requests": 3700,
+      "avgEcpm": 6.551724137931035,
+      "ctr": 2.586206896551724
+    }
+  ],
+  "adUnits": [
+    {
+      "name": "Unknown",
+      "revenue": 19,
+      "impressions": 2900,
+      "clicks": 75,
+      "requests": 3700,
+      "avgEcpm": 6.551724137931035,
+      "ctr": 2.586206896551724
+    }
+  ],
+  "detailedAnalytics": {
+    "countryDeviceCombination": [
+      {
+        "name": "US|Mobile",
+        "revenue": 8,
+        "impressions": 1200,
+        "clicks": 30,
+        "requests": 1500,
+        "avgEcpm": 6.666666666666667,
+        "ctr": 2.5
+      },
+      {
+        "name": "UK|Desktop",
+        "revenue": 6,
+        "impressions": 900,
+        "clicks": 25,
+        "requests": 1200,
+        "avgEcpm": 6.666666666666667,
+        "ctr": 2.7777777777777777
+      },
+      {
+        "name": "US|Desktop",
+        "revenue": 5,
+        "impressions": 800,
+        "clicks": 20,
+        "requests": 1000,
+        "avgEcpm": 6.25,
+        "ctr": 2.5
+      }
+    ],
+    "countryAdFormatCombination": [
+      {
+        "name": "US|Interstitial",
+        "revenue": 8,
+        "impressions": 1200,
+        "clicks": 30,
+        "requests": 1500,
+        "avgEcpm": 6.666666666666667,
+        "ctr": 2.5
+      },
+      {
+        "name": "UK|Banner",
+        "revenue": 6,
+        "impressions": 900,
+        "clicks": 25,
+        "requests": 1200,
+        "avgEcpm": 6.666666666666667,
+        "ctr": 2.7777777777777777
+      },
+      {
+        "name": "US|Banner",
+        "revenue": 5,
+        "impressions": 800,
+        "clicks": 20,
+        "requests": 1000,
+        "avgEcpm": 6.25,
+        "ctr": 2.5
+      }
+    ],
+    "deviceAdFormatCombination": [
+      {
+        "name": "Desktop|Banner",
+        "revenue": 11,
+        "impressions": 1700,
+        "clicks": 45,
+        "requests": 2200,
+        "avgEcpm": 6.470588235294118,
+        "ctr": 2.6470588235294117
+      },
+      {
+        "name": "Mobile|Interstitial",
+        "revenue": 8,
+        "impressions": 1200,
+        "clicks": 30,
+        "requests": 1500,
+        "avgEcpm": 6.666666666666667,
+        "ctr": 2.5
+      }
+    ],
+    "websiteCountryCombination": [
+      {
+        "name": "test.com|US",
+        "revenue": 13,
+        "impressions": 2000,
+        "clicks": 50,
+        "requests": 2500,
+        "avgEcpm": 6.5,
+        "ctr": 2.5
+      },
+      {
+        "name": "test.com|UK",
+        "revenue": 6,
+        "impressions": 900,
+        "clicks": 25,
+        "requests": 1200,
+        "avgEcpm": 6.666666666666667,
+        "ctr": 2.7777777777777777
+      }
+    ],
+    "adUnitAdFormatCombination": [
+      {
+        "name": "Unknown|Banner",
+        "revenue": 11,
+        "impressions": 1700,
+        "clicks": 45,
+        "requests": 2200,
+        "avgEcpm": 6.470588235294118,
+        "ctr": 2.6470588235294117
+      },
+      {
+        "name": "Unknown|Interstitial",
+        "revenue": 8,
+        "impressions": 1200,
+        "clicks": 30,
+        "requests": 1500,
+        "avgEcpm": 6.666666666666667,
+        "ctr": 2.5
+      }
+    ]
+  },
+  "samplePreview": [
+    {
+      "date": "2024-01-01",
+      "website": "test.com",
+      "country": "US",
+      "adFormat": "Banner",
+      "adUnit": "Unknown",
+      "advertiser": "Unknown",
+      "domain": "Unknown",
+      "device": "Desktop",
+      "browser": "Unknown",
+      "requests": 1000,
+      "impressions": 800,
+      "clicks": 20,
+      "ctr": 2.5,
+      "ecpm": 6.25,
+      "revenue": 5,
+      "viewableImpressions": 0,
+      "viewabilityRate": 0,
+      "measurableImpressions": 0,
+      "fillRate": 80,
+      "arpu": 0.005
+    },
+    {
+      "date": "2024-01-02",
+      "website": "test.com",
+      "country": "US",
+      "adFormat": "Interstitial",
+      "adUnit": "Unknown",
+      "advertiser": "Unknown",
+      "domain": "Unknown",
+      "device": "Mobile",
+      "browser": "Unknown",
+      "requests": 1500,
+      "impressions": 1200,
+      "clicks": 30,
+      "ctr": 2.5,
+      "ecpm": 6.666666666666667,
+      "revenue": 8,
+      "viewableImpressions": 0,
+      "viewabilityRate": 0,
+      "measurableImpressions": 0,
+      "fillRate": 80,
+      "arpu": 0.005333333333333333
+    },
+    {
+      "date": "2024-01-03",
+      "website": "test.com",
+      "country": "UK",
+      "adFormat": "Banner",
+      "adUnit": "Unknown",
+      "advertiser": "Unknown",
+      "domain": "Unknown",
+      "device": "Desktop",
+      "browser": "Unknown",
+      "requests": 1200,
+      "impressions": 900,
+      "clicks": 25,
+      "ctr": 2.7777777777777777,
+      "ecpm": 6.666666666666667,
+      "revenue": 6,
+      "viewableImpressions": 0,
+      "viewabilityRate": 0,
+      "measurableImpressions": 0,
+      "fillRate": 75,
+      "arpu": 0.005
+    }
+  ],
+  "fillRateDistribution": {
+    "0-20%": 0,
+    "20-40%": 0,
+    "40-60%": 0,
+    "60-80%": 1,
+    "80-100%": 2
+  },
+  "processedAt": "2025-09-08T11:28:35.686Z"
+}

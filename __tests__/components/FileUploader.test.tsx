@@ -1,23 +1,21 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import FileUploader from '@/components/FileUploader'
-import { useUploadStore } from '@/stores/upload'
 
 // Mock the upload store
-jest.mock('@/stores/upload')
-const mockUseUploadStore = useUploadStore as jest.MockedFunction<typeof useUploadStore>
+const mockUseUploadStore = jest.fn()
+jest.mock('@/stores/upload', () => ({
+  useUploadStore: () => mockUseUploadStore()
+}))
 
 describe('FileUploader Component', () => {
-  const mockSetFile = jest.fn()
-  const mockSetCurrentFileId = jest.fn()
-  const mockUpdateFileProgress = jest.fn()
-
   beforeEach(() => {
+    // Default mock implementation
     mockUseUploadStore.mockReturnValue({
-      setFile: mockSetFile,
-      setCurrentFileId: mockSetCurrentFileId,
-      updateFileProgress: mockUpdateFileProgress
-    } as any)
+      setFile: jest.fn(),
+      setCurrentFileId: jest.fn(),
+      updateFileProgress: jest.fn()
+    })
   })
 
   afterEach(() => {
@@ -27,8 +25,9 @@ describe('FileUploader Component', () => {
   it('renders upload area', () => {
     render(<FileUploader onUploadStart={jest.fn()} onUploadComplete={jest.fn()} />)
     
-    expect(screen.getByText('拖放CSV文件到这里，或点击选择文件')).toBeInTheDocument()
-    expect(screen.getByText('支持最大200MB的CSV文件')).toBeInTheDocument()
+    expect(screen.getByText('拖拽CSV文件到此处，或')).toBeInTheDocument()
+    expect(screen.getByText('点击选择')).toBeInTheDocument()
+    expect(screen.getByText('最大文件大小：200MB')).toBeInTheDocument()
   })
 
   it('handles file drop', async () => {
@@ -44,7 +43,7 @@ describe('FileUploader Component', () => {
 
     render(<FileUploader onUploadStart={mockOnUploadStart} onUploadComplete={mockOnUploadComplete} />)
     
-    const dropzone = screen.getByText('拖放CSV文件到这里，或点击选择文件').parentElement
+    const dropzone = screen.getByTestId('dropzone')
     fireEvent.drop(dropzone, {
       dataTransfer: { files: [mockFile] }
     })
@@ -59,7 +58,7 @@ describe('FileUploader Component', () => {
     
     render(<FileUploader onUploadStart={jest.fn()} onUploadComplete={jest.fn()} />)
     
-    const dropzone = screen.getByText('拖放CSV文件到这里，或点击选择文件').parentElement
+    const dropzone = screen.getByTestId('dropzone')
     fireEvent.drop(dropzone, {
       dataTransfer: { files: [invalidFile] }
     })
@@ -70,23 +69,33 @@ describe('FileUploader Component', () => {
   })
 
   it('validates file size', async () => {
-    // Create a large file (over 200MB)
-    const largeFile = new File(['x'.repeat(201 * 1024 * 1024)], 'large.csv', { type: 'text/csv' })
+    // Create a mock large file (over 200MB)
+    const largeFile = new File(['test'], 'large.csv', { type: 'text/csv' })
+    Object.defineProperty(largeFile, 'size', { value: 201 * 1024 * 1024 })
     
     render(<FileUploader onUploadStart={jest.fn()} onUploadComplete={jest.fn()} />)
     
-    const dropzone = screen.getByText('拖放CSV文件到这里，或点击选择文件').parentElement
+    const dropzone = screen.getByTestId('dropzone')
     fireEvent.drop(dropzone, {
       dataTransfer: { files: [largeFile] }
     })
 
     await waitFor(() => {
-      expect(screen.getByText('文件大小不能超过200MB')).toBeInTheDocument()
+      expect(screen.getByText('文件过大，请上传小于200MB的文件')).toBeInTheDocument()
     })
   })
 
   it('handles upload error', async () => {
     const mockFile = new File(['test,content'], 'test.csv', { type: 'text/csv' })
+    const mockSetFile = jest.fn()
+    const mockUpdateFileProgress = jest.fn()
+    
+    // Mock the store to capture the setFile call
+    mockUseUploadStore.mockReturnValue({
+      setFile: mockSetFile,
+      updateFileProgress: mockUpdateFileProgress,
+      setCurrentFileId: jest.fn()
+    })
     
     // Mock fetch to return error
     global.fetch = jest.fn().mockResolvedValue({
@@ -96,13 +105,19 @@ describe('FileUploader Component', () => {
 
     render(<FileUploader onUploadStart={jest.fn()} onUploadComplete={jest.fn()} />)
     
-    const dropzone = screen.getByText('拖放CSV文件到这里，或点击选择文件').parentElement
+    const dropzone = screen.getByTestId('dropzone')
     fireEvent.drop(dropzone, {
       dataTransfer: { files: [mockFile] }
     })
 
     await waitFor(() => {
-      expect(screen.getByText('Upload failed')).toBeInTheDocument()
+      // Check that setFile was called with uploading status first
+      expect(mockSetFile).toHaveBeenCalled()
+      const firstCall = mockSetFile.mock.calls[0]
+      expect(firstCall[1].status).toBe('uploading')
+      
+      // Check that updateFileProgress was not called (since upload failed)
+      expect(mockUpdateFileProgress).not.toHaveBeenCalled()
     })
   })
 })

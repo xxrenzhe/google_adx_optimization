@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { CheckCircle, XCircle, Loader, Clock } from 'lucide-react'
 import { useUploadStore } from '@/stores/upload'
+import { useUploadStatus } from '@/hooks/useUploadStatus'
 import { formatFileSize, formatPercentage } from '@/lib/utils'
 
 interface UploadProgressProps {
@@ -11,10 +12,16 @@ interface UploadProgressProps {
 
 export default function UploadProgress({ fileId }: UploadProgressProps) {
   const { getFile, getStatus } = useUploadStore()
+  const { status: serverStatus } = useUploadStatus(fileId)
   const [elapsedTime, setElapsedTime] = useState(0)
   
   const file = getFile(fileId)
-  const status = getStatus(fileId)
+  const localStatus = getStatus(fileId)
+  
+  // 优先使用服务器状态，如果没有则使用本地状态
+  const status = serverStatus || localStatus
+  
+  // Debug logging removed - fix applied
   
   useEffect(() => {
     if (!file || file.status === 'completed' || file.status === 'failed') return
@@ -35,10 +42,11 @@ export default function UploadProgress({ fileId }: UploadProgressProps) {
   }
   
   const getEstimatedTime = () => {
-    if (!status?.progress || status.progress < 10) return '估算中...'
+    const progress = status?.progress || file.progress
+    if (!progress || progress < 10) return '估算中...'
     
-    const progressPerSecond = status.progress / elapsedTime
-    const remainingProgress = 100 - status.progress
+    const progressPerSecond = progress / elapsedTime
+    const remainingProgress = 100 - progress
     const estimatedSeconds = Math.ceil(remainingProgress / progressPerSecond)
     
     return formatTime(estimatedSeconds)
@@ -68,7 +76,7 @@ export default function UploadProgress({ fileId }: UploadProgressProps) {
             {file.status === 'failed' && '失败'}
           </p>
           <p className="text-sm text-gray-500">
-            {file.status === 'processing' && `已处理: ${status?.processedLines || 0} 行`}
+            {(file.status === 'processing' || status?.status === 'processing') && `已处理: ${status?.processedLines || 0} 行`}
           </p>
         </div>
       </div>
@@ -77,22 +85,22 @@ export default function UploadProgress({ fileId }: UploadProgressProps) {
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">进度</span>
-          <span className="font-medium">{formatPercentage(file.progress)}</span>
+          <span className="font-medium">{formatPercentage(status?.progress || file.progress)}</span>
         </div>
         
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className={`
               h-2 rounded-full transition-all duration-300
-              ${file.status === 'failed' ? 'bg-red-600' : 
-                file.status === 'completed' ? 'bg-green-600' : 
+              ${file.status === 'failed' || status?.status === 'failed' ? 'bg-red-600' : 
+                file.status === 'completed' || status?.status === 'completed' ? 'bg-green-600' : 
                 'bg-blue-600'}
             `}
-            style={{ width: `${file.progress}%` }}
+            style={{ width: `${status?.progress || file.progress}%` }}
           />
         </div>
         
-        {file.status === 'processing' && (
+        {(file.status === 'processing' || status?.status === 'processing') && (
           <div className="flex justify-between text-xs text-gray-500">
             <span>已用时: {formatTime(elapsedTime)}</span>
             <span>预计剩余: {getEstimatedTime()}</span>
@@ -101,9 +109,9 @@ export default function UploadProgress({ fileId }: UploadProgressProps) {
       </div>
       
       {/* 错误信息 */}
-      {file.error && (
+      {(file.error || status?.error) && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-800">{file.error}</p>
+          <p className="text-sm text-red-800">{file.error || status?.error}</p>
         </div>
       )}
       

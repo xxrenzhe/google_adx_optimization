@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .upload-area { 
+            border: 2px dashed #ccc; 
+            padding: 20px; 
+            text-align: center; 
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        .log { 
+            background: #f5f5f5; 
+            padding: 10px; 
+            margin: 10px 0; 
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>File Upload Test</h1>
+    
+    <div class="upload-area" id="dropArea">
+        <p>Drop CSV file here or click to select</p>
+        <input type="file" id="fileInput" accept=".csv" style="display: none;">
+    </div>
+    
+    <div id="logs"></div>
+
+    <script>
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('fileInput');
+        const logs = document.getElementById('logs');
+
+        function log(message) {
+            const div = document.createElement('div');
+            div.className = 'log';
+            div.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logs.appendChild(div);
+            console.log(message);
+        }
+
+        dropArea.addEventListener('click', () => fileInput.click());
+        
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.style.borderColor = 'blue';
+        });
+        
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.style.borderColor = '#ccc';
+        });
+        
+        dropArea.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            dropArea.style.borderColor = '#ccc';
+            
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                await uploadFile(file);
+            }
+        });
+        
+        fileInput.addEventListener('change', async (e) => {
+            if (e.target.files[0]) {
+                await uploadFile(e.target.files[0]);
+            }
+        });
+
+        async function uploadFile(file) {
+            log(`Uploading file: ${file.name} (${file.size} bytes)`);
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                // Upload file
+                log('Sending upload request...');
+                const uploadResponse = await fetch('/api/upload-optimized', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const uploadResult = await uploadResponse.json();
+                log(`Upload response: ${JSON.stringify(uploadResult, null, 2)}`);
+                
+                if (!uploadResponse.ok) {
+                    throw new Error(uploadResult.error || 'Upload failed');
+                }
+                
+                const fileId = uploadResult.fileId;
+                log(`File uploaded with ID: ${fileId}`);
+                
+                // Start polling
+                log('Starting status polling...');
+                await pollStatus(fileId);
+                
+            } catch (error) {
+                log(`Error: ${error.message}`);
+            }
+        }
+
+        async function pollStatus(fileId) {
+            const maxPolls = 30;
+            let pollCount = 0;
+            
+            const poll = async () => {
+                pollCount++;
+                log(`Poll #${pollCount} for fileId: ${fileId}`);
+                
+                try {
+                    const response = await fetch(`/api/upload-optimized?fileId=${fileId}`);
+                    const result = await response.json();
+                    
+                    log(`Status response: ${JSON.stringify(result, null, 2)}`);
+                    
+                    if (response.ok) {
+                        if (result.status === 'completed') {
+                            log('✅ Processing completed!');
+                            return;
+                        } else if (result.status === 'failed') {
+                            log(`❌ Processing failed: ${result.error}`);
+                            return;
+                        } else if (pollCount < maxPolls) {
+                            // Continue polling
+                            setTimeout(poll, 2000);
+                        } else {
+                            log('⏰ Max polls reached');
+                        }
+                    } else {
+                        log(`❌ Status check failed: ${result.error}`);
+                    }
+                } catch (error) {
+                    log(`Error polling status: ${error.message}`);
+                }
+            };
+            
+            // Start polling
+            poll();
+        }
+    </script>
+</body>
+</html>
