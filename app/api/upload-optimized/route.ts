@@ -276,6 +276,7 @@ async function processFile(fileId: string, filePath: string, statusPath: string,
     let lineCount = 0;
     let processedLines = 0;
     let processedBytes = 0;
+    let lastProgress = 0;
     let columnMap: Record<string, number> = {};
 
     for await (const line of rl) {
@@ -488,14 +489,17 @@ async function processFile(fileId: string, filePath: string, statusPath: string,
           }
         }
         
-        if (progress > 0) {
+        // 只在进度变化超过1%时才更新状态文件，减少IO
+        if (progress > 0 && progress > lastProgress) {
           console.log(`[DEBUG] Updating progress: ${progress}%, processedLines: ${processedLines}`);
           await updateStatus(statusPath, { progress, processedLines });
+          lastProgress = progress;
         }
         
-        // 每10万行强制GC
-        if (processedLines % 100000 === 0 && global.gc) {
+        // 每5万行强制GC，更频繁的内存清理
+        if (processedLines % 50000 === 0 && global.gc) {
           global.gc();
+          console.log(`[DEBUG] Forced GC at line ${processedLines}`);
         }
       } catch (e) {
         console.warn('Error processing line:', lineCount, e);
@@ -636,7 +640,7 @@ async function processFile(fileId: string, filePath: string, statusPath: string,
       resultPath
     });
 
-    // 清理大Map
+    // 清理大Map释放内存
     aggregator.websites.clear();
     aggregator.countries.clear();
     aggregator.dates.clear();
@@ -651,6 +655,12 @@ async function processFile(fileId: string, filePath: string, statusPath: string,
     aggregator.detailedData.deviceAdFormat.clear();
     aggregator.detailedData.websiteCountry.clear();
     aggregator.detailedData.adUnitAdFormat.clear();
+    
+    // 强制最后一次GC
+    if (global.gc) {
+      global.gc();
+      console.log(`[DEBUG] Final GC after processing ${processedLines} lines`);
+    }
 
     console.log(`File ${fileId} processed successfully. ${processedLines} rows.`);
 

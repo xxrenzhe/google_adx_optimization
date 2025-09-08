@@ -19,7 +19,8 @@ export async function GET(
       controller.enqueue(`data: ${JSON.stringify({ type: 'connected', fileId })}\n\n`);
       
       let pollCount = 0;
-      const maxPolls = 600; // 最多轮询10分钟
+      const maxPolls = 1800; // 最多轮询30分钟（大文件需要更长时间）
+      let lastActivity = Date.now();
       
       const poll = async () => {
         try {
@@ -67,6 +68,11 @@ export async function GET(
             controller.enqueue(`data: ${JSON.stringify({ type: 'timeout', message: '处理超时' })}\n\n`);
             controller.close();
             return;
+          }
+          
+          // 发送心跳保持连接（每30秒）
+          if (pollCount % 30 === 0) {
+            controller.enqueue(`data: ${JSON.stringify({ type: 'heartbeat', timestamp: Date.now() })}\n\n`);
           }
           
           // 继续轮询
