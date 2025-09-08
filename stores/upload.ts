@@ -61,7 +61,8 @@ export const useUploadStore = create<UploadState>((set, get) => ({
     
     // 更新当前文件引用
     const files = get().files
-    set({ currentFile: files.get(fileId) || null })
+    const currentFile = files.get(fileId) || null
+    set({ currentFile })
   },
   
   setFile: (fileId, file) => {
