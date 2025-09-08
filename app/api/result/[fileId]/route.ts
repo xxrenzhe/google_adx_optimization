@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { readFile, access } from 'fs/promises';
 import { join } from 'path';
 import { FileSystemManager } from '@/lib/fs-manager';
+import { CONFIG } from '@/lib/config';
 
-const RESULTS_DIR = './results';
+const RESULTS_DIR = CONFIG.DIRECTORIES.RESULTS_DIR;
 
 export async function GET(
   request: NextRequest,

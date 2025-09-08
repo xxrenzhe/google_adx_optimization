@@ -1,8 +1,9 @@
 import { NextRequest } from 'next/server';
 import { readFile, access } from 'fs/promises';
 import { join } from 'path';
+import { CONFIG } from '@/lib/config';
 
-const RESULTS_DIR = './results';
+const RESULTS_DIR = CONFIG.DIRECTORIES.RESULTS_DIR;
 
 export async function GET(
   request: NextRequest,
@@ -19,7 +20,7 @@ export async function GET(
       controller.enqueue(`data: ${JSON.stringify({ type: 'connected', fileId })}\n\n`);
       
       let pollCount = 0;
-      const maxPolls = 1800; // 最多轮询30分钟（大文件需要更长时间）
+      const maxPolls = CONFIG.SSE.TIMEOUT_MS / 1000; // 30分钟
       let lastActivity = Date.now();
       let isClosed = false;
       

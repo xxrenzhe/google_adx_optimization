@@ -1,10 +1,11 @@
 import fs from 'fs/promises'
 import path from 'path'
+import { CONFIG } from './config'
 
 // 文件系统数据管理器
 export class FileSystemManager {
   private static dataDir = path.join(process.cwd(), 'data')
-  private static resultsDir = path.join(process.cwd(), 'results')
+  private static resultsDir = CONFIG.DIRECTORIES.RESULTS_DIR
   
   static async ensureDirectories() {
     await fs.mkdir(this.dataDir, { recursive: true })
