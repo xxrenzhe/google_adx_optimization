@@ -3,7 +3,8 @@ import type {
   AnalysisResult, 
   UploadStatusInfo, 
   FileWithProgress,
-  UploadResult 
+  UploadResult,
+  UploadStatus 
 } from '@/types'
 
 interface UploadState {
@@ -61,7 +62,7 @@ export const useUploadStore = create<UploadState>((set, get) => ({
     
     // 更新当前文件引用
     const files = get().files
-    const currentFile = files.get(fileId) || null
+    const currentFile = fileId ? files.get(fileId) || null : null
     set({ currentFile })
   },
   
@@ -111,8 +112,8 @@ export const useUploadStore = create<UploadState>((set, get) => ({
   
   updateStatus: (fileId, status) => {
     const uploadStatus = new Map(get().uploadStatus)
-    const currentStatus = uploadStatus.get(fileId) || {}
-    uploadStatus.set(fileId, { ...currentStatus, ...status })
+    const currentStatus = uploadStatus.get(fileId)
+    uploadStatus.set(fileId, { ...currentStatus, ...status } as UploadStatusInfo)
     set({ uploadStatus })
   },
   
