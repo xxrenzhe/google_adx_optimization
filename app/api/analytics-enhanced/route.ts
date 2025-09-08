@@ -195,7 +195,7 @@ function generateTopCombinations(result: any) {
         }
       })
       .filter((item: any) => item.total_revenue > 0)
-      .sort((a, b) => b.avg_ecpm - a.avg_ecpm)
+      .sort((a: any, b: any) => b.avg_ecpm - a.avg_ecpm)
       .slice(0, 20)
   }
   
@@ -230,7 +230,7 @@ function generateTopCombinations(result: any) {
         }
       })
       .filter((item: any) => item.total_revenue > 0)
-      .sort((a, b) => b.avg_ecpm - a.avg_ecpm)
+      .sort((a: any, b: any) => b.avg_ecpm - a.avg_ecpm)
       .slice(0, 20)
   }
   

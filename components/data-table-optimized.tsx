@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo, useReducer } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cacheManager } from '@/lib/cache-manager'
 
 interface DataTableOptimizedProps {
   refreshTrigger?: number
@@ -175,24 +174,9 @@ export default function DataTableOptimized({ refreshTrigger }: DataTableOptimize
       if (state.pagination.cursor && !reset) {
         params.append('cursor', state.pagination.cursor)
       }
-      
-      // 生成缓存键
-      const cacheKey = `data:${params.toString()}`
-      
-      // 尝试从缓存获取
-      const cached = await cacheManager.getCachedQuery(cacheKey)
-      let result
-      
-      if (cached) {
-        result = cached
-      } else {
-        const response = await fetch(`/api/data?${params}`)
-        if (!response.ok) throw new Error('Failed to fetch data')
-        result = await response.json()
-        
-        // 缓存结果
-        await cacheManager.cacheQueryResult(cacheKey, result, 300) // 5分钟缓存
-      }
+      const response = await fetch(`/api/data?${params}`)
+      if (!response.ok) throw new Error('Failed to fetch data')
+      const result = await response.json()
       
       dispatch({ 
         type: 'SET_DATA', 

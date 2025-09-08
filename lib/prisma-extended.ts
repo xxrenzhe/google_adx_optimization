@@ -4,17 +4,6 @@ import { PrismaClient } from '@prisma/client'
 export const createExtendedPrismaClient = () => {
   const prisma = new PrismaClient()
   
-  // Add query logging for development
-  if (process.env.NODE_ENV === 'development') {
-    prisma.$use(async (params, next) => {
-      const before = Date.now()
-      const result = await next(params)
-      const after = Date.now()
-      console.log(`Query ${params.model}.${params.action} took ${after - before}ms`)
-      return result
-    })
-  }
-  
   // Add connection pooling configuration
   prisma.$connect()
   

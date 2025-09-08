@@ -31,7 +31,7 @@ export default function Home() {
     if (isReload && fileId) {
       // 清除URL参数
       setFileId(null);
-      const url = new URL(window.location);
+      const url = new URL(window.location.href);
       url.searchParams.delete('fileId');
       window.history.replaceState({}, '', url);
     }
@@ -42,7 +42,7 @@ export default function Home() {
     setFileId(newFileId);
     // 更新URL但不刷新页面
     if (typeof window !== 'undefined') {
-      const url = new URL(window.location);
+      const url = new URL(window.location.href);
       url.searchParams.set('fileId', newFileId);
       window.history.pushState({}, '', url);
     }
@@ -53,7 +53,7 @@ export default function Home() {
     setFileId(null);
     // 清除URL参数
     if (typeof window !== 'undefined') {
-      const url = new URL(window.location);
+      const url = new URL(window.location.href);
       url.searchParams.delete('fileId');
       window.history.replaceState({}, '', url);
     }
