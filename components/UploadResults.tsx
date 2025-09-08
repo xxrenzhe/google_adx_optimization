@@ -48,7 +48,10 @@ export default function UploadResults({ fileId, onClear }: UploadResultsProps) {
           const resultData = await resultResponse.json()
           
           if (resultResponse.ok) {
-            setResult(resultData)
+            // 存储结果到 Zustand store
+            const { setResult } = useUploadStore.getState()
+            setResult(fileId, resultData.result || resultData)
+            setResult(resultData.result || resultData)
           }
         }
         

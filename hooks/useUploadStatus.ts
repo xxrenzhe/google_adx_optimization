@@ -38,6 +38,25 @@ export function useUploadStatus(fileId: string | null) {
             // 更新 store 中的文件状态
             const { updateFileProgress } = useUploadStore.getState()
             updateFileProgress(fileId, 100, result.status)
+            
+            // 如果完成，获取结果数据
+            if (result.status === 'completed') {
+              const fetchResult = async () => {
+                try {
+                  const resultResponse = await fetch(`/api/result/${fileId}`)
+                  const resultData = await resultResponse.json()
+                  
+                  if (resultResponse.ok) {
+                    const { setResult } = useUploadStore.getState()
+                    const actualResult = resultData.result || resultData
+                    setResult(fileId, actualResult)
+                  }
+                } catch (error) {
+                  console.error('Error fetching result:', error)
+                }
+              }
+              fetchResult()
+            }
           }
         } else {
           // 404 或其他错误，停止轮询
