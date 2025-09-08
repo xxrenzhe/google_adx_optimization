@@ -10,12 +10,15 @@
 9. 若需要在数据库中创建新的库和表，则需要避免和数据库中已存在的其他项目数据冲突
 
 背景知识，在设计时需要考虑，不要违反：
-1）部署流程：代码部署发布分2步，第一步：利用Github action生成不同环境的docker镜像；第二步，手动在ClawCloud上配置镜像拉取并部署
+1）部署流程：代码部署发布分2步
+- 第一步：利用Github action生成不同环境的docker镜像；
+- 第二步，手动在ClawCloud上配置镜像拉取并部署
 - 代码推送带main分支，触发production环境docker镜像构建：标注 docker image tag 为 ghcr.io/xxrenzhe/google_adx_optimization:prod-latest
 2）启动方式：使用标准的Next.js启动方式而不是自定义服务器
 3）不同环境的域名
 - 测试环境域名：localhost
 - 生产环境域名：moretop10.com，容器内部域名是 adx-prod-xxx-xxx:3000
+4）生产环境接入了CloudFlare
 5）301强制跳转
 - 生产环境，用户访问 https://moretop10.com 会301跳转到 https://www.moretop10.com
 6）生产环境核心环境变量
