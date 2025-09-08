@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "NODE_OPTIONS=\"--max-old-space-size=1536\" next start",
-    "start:prod": "NODE_OPTIONS=\"--max-old-space-size=1536\" node .next/standalone/server.js",
+    "start:prod": "NODE_OPTIONS=\"--max-old-space-size=1536\" node server.js",
     "lint": "next lint"
   },
   "dependencies": {

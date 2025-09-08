@@ -67,6 +67,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
 # Copy the standalone output
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+# Copy static files
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
