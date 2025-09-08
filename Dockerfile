@@ -65,12 +65,13 @@ RUN chown nextjs:nodejs .next
 # Copy Prisma schema
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
-# Copy all necessary files for next start
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+# Copy the standalone output (minimal footprint for 1C2G)
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+# Copy static files - required for JS/CSS assets
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# Copy package.json for npm scripts
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/package-lock.json ./package-lock.json
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 
 USER nextjs
 
