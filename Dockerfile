@@ -73,8 +73,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 # Copy package.json for npm scripts
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
-# Create uploads and results directories with correct permissions
-RUN mkdir -p uploads results && chown nextjs:nodejs uploads results && chmod 755 uploads results
+# Create directories with correct permissions
+RUN mkdir -p uploads results data && chown nextjs:nodejs uploads results data && chmod 755 uploads results data
 
 USER nextjs
 
