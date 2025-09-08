@@ -40,8 +40,10 @@ export default function UploadResults({ fileId, onClear }: UploadResultsProps) {
         const response = await fetch(`/api/upload-optimized?fileId=${fileId}`)
         const data = await response.json()
         
-        if (data.status === 'completed' && data.resultPath) {
-          // 获取结果
+        // Debug logging removed
+        
+        if (data.status === 'completed') {
+          // 无论是否有resultPath，都尝试获取结果
           const resultResponse = await fetch(`/api/result/${fileId}`)
           const resultData = await resultResponse.json()
           

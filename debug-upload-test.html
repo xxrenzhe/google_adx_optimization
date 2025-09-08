@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; font-family: monospace; white-space: pre-wrap; }
+        button { padding: 10px 20px; margin: 10px 0; cursor: pointer; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Upload Debug Test</h1>
+    
+    <div class="section">
+        <h2>Test File Upload</h2>
+        <input type="file" id="fileInput" accept=".csv" />
+        <button onclick="uploadFile()">Upload File</button>
+    </div>
+    
+    <div class="section">
+        <h2>Test Status Polling</h2>
+        <input type="text" id="fileIdInput" placeholder="Enter File ID" value="aa188ca6-7736-4870-852a-ffc98a39f851" />
+        <button onclick="testStatus()">Test Status</button>
+    </div>
+    
+    <div class="section">
+        <h2>Test Result Fetch</h2>
+        <button onclick="testResult()">Test Result for aa188ca6-7736-4870-852a-ffc98a39f851</button>
+    </div>
+    
+    <div id="log" class="log"></div>
+
+    <script>
+        const logDiv = document.getElementById('log');
+        
+        function log(message) {
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<p>[${time}] ${message}</p>`;
+            console.log(message);
+        }
+        
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                log('Please select a file first');
+                return;
+            }
+            
+            log(`Uploading file: ${file.name} (${file.size} bytes)`);
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/upload-optimized', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                log(`Upload response: ${JSON.stringify(result, null, 2)}`);
+                
+                if (result.fileId) {
+                    log(`File uploaded with ID: ${result.fileId}`);
+                    // Start polling status
+                    pollStatus(result.fileId);
+                }
+            } catch (error) {
+                log(`Upload error: ${error.message}`);
+            }
+        }
+        
+        async function testStatus() {
+            const fileId = document.getElementById('fileIdInput').value;
+            if (!fileId) {
+                log('Please enter a file ID');
+                return;
+            }
+            pollStatus(fileId);
+        }
+        
+        async function pollStatus(fileId) {
+            log(`Starting status polling for: ${fileId}`);
+            
+            const poll = async () => {
+                try {
+                    const response = await fetch(`/api/upload-optimized?fileId=${fileId}`);
+                    const result = await response.json();
+                    
+                    log(`Status response: ${JSON.stringify(result, null, 2)}`);
+                    
+                    if (result.status === 'completed') {
+                        log('✅ Processing completed!');
+                        // Try to fetch result
+                        await fetchResult(fileId);
+                        return;
+                    } else if (result.status === 'failed') {
+                        log(`❌ Processing failed: ${result.error}`);
+                        return;
+                    }
+                    
+                    // Continue polling if still processing
+                    setTimeout(poll, 2000);
+                } catch (error) {
+                    log(`Polling error: ${error.message}`);
+                }
+            };
+            
+            poll();
+        }
+        
+        async function testResult() {
+            await fetchResult('aa188ca6-7736-4870-852a-ffc98a39f851');
+        }
+        
+        async function fetchResult(fileId) {
+            log(`Fetching result for: ${fileId}`);
+            
+            try {
+                const response = await fetch(`/api/result/${fileId}`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Result fetched successfully!`);
+                    log(`Summary: ${JSON.stringify(result.result?.summary, null, 2)}`);
+                } else {
+                    log(`❌ Failed to fetch result: ${JSON.stringify(result)}`);
+                }
+            } catch (error) {
+                log(`Result fetch error: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>
