@@ -74,9 +74,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
 # Create directories with correct permissions
-# Production data will be stored in /data (10GB mounted volume)
 RUN mkdir -p uploads results data && chown nextjs:nodejs uploads results data && chmod 755 uploads results data
-# Create /data directories for production
+
+# Create /data directories for production (need root for /data)
+USER root
 RUN mkdir -p /data/uploads /data/results && chown nextjs:nodejs /data/uploads /data/results && chmod 755 /data/uploads /data/results
 
 USER nextjs
