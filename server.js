@@ -32,6 +32,17 @@ app.prepare().then(() => {
   if (!dev) {
     console.log('Production startup: executing initial cleanup...')
     const { exec } = require('child_process')
+    const fs = require('fs')
+    const path = require('path')
+    
+    // 确保/data目录存在
+    const dataDirs = ['/data/uploads', '/data/results']
+    dataDirs.forEach(dir => {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true })
+        console.log(`Created directory: ${dir}`)
+      }
+    })
     
     // 异步执行清理，不阻塞启动
     exec('curl -s http://localhost:3000/api/data-cleanup || echo "Cleanup API not ready yet"', (error) => {
