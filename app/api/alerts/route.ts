@@ -219,7 +219,7 @@ export async function GET(request: NextRequest) {
       const resultsDir = path.join(process.cwd(), 'results')
       if (fs.existsSync(resultsDir)) {
         const files = fs.readdirSync(resultsDir)
-        totalFiles = files.filter(f => f.endsWith('.json')).length
+        totalFiles = files.filter((f: string) => f.endsWith('.json')).length
       }
     } catch (error) {
       console.warn('Failed to get total files count:', error)
