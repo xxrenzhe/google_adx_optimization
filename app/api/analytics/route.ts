@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         },
         charts: {
           revenueByDate: (result.dailyTrend || []).map((item: any) => ({
-            date: item.date,
+            date: item.name || item.date, // 兼容优化前后的格式
             revenue: item.revenue
           })),
           revenueByCountry: (result.topCountries || []).map((item: any) => ({

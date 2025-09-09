@@ -20,7 +20,7 @@ export default function Home() {
     return null;
   });
 
-  // 处理页面刷新 - 清除fileId
+  // 处理页面刷新 - 如果有fileId但文件不存在，清除它
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
@@ -29,11 +29,21 @@ export default function Home() {
       (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
     
     if (isReload && fileId) {
-      // 清除URL参数
-      setFileId(null);
-      const url = new URL(window.location.href);
-      url.searchParams.delete('fileId');
-      window.history.replaceState({}, '', url);
+      // 检查文件是否存在
+      fetch(`/api/upload-optimized?fileId=${fileId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'not_found') {
+            // 文件不存在，清除状态
+            setFileId(null);
+            const url = new URL(window.location.href);
+            url.searchParams.delete('fileId');
+            window.history.replaceState({}, '', url);
+          }
+        })
+        .catch(() => {
+          // API调用失败，保持原状
+        });
     }
   }, [fileId]);
 

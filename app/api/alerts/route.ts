@@ -35,9 +35,20 @@ export async function GET(request: NextRequest) {
         })
       }
       
+      // 转换数据格式以兼容alerts分析
+      const dailyData = (result.dailyTrend || []).map((item: any) => ({
+        date: item.name || item.date, // 兼容优化前后的格式
+        revenue: item.revenue,
+        impressions: item.impressions,
+        clicks: item.clicks,
+        requests: item.requests,
+        ecpm: item.ecpm,
+        ctr: item.ctr
+      }))
+      
       data = {
         summary: result.summary,
-        dailyData: result.dailyTrend || [],
+        dailyData,
         topWebsites: result.topWebsites || [],
         topCountries: result.topCountries || [],
         topDevices: result.devices || [],
@@ -97,20 +108,28 @@ export async function GET(request: NextRequest) {
     }
     
     // 生成建议
-    // 1. 网站优化建议
-    if (topWebsites && topWebsites.length > 0) {
+    // 1. 网站优化建议 - 只在有多于一个网站时才生成
+    if (topWebsites && topWebsites.length > 1) {
       const bestPerformer = topWebsites[0]
       const worstPerformer = topWebsites[topWebsites.length - 1]
       
-      if (bestPerformer && worstPerformer && bestPerformer.ecpm && worstPerformer.ecpm && worstPerformer.ecpm > 0) {
-        recommendations.push({
-          id: 'website-optimization',
-          type: 'website',
-          title: '优化网站表现',
-          message: `${bestPerformer.name}的eCPM(¥${bestPerformer.ecpm.toFixed(2)})是${worstPerformer.name}(¥${worstPerformer.ecpm.toFixed(2)})的${(bestPerformer.ecpm / worstPerformer.ecpm).toFixed(1)}倍`,
-          impact: 'high',
-          data: { best: bestPerformer, worst: worstPerformer }
-        })
+      // 确保不是同一个网站
+      if (bestPerformer && worstPerformer && 
+          bestPerformer.name !== worstPerformer.name &&
+          bestPerformer.ecpm && worstPerformer.ecpm && 
+          worstPerformer.ecpm > 0) {
+        const ratio = bestPerformer.ecpm / worstPerformer.ecpm
+        // 只有当差异显著时才提供建议
+        if (ratio > 1.5) {
+          recommendations.push({
+            id: 'website-optimization',
+            type: 'website',
+            title: '优化网站表现',
+            message: `${bestPerformer.name}的eCPM(¥${bestPerformer.ecpm.toFixed(2)})是${worstPerformer.name}(¥${worstPerformer.ecpm.toFixed(2)})的${ratio.toFixed(1)}倍`,
+            impact: 'high',
+            data: { best: bestPerformer, worst: worstPerformer }
+          })
+        }
       }
     }
     
@@ -191,6 +210,22 @@ export async function GET(request: NextRequest) {
       }
     }
     
+    // 获取总文件数（缓存优化）
+    let totalFiles = 0
+    try {
+      // 使用更轻量级的方法获取文件数量
+      const fs = require('fs')
+      const path = require('path')
+      const resultsDir = path.join(process.cwd(), 'results')
+      if (fs.existsSync(resultsDir)) {
+        const files = fs.readdirSync(resultsDir)
+        totalFiles = files.filter(f => f.endsWith('.json')).length
+      }
+    } catch (error) {
+      console.warn('Failed to get total files count:', error)
+      totalFiles = 0
+    }
+    
     return NextResponse.json({ 
       alerts, 
       recommendations,
@@ -198,7 +233,7 @@ export async function GET(request: NextRequest) {
         totalRevenue: summary.totalRevenue,
         avgEcpm: summary.avgEcpm,
         avgCtr: summary.avgCtr,
-        totalFiles: (await FileSystemManager.getAllAnalysisResults()).length
+        totalFiles
       }
     })
     

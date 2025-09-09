@@ -39,3 +39,7 @@ next-env.d.ts
 
 # Prisma
 migrations/
+
+# Generated data files
+results/
+uploads/

@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "NODE_OPTIONS=\"--max-old-space-size=1536\" next start",
-    "start:prod": "NODE_OPTIONS=\"--max-old-space-size=1536\" node server.js",
-    "lint": "next lint"
+    "start": "NODE_OPTIONS=\"--max-old-space-size=2048\" next start",
+    "start:prod": "NODE_OPTIONS=\"--max-old-space-size=2048\" node server.js",
+    "lint": "next lint",
+    "regenerate": "ts-node --cwd ${PWD} scripts/regenerate-results.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",
@@ -27,13 +28,14 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
-      "@types/node": "^20",
+    "@types/node": "^20.19.9",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
     "postcss": "^8",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

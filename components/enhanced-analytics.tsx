@@ -38,10 +38,12 @@ export default function EnhancedAnalytics({ fileId, filters }: EnhancedAnalytics
   const [activeTab, setActiveTab] = useState<'advertisers' | 'devices' | 'geography' | 'optimization'>('advertisers')
 
   useEffect(() => {
+    console.log('useEffect triggered with:', { fileId, filters })
     fetchEnhancedAnalytics()
   }, [filters, fileId])
 
   const fetchEnhancedAnalytics = async () => {
+    console.log('fetchEnhancedAnalytics called')
     setLoading(true)
     setError(null)
     try {
@@ -50,18 +52,34 @@ export default function EnhancedAnalytics({ fileId, filters }: EnhancedAnalytics
       if (filters?.endDate) params.append('endDate', filters.endDate)
       if (fileId) params.append('fileId', fileId)
       
+      console.log('Fetching enhanced analytics with fileId:', fileId)
+      console.log('API URL:', `/api/analytics-enhanced?${params}`)
+      
       const response = await fetch(`/api/analytics-enhanced?${params}`)
+      console.log('Response status:', response.status)
+      console.log('Response ok:', response.ok)
+      
       if (!response.ok) {
         const errorData = await response.json()
+        console.log('Error response:', errorData)
         throw new Error(errorData.error || 'Failed to fetch enhanced analytics')
       }
       
       const analyticsData = await response.json()
+      console.log('Enhanced analytics data received:', analyticsData)
+      console.log('Data keys:', Object.keys(analyticsData))
+      console.log('advertiserAnalysis length:', analyticsData.advertiserAnalysis?.length || 0)
+      console.log('geoAnalysis length:', analyticsData.geoAnalysis?.length || 0)
+      console.log('deviceBrowserMatrix length:', analyticsData.deviceBrowserMatrix?.length || 0)
+      
       setData(analyticsData)
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error')
       console.error('Error fetching enhanced analytics:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      console.log('Error message:', errorMessage)
+      setError(errorMessage)
     } finally {
+      console.log('Setting loading to false')
       setLoading(false)
     }
   }
@@ -131,8 +149,15 @@ export default function EnhancedAnalytics({ fileId, filters }: EnhancedAnalytics
     return <div className="p-8 text-red-500">错误：{error}</div>
   }
 
-  if (!data) return null
+  console.log('EnhancedAnalytics render state:', { fileId, loading, error, data: !!data, activeTab })
+  console.log('Component render - Current time:', new Date().toISOString())
+  
+  if (!data) {
+    console.log('No data available, returning null')
+    return null
+  }
 
+  console.log('Rendering EnhancedAnalytics with data keys:', Object.keys(data))
   return (
     <div className="space-y-6">
       {/* Tab Navigation */}

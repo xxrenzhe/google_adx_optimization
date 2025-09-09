@@ -310,29 +310,63 @@ export default function DecisionAlerts({ refreshTrigger, fileId }: DecisionAlert
                     {rec.data && (
                       <div className="mt-3 bg-gray-50 rounded p-3 text-sm ml-9">
                         <div className="space-y-2">
-                          {Object.entries(rec.data).map(([key, value]) => (
-                            <div key={key} className="flex items-start">
-                              <span className="text-gray-600 mr-2 min-w-[80px]">
-                                {key === 'adFormat' ? '广告格式' :
-                                 key === 'adUnit' ? '广告单元' :
-                                 key === 'avgEcpm' ? '平均eCPM' :
-                                 key === 'fillRate' ? '填充率' :
-                                 key === 'viewabilityRate' ? '可见率' :
-                                 key === 'recommendation' ? '建议' :
-                                 key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
-                              </span>
-                              <span className="font-medium text-gray-900">
-                                {typeof value === 'number' ? 
-                                  (key.includes('revenue') || key.includes('ecpm') || key === 'avgEcpm' ? `$${value.toFixed(2)}` :
-                                   key.includes('rate') || key.includes('ratio') || key === 'fillRate' || key === 'viewabilityRate' ? `${(value * 100).toFixed(1)}%` :
-                                   key.includes('percentage') ? `${value.toFixed(1)}%` :
-                                   value.toLocaleString()) :
-                                  Array.isArray(value) ? value.join(', ') :
-                                  typeof value === 'object' ? JSON.stringify(value) :
-                                  String(value)}
-                              </span>
-                            </div>
-                          ))}
+                          {(() => {
+                            // 特殊处理不同类型的数据
+                            if (rec.type === 'website' && rec.data.best && rec.data.worst) {
+                              return (
+                                <>
+                                  <div className="flex items-start">
+                                    <span className="text-gray-600 mr-2 min-w-[80px]">最佳网站:</span>
+                                    <span className="font-medium text-gray-900">
+                                      {rec.data.best.name} (eCPM: ¥{rec.data.best.ecpm?.toFixed(2)})
+                                    </span>
+                                  </div>
+                                  <div className="flex items-start">
+                                    <span className="text-gray-600 mr-2 min-w-[80px]">待优化网站:</span>
+                                    <span className="font-medium text-gray-900">
+                                      {rec.data.worst.name} (eCPM: ¥{rec.data.worst.ecpm?.toFixed(2)})
+                                    </span>
+                                  </div>
+                                </>
+                              )
+                            }
+                            
+                            // 默认处理方式
+                            return Object.entries(rec.data)
+                              .filter(([key, value]) => 
+                                // 过滤掉嵌套对象，避免重复显示
+                                !['best', 'worst'].includes(key) && 
+                                typeof value !== 'object' || value === null
+                              )
+                              .map(([key, value]) => (
+                                <div key={key} className="flex items-start">
+                                  <span className="text-gray-600 mr-2 min-w-[80px]">
+                                    {key === 'adFormat' ? '广告格式' :
+                                     key === 'adUnit' ? '广告单元' :
+                                     key === 'avgEcpm' ? '平均eCPM' :
+                                     key === 'fillRate' ? '填充率' :
+                                     key === 'viewabilityRate' ? '可见率' :
+                                     key === 'ctr' ? '点击率' :
+                                     key === 'revenue' ? '收入' :
+                                     key === 'impressions' ? '展示数' :
+                                     key === 'clicks' ? '点击数' :
+                                     key === 'requests' ? '请求数' :
+                                     key === 'recommendation' ? '建议' :
+                                     key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
+                                  </span>
+                                  <span className="font-medium text-gray-900">
+                                    {typeof value === 'number' ? 
+                                      (key.includes('revenue') || key.includes('ecpm') || key === 'avgEcpm' ? `$${value.toFixed(2)}` :
+                                       key === 'ctr' ? `${(value * 100).toFixed(2)}%` :
+                                       key.includes('rate') || key.includes('ratio') || key === 'fillRate' || key === 'viewabilityRate' ? `${(value * 100).toFixed(1)}%` :
+                                       key.includes('percentage') ? `${value.toFixed(1)}%` :
+                                       value.toLocaleString()) :
+                                      Array.isArray(value) ? value.join(', ') :
+                                      String(value)}
+                                  </span>
+                                </div>
+                              ))
+                          })()}
                         </div>
                       </div>
                     )}

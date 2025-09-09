@@ -16,9 +16,21 @@ export const CONFIG = {
   
   // 文件上传配置
   UPLOAD: {
-    MAX_FILE_SIZE: 200 * 1024 * 1024, // 200MB
+    MAX_FILE_SIZE: 100 * 1024 * 1024, // 100MB
     BATCH_SIZE: 1000,
     SAMPLE_SIZE: 100,
+  },
+
+  // 并发控制配置 - 1C2G环境优化
+  CONCURRENCY: {
+    // 最大并发上传数
+    MAX_CONCURRENT_UPLOADS: 2,
+    // 单个文件处理的最大并发数
+    MAX_CONCURRENT_PROCESSES: 1,
+    // 队列检查间隔
+    QUEUE_CHECK_INTERVAL: 1000,
+    // 处理超时时间
+    PROCESSING_TIMEOUT: 60 * 60 * 1000, // 1小时
   },
   
   // 目录配置

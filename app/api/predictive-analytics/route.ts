@@ -21,8 +21,16 @@ export async function GET(request: NextRequest) {
         }, { status: 404 })
       }
       
+      // 转换数据格式以兼容预测分析
+      const dailyData = (result.dailyTrend || []).map((item: any) => ({
+        date: item.name,
+        revenue: item.revenue,
+        impressions: item.impressions,
+        clicks: item.clicks
+      }))
+      
       data = {
-        dailyData: result.dailyTrend || [],
+        dailyData,
         topWebsites: result.topWebsites || [],
         topCountries: result.topCountries || [],
         topDevices: result.devices || [],
@@ -110,7 +118,24 @@ function generateRevenuePredictions(dailyData: any[]) {
   
   // 生成未来7天预测
   const predictions = []
-  const baseDate = new Date(dailyData[dailyData.length - 1].date)
+  
+  // 安全地获取最后一个有效日期
+  let baseDate: Date
+  try {
+    const lastDateStr = dailyData[dailyData.length - 1].date
+    if (!lastDateStr) {
+      throw new Error('No date found')
+    }
+    
+    // 尝试解析日期
+    baseDate = new Date(lastDateStr)
+    if (isNaN(baseDate.getTime())) {
+      throw new Error(`Invalid date: ${lastDateStr}`)
+    }
+  } catch (error) {
+    console.warn('Failed to parse date from data, using current date:', error)
+    baseDate = new Date()
+  }
   
   for (let i = 1; i <= 7; i++) {
     const futureDate = new Date(baseDate)

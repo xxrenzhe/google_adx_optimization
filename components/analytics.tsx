@@ -159,7 +159,7 @@ export default function Analytics({ fileId, filters }: AnalyticsProps) {
           </p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-sm font-medium text-gray-500">Requests</h3>
+          <h3 className="text-sm font-medium text-gray-500">请求数</h3>
           <p className="text-2xl font-bold">
             {data.summary.totalRequests?.toLocaleString() || 'N/A'}
           </p>
@@ -173,7 +173,7 @@ export default function Analytics({ fileId, filters }: AnalyticsProps) {
           </p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-sm font-medium text-gray-500">ARPU</h3>
+          <h3 className="text-sm font-medium text-gray-500">每用户平均收入</h3>
           <p className="text-2xl font-bold">
             {data.summary.arpu?.toFixed(4) ?? 
              (data.summary.totalRequests && data.summary.totalRevenue ? 
@@ -251,18 +251,18 @@ export default function Analytics({ fileId, filters }: AnalyticsProps) {
         </div>
       </div>
       
-      {/* Insights */}
+      {/* 洞察分析 */}
       <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-4">Insights</h3>
+        <h3 className="text-lg font-semibold mb-4">洞察分析</h3>
         <div className="space-y-2">
           {(data.summary.avgFillRate || (data.summary.totalRequests && data.summary.totalImpressions ? 
             (data.summary.totalImpressions / data.summary.totalRequests) * 100 : 100)) < 50 && (
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">
               <p className="text-yellow-800">
-                ⚠️ Low fill rate detected ({
+                ⚠️ 填充率较低 ({
                   (data.summary.avgFillRate || (data.summary.totalRequests && data.summary.totalImpressions ? 
                     (data.summary.totalImpressions / data.summary.totalRequests) * 100 : 0)).toFixed(1)
-                }%). Consider optimizing ad placements.
+                }%)。建议优化广告位配置。
               </p>
             </div>
           )}
@@ -271,7 +271,7 @@ export default function Analytics({ fileId, filters }: AnalyticsProps) {
             <div className="p-4 bg-green-50 border border-green-200 rounded">
               <p className="text-green-800">
                 💡 表现最佳国家：{data.charts.revenueByCountry[0].country} 
-                (${data.charts.revenueByCountry[0].revenue.toFixed(2)})
+                (收入 ${data.charts.revenueByCountry[0].revenue.toFixed(2)})
               </p>
             </div>
           )}

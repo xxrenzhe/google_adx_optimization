@@ -7,33 +7,177 @@
   - Environments: .env.local, .env
 
  ✓ Starting...
- ✓ Ready in 1306ms
- ✓ Compiled /middleware in 63ms (72 modules)
-[ACCESS] GET http://localhost:3000/api/result/d01233d1-2f1b-456b-9795-271fae12e476 - curl/8.7.1
- ✓ Compiled /api/result/[fileId] in 141ms (59 modules)
- GET /api/result/d01233d1-2f1b-456b-9795-271fae12e476 200 in 332ms
-[ACCESS] GET http://localhost:3000/api/result/d01233d1-2f1b-456b-9795-271fae12e476 - curl/8.7.1
- GET /api/result/d01233d1-2f1b-456b-9795-271fae12e476 200 in 8ms
-[ACCESS] GET http://localhost:3000/ - curl/8.7.1
+ ✓ Ready in 1288ms
+ ✓ Compiled /middleware in 131ms (72 modules)
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Unknown
+ ✓ Compiled /api/analytics-enhanced in 66ms (60 modules)
+ GET /api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 720ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Unknown
+ GET /api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 639ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Unknown
+ GET /api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 616ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Unknown
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Unknown
+[ACCESS] GET http://localhost:3000/api/data?fileId=ff213509-8522-4652-b6e6-ebf806c70df5&page=1&pageSize=10 - Unknown
+ ✓ Compiled /api/data in 271ms (70 modules)
+ GET /api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 837ms
+ ✓ Compiled (72 modules)
+ GET /api/upload-optimized?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 863ms
+ GET /api/data?fileId=ff213509-8522-4652-b6e6-ebf806c70df5&page=1&pageSize=10 200 in 16458ms
+[ACCESS] GET http://localhost:3000/ - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
  ○ Compiling / ...
- ✓ Compiled / in 1306ms (1574 modules)
- GET / 200 in 1439ms
- ✓ Compiled in 132ms (795 modules)
-[ACCESS] POST http://localhost:3000/api/upload-optimized - curl/8.7.1
- ✓ Compiled /api/upload-optimized in 75ms (813 modules)
- POST /api/upload-optimized 200 in 115ms
-[ACCESS] GET http://localhost:3000/api/result/40dca657-df7c-44db-8e67-9d3313e14df9 - curl/8.7.1
- ✓ Compiled /api/result/[fileId] in 62ms (816 modules)
-Error reading analysis result: Error: ENOENT: no such file or directory, open '/Users/jason/Documents/Kiro/google_adx_optimization/results/40dca657-df7c-44db-8e67-9d3313e14df9.json'
+ ✓ Compiled / in 1166ms (1619 modules)
+Resource monitor started
+Development mode: Resource monitor started
+No current file, showing uploader - currentFileId: null currentFile: null
+ GET / 200 in 1325ms
+ ✓ Compiled in 140ms (815 modules)
+Memory usage: 282/401MB, External: 430MB
+Cleanup completed
+[ACCESS] GET http://localhost:3000/?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+No current file, showing uploader - currentFileId: null currentFile: null
+ GET /?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 22ms
+[ACCESS] GET http://localhost:3000/api/analytics?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/analytics in 71ms (835 modules)
+ GET /api/analytics?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 439ms
+[ACCESS] GET http://localhost:3000/api/analytics?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 360ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/analytics-enhanced in 112ms (837 modules)
+ GET /api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 742ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 573ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/alerts in 78ms (839 modules)
+[ACCESS] GET http://localhost:3000/api/predictive-analytics?days=30&fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/predictive-analytics in 109ms (841 modules)
+[DEBUG] Predictive analytics called with fileId: ff213509-8522-4652-b6e6-ebf806c70df5
+[DEBUG] Data loaded: { dailyDataLength: 15, topWebsitesLength: 1, sampleDataLength: 20 }
+ GET /api/predictive-analytics?days=30&fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 746ms
+[ACCESS] GET http://localhost:3000/api/predictive-analytics?days=30&fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[DEBUG] Predictive analytics called with fileId: ff213509-8522-4652-b6e6-ebf806c70df5
+[DEBUG] Data loaded: { dailyDataLength: 15, topWebsitesLength: 1, sampleDataLength: 20 }
+ GET /api/predictive-analytics?days=30&fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 1010ms
+[ACCESS] GET http://localhost:3000/api/automation-engine?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/automation-engine in 289ms (843 modules)
+ GET /api/automation-engine?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 925ms
+[ACCESS] GET http://localhost:3000/api/automation-engine?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/automation-engine?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 633ms
+[ACCESS] POST http://localhost:3000/api/upload-optimized - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/upload-optimized in 193ms (852 modules)
+ POST /api/upload-optimized 200 in 548ms
+[DEBUG] Mapped column "网站" to website at index 0
+[DEBUG] Mapped column "国家/地区" to country at index 1
+[DEBUG] Mapped column "广告资源格式" to adFormat at index 2
+[DEBUG] Mapped column "广告单元（所有级别）" to adUnit at index 3
+[DEBUG] Mapped column "广告客户（已分类）" to advertiser at index 4
+[DEBUG] Mapped column "广告客户网域" to domain at index 5
+[DEBUG] Mapped column "设备" to device at index 6
+[DEBUG] Mapped column "浏览器" to browser at index 7
+[DEBUG] Mapped column "日期" to date at index 8
+[DEBUG] Mapped column "Ad Exchange 请求总数" to requests at index 9
+[DEBUG] Mapped column "Ad Exchange 展示次数" to impressions at index 10
+[DEBUG] Mapped column "Ad Exchange 点击次数" to clicks at index 11
+[DEBUG] Mapped column "Ad Exchange 点击率" to ctr at index 12
+[DEBUG] Mapped column "Ad Exchange 平均 eCPM" to ecpm at index 13
+[DEBUG] Mapped column "Ad Exchange 收入" to revenue at index 14
+[DEBUG] Mapped column "Ad Exchange Active View可见展示次数" to viewableImpressions at index 15
+[DEBUG] Mapped column "Ad Exchange Active View可见展示次数百分比" to viewabilityRate at index 16
+[DEBUG] Mapped column "Ad Exchange Active View可衡量展示次数" to measurableImpressions at index 17
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 61ms
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 60ms
+File c03abf9a-734d-49e8-ab64-d0df4968fd13 processed successfully. 217402 rows.
+File c03abf9a-734d-49e8-ab64-d0df4968fd13 processed successfully
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 10ms
+[ACCESS] GET http://localhost:3000/api/result/c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/result/[fileId] in 489ms (854 modules)
+ GET /api/result/c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 929ms
+ GET /api/alerts?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 19558ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/api/analytics?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 33ms
+[ACCESS] GET http://localhost:3000/api/analytics?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 1019ms
+ GET /api/analytics?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 717ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+ GET /api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 13ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+ GET /api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 16ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/api/predictive-analytics?days=30&fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[DEBUG] Predictive analytics called with fileId: c03abf9a-734d-49e8-ab64-d0df4968fd13
+[DEBUG] Data loaded: { dailyDataLength: 15, topWebsitesLength: 1, sampleDataLength: 0 }
+ GET /api/predictive-analytics?days=30&fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 73ms
+[ACCESS] GET http://localhost:3000/api/predictive-analytics?days=30&fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[DEBUG] Predictive analytics called with fileId: c03abf9a-734d-49e8-ab64-d0df4968fd13
+[DEBUG] Data loaded: { dailyDataLength: 15, topWebsitesLength: 1, sampleDataLength: 0 }
+ GET /api/predictive-analytics?days=30&fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 81ms
+[ACCESS] GET http://localhost:3000/api/automation-engine?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/automation-engine?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 75ms
+[ACCESS] GET http://localhost:3000/api/automation-engine?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/automation-engine?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 273ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+ GET /api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 64ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+ GET /api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 321ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - curl/8.7.1
+ GET /api/upload-optimized?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 115ms
+ GET /api/alerts?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 70385ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Error reading analysis result: Error: ENOENT: no such file or directory, open 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
     at async open (node:internal/fs/promises:640:25)
     at async Object.readFile (node:internal/fs/promises:1277:14)
-    at async FileSystemManager.getAnalysisResult (webpack-internal:///(rsc)/./lib/fs-manager.ts:62:29)
-    at async GET (webpack-internal:///(rsc)/./app/api/result/[fileId]/route.ts:20:24)
+    at async FileSystemManager.getAnalysisResult (webpack-internal:///(rsc)/./lib/fs-manager.ts:64:29)
+    at async GET (webpack-internal:///(rsc)/./app/api/alerts/route.ts:16:28)
     at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
     at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
     at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
     at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
-    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1576:40)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
     at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
     at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
     at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
@@ -50,402 +194,689 @@ Error reading analysis result: Error: ENOENT: no such file or directory, open '/
   errno: -2,
   code: 'ENOENT',
   syscall: 'open',
-  path: '/Users/jason/Documents/Kiro/google_adx_optimization/results/40dca657-df7c-44db-8e67-9d3313e14df9.json'
+  path: 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
 }
- GET /api/result/40dca657-df7c-44db-8e67-9d3313e14df9 202 in 79ms
-[DEBUG] Headers detected: [
-  'Date',
-  'Website',
-  'Country',
-  'Device',
-  'Ad Format',
-  'Ad Unit',
-  'Requests',
-  'Impressions',
-  'Clicks',
-  'CTR',
-  'eCPM',
-  'Revenue',
-  'Viewable Impressions',
-  'Viewability Rate',
-  'Measurable Impressions',
-  'Fill Rate',
-  'ARPU'
-]
-[DEBUG] Mapped column "Date" to date at index 0
-[DEBUG] Mapped column "Website" to website at index 1
-[DEBUG] Mapped column "Country" to country at index 2
-[DEBUG] Mapped column "Device" to device at index 3
-[DEBUG] Mapped column "Ad Format" to adFormat at index 4
-[DEBUG] Mapped column "Ad Unit" to adUnit at index 5
-[DEBUG] Mapped column "Requests" to requests at index 6
-[DEBUG] Mapped column "Impressions" to impressions at index 7
-[DEBUG] Mapped column "Clicks" to clicks at index 8
-[DEBUG] Mapped column "CTR" to ctr at index 9
-[DEBUG] Mapped column "eCPM" to ecpm at index 10
-[DEBUG] Mapped column "Revenue" to revenue at index 11
-[DEBUG] Mapped column "Viewable Impressions" to viewableImpressions at index 12
-[DEBUG] Mapped column "Viewability Rate" to viewabilityRate at index 13
-[DEBUG] Mapped column "Measurable Impressions" to measurableImpressions at index 14
-[DEBUG] Column mapping created:
-  date: column 0 ("Date")
-  website: column 1 ("Website")
-  country: column 2 ("Country")
-  device: column 3 ("Device")
-  adFormat: column 4 ("Ad Format")
-  adUnit: column 5 ("Ad Unit")
-  requests: column 6 ("Requests")
-  impressions: column 7 ("Impressions")
-  clicks: column 8 ("Clicks")
-  ctr: column 9 ("CTR")
-  ecpm: column 10 ("eCPM")
-  revenue: column 11 ("Revenue")
-  viewableImpressions: column 12 ("Viewable Impressions")
-  viewabilityRate: column 13 ("Viewability Rate")
-  measurableImpressions: column 14 ("Measurable Impressions")
-[DEBUG] Adding date: 2025-01-01, revenue: 55.25, impressions: 8500, clicks: 170, requests: 10000
-[DEBUG] Dates map size: 1
-[DEBUG] Updating progress: 10%, processedLines: 1
-[DEBUG] Adding date: 2025-01-01, revenue: 102, impressions: 12000, clicks: 360, requests: 15000
-[DEBUG] Dates map size: 1
-[DEBUG] Adding date: 2025-01-01, revenue: 55.2, impressions: 6000, clicks: 120, requests: 8000
-[DEBUG] Dates map size: 1
-[DEBUG] Adding date: 2025-01-02, revenue: 72, impressions: 10000, clicks: 250, requests: 12000
-[DEBUG] Dates map size: 2
-[DEBUG] Adding date: 2025-01-02, revenue: 147, impressions: 15000, clicks: 450, requests: 18000
-[DEBUG] Dates map size: 2
-[DEBUG] Updating progress: 14%, processedLines: 10
-[DEBUG] Final dates map size: 4
-[DEBUG] Sample dates entries:
-  2025-01-01: revenue=212.45, impressions=26500
-  2025-01-02: revenue=270, impressions=32500
-  2025-01-03: revenue=321.1, impressions=33000
-[DEBUG] Saving result with 12 sample data rows
-File 40dca657-df7c-44db-8e67-9d3313e14df9 processed successfully. 12 rows.
-[ACCESS] GET http://localhost:3000/api/result/40dca657-df7c-44db-8e67-9d3313e14df9 - curl/8.7.1
- GET /api/result/40dca657-df7c-44db-8e67-9d3313e14df9 200 in 5ms
-[ACCESS] GET http://localhost:3000/api/result/08f58600-283d-4c59-9339-6a5f32c22311 - curl/8.7.1
- GET /api/result/08f58600-283d-4c59-9339-6a5f32c22311 200 in 27ms
-[ACCESS] GET http://localhost:3000/api/result/0b6e4165-d6f0-41ca-911e-d5e574c2d370 - curl/8.7.1
- GET /api/result/0b6e4165-d6f0-41ca-911e-d5e574c2d370 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/2a020af4-3559-456b-a47e-de1d63e8f2df - curl/8.7.1
- GET /api/result/2a020af4-3559-456b-a47e-de1d63e8f2df 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/333c1552-e8c9-4276-8883-1704b5a12ddb - curl/8.7.1
- GET /api/result/333c1552-e8c9-4276-8883-1704b5a12ddb 200 in 4ms
-[ACCESS] GET http://localhost:3000/api/result/4b1e63f0-0733-4b93-b8c5-f890501f4ec8 - curl/8.7.1
- GET /api/result/4b1e63f0-0733-4b93-b8c5-f890501f4ec8 200 in 10ms
-[ACCESS] GET http://localhost:3000/api/result/558768df-8962-4020-a8ce-cac63ee63d27 - curl/8.7.1
- GET /api/result/558768df-8962-4020-a8ce-cac63ee63d27 200 in 24ms
-[ACCESS] GET http://localhost:3000/api/result/68985190-d411-476a-9b52-32e571feb289 - curl/8.7.1
- GET /api/result/68985190-d411-476a-9b52-32e571feb289 200 in 34ms
-[ACCESS] GET http://localhost:3000/api/result/6abf7beb-3006-426e-b202-86c49f7c2bd1 - curl/8.7.1
- GET /api/result/6abf7beb-3006-426e-b202-86c49f7c2bd1 200 in 16ms
-[ACCESS] GET http://localhost:3000/api/result/6ec570ac-559a-4bb5-b75f-31c32807ba91 - curl/8.7.1
- GET /api/result/6ec570ac-559a-4bb5-b75f-31c32807ba91 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/6fb642a5-fc4e-405c-8623-a96d1c06b59a - curl/8.7.1
- GET /api/result/6fb642a5-fc4e-405c-8623-a96d1c06b59a 200 in 13ms
-[ACCESS] GET http://localhost:3000/api/result/71e5a8fc-9b71-433b-932d-172bf581a349 - curl/8.7.1
- GET /api/result/71e5a8fc-9b71-433b-932d-172bf581a349 200 in 2ms
-[ACCESS] GET http://localhost:3000/api/result/7c052a9a-602e-4bcd-82d2-639b0587acfa - curl/8.7.1
- GET /api/result/7c052a9a-602e-4bcd-82d2-639b0587acfa 200 in 4ms
-[ACCESS] GET http://localhost:3000/api/result/7c532d96-f2d5-4ccb-ace2-81070b03721d - curl/8.7.1
- GET /api/result/7c532d96-f2d5-4ccb-ace2-81070b03721d 200 in 4ms
-[ACCESS] GET http://localhost:3000/api/result/7f746447-1b70-4d72-b973-068a222d1cfd - curl/8.7.1
- GET /api/result/7f746447-1b70-4d72-b973-068a222d1cfd 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/81cba924-cd9f-4c08-947b-40b6fb327571 - curl/8.7.1
- GET /api/result/81cba924-cd9f-4c08-947b-40b6fb327571 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/83d70287-5a7e-4fe7-91d4-58699073e79c - curl/8.7.1
- GET /api/result/83d70287-5a7e-4fe7-91d4-58699073e79c 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/8c02132b-f319-4fbc-a43b-3c73b5af7968 - curl/8.7.1
- GET /api/result/8c02132b-f319-4fbc-a43b-3c73b5af7968 200 in 9ms
-[ACCESS] GET http://localhost:3000/api/result/9f0a46f0-00e0-4942-93e2-a573b6badae1 - curl/8.7.1
- GET /api/result/9f0a46f0-00e0-4942-93e2-a573b6badae1 200 in 15ms
-[ACCESS] GET http://localhost:3000/api/result/afd49058-9847-43b4-9757-853d692b7291 - curl/8.7.1
- GET /api/result/afd49058-9847-43b4-9757-853d692b7291 200 in 4ms
-[ACCESS] GET http://localhost:3000/api/result/bc10be37-cc1b-4250-963b-f1598f5c3410 - curl/8.7.1
- GET /api/result/bc10be37-cc1b-4250-963b-f1598f5c3410 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/d01233d1-2f1b-456b-9795-271fae12e476 - curl/8.7.1
- GET /api/result/d01233d1-2f1b-456b-9795-271fae12e476 200 in 4ms
-[ACCESS] GET http://localhost:3000/api/result/d09ae1c0-c085-4209-be59-48e9959f458f - curl/8.7.1
- GET /api/result/d09ae1c0-c085-4209-be59-48e9959f458f 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/f3511e2e-a4ee-46ea-88ed-ef2330e61703 - curl/8.7.1
- GET /api/result/f3511e2e-a4ee-46ea-88ed-ef2330e61703 200 in 15ms
-[ACCESS] GET http://localhost:3000/api/result/ff213509-8522-4652-b6e6-ebf806c70df5 - curl/8.7.1
- GET /api/result/ff213509-8522-4652-b6e6-ebf806c70df5 200 in 2ms
- ✓ Compiled in 279ms (854 modules)
- ✓ Compiled in 92ms (795 modules)
- ✓ Compiled in 104ms (795 modules)
-[ACCESS] POST http://localhost:3000/api/upload-optimized - curl/8.7.1
- ✓ Compiled /api/upload-optimized in 33ms (60 modules)
- POST /api/upload-optimized 200 in 66ms
-[DEBUG] Headers detected: [
-  'Date',
-  'Website',
-  'Country',
-  'Device',
-  'Ad Format',
-  'Ad Unit',
-  'Requests',
-  'Impressions',
-  'Clicks',
-  'CTR',
-  'eCPM',
-  'Revenue',
-  'Viewable Impressions',
-  'Viewability Rate',
-  'Measurable Impressions',
-  'Fill Rate',
-  'ARPU'
-]
-[DEBUG] Mapped column "Date" to date at index 0
-[DEBUG] Mapped column "Website" to website at index 1
-[DEBUG] Mapped column "Country" to country at index 2
-[DEBUG] Mapped column "Device" to device at index 3
-[DEBUG] Mapped column "Ad Format" to adFormat at index 4
-[DEBUG] Mapped column "Ad Unit" to adUnit at index 5
-[DEBUG] Mapped column "Requests" to requests at index 6
-[DEBUG] Mapped column "Impressions" to impressions at index 7
-[DEBUG] Mapped column "Clicks" to clicks at index 8
-[DEBUG] Mapped column "CTR" to ctr at index 9
-[DEBUG] Mapped column "eCPM" to ecpm at index 10
-[DEBUG] Mapped column "Revenue" to revenue at index 11
-[DEBUG] Mapped column "Viewable Impressions" to viewableImpressions at index 12
-[DEBUG] Mapped column "Viewability Rate" to viewabilityRate at index 13
-[DEBUG] Mapped column "Measurable Impressions" to measurableImpressions at index 14
-[DEBUG] Column mapping created:
-  date: column 0 ("Date")
-  website: column 1 ("Website")
-  country: column 2 ("Country")
-  device: column 3 ("Device")
-  adFormat: column 4 ("Ad Format")
-  adUnit: column 5 ("Ad Unit")
-  requests: column 6 ("Requests")
-  impressions: column 7 ("Impressions")
-  clicks: column 8 ("Clicks")
-  ctr: column 9 ("CTR")
-  ecpm: column 10 ("eCPM")
-  revenue: column 11 ("Revenue")
-  viewableImpressions: column 12 ("Viewable Impressions")
-  viewabilityRate: column 13 ("Viewability Rate")
-  measurableImpressions: column 14 ("Measurable Impressions")
-[DEBUG] Adding date: 2025-01-01, revenue: 55.25, impressions: 8500, clicks: 170, requests: 10000
-[DEBUG] Dates map size: 1
-[DEBUG] Updating progress: 10%, processedLines: 1
-[DEBUG] Adding date: 2025-01-01, revenue: 102, impressions: 12000, clicks: 360, requests: 15000
-[DEBUG] Dates map size: 1
-[DEBUG] Adding date: 2025-01-01, revenue: 55.2, impressions: 6000, clicks: 120, requests: 8000
-[DEBUG] Dates map size: 1
-[DEBUG] Adding date: 2025-01-02, revenue: 72, impressions: 10000, clicks: 250, requests: 12000
-[DEBUG] Dates map size: 2
-[DEBUG] Adding date: 2025-01-02, revenue: 147, impressions: 15000, clicks: 450, requests: 18000
-[DEBUG] Dates map size: 2
-[DEBUG] Updating progress: 14%, processedLines: 10
-[DEBUG] Final dates map size: 4
-[DEBUG] Sample dates entries:
-  2025-01-01: revenue=212.45, impressions=26500
-  2025-01-02: revenue=270, impressions=32500
-  2025-01-03: revenue=321.1, impressions=33000
-[DEBUG] Saving result with 12 sample data rows
-File a786646e-8c40-4b03-8292-100f9420c2ff processed successfully. 12 rows.
-[ACCESS] GET http://localhost:3000/api/result/a786646e-8c40-4b03-8292-100f9420c2ff - curl/8.7.1
- ✓ Compiled /api/result/[fileId] in 9ms (63 modules)
- GET /api/result/a786646e-8c40-4b03-8292-100f9420c2ff 200 in 26ms
- ✓ Compiled in 249ms (795 modules)
- ✓ Compiled in 130ms (795 modules)
-[ACCESS] POST http://localhost:3000/api/upload-optimized - curl/8.7.1
- ✓ Compiled /api/upload-optimized in 98ms (60 modules)
- POST /api/upload-optimized 200 in 119ms
-[DEBUG] Headers detected: [
-  'Date',
-  'Website',
-  'Country',
-  'Device',
-  'Ad Format',
-  'Ad Unit',
-  'Requests',
-  'Impressions',
-  'Clicks',
-  'CTR',
-  'eCPM',
-  'Revenue',
-  'Viewable Impressions',
-  'Viewability Rate',
-  'Measurable Impressions',
-  'Fill Rate',
-  'ARPU'
-]
-[DEBUG] Mapped column "Date" to date at index 0
-[DEBUG] Mapped column "Website" to website at index 1
-[DEBUG] Mapped column "Country" to country at index 2
-[DEBUG] Mapped column "Device" to device at index 3
-[DEBUG] Mapped column "Ad Format" to adFormat at index 4
-[DEBUG] Mapped column "Ad Unit" to adUnit at index 5
-[DEBUG] Mapped column "Requests" to requests at index 6
-[DEBUG] Mapped column "Impressions" to impressions at index 7
-[DEBUG] Mapped column "Clicks" to clicks at index 8
-[DEBUG] Mapped column "CTR" to ctr at index 9
-[DEBUG] Mapped column "eCPM" to ecpm at index 10
-[DEBUG] Mapped column "Revenue" to revenue at index 11
-[DEBUG] Mapped column "Viewable Impressions" to viewableImpressions at index 12
-[DEBUG] Mapped column "Viewability Rate" to viewabilityRate at index 13
-[DEBUG] Mapped column "Measurable Impressions" to measurableImpressions at index 14
-[DEBUG] Column mapping created:
-  date: column 0 ("Date")
-  website: column 1 ("Website")
-  country: column 2 ("Country")
-  device: column 3 ("Device")
-  adFormat: column 4 ("Ad Format")
-  adUnit: column 5 ("Ad Unit")
-  requests: column 6 ("Requests")
-  impressions: column 7 ("Impressions")
-  clicks: column 8 ("Clicks")
-  ctr: column 9 ("CTR")
-  ecpm: column 10 ("eCPM")
-  revenue: column 11 ("Revenue")
-  viewableImpressions: column 12 ("Viewable Impressions")
-  viewabilityRate: column 13 ("Viewability Rate")
-  measurableImpressions: column 14 ("Measurable Impressions")
-[DEBUG] Adding date: 2025-01-01, revenue: 55.25, impressions: 8500, clicks: 170, requests: 10000
-[DEBUG] Dates map size: 1
-[DEBUG] Updating progress: 10%, processedLines: 1
-[DEBUG] Adding date: 2025-01-01, revenue: 102, impressions: 12000, clicks: 360, requests: 15000
-[DEBUG] Dates map size: 1
-[DEBUG] Adding date: 2025-01-01, revenue: 55.2, impressions: 6000, clicks: 120, requests: 8000
-[DEBUG] Dates map size: 1
-[DEBUG] Adding date: 2025-01-02, revenue: 72, impressions: 10000, clicks: 250, requests: 12000
-[DEBUG] Dates map size: 2
-[DEBUG] Adding date: 2025-01-02, revenue: 147, impressions: 15000, clicks: 450, requests: 18000
-[DEBUG] Dates map size: 2
-[DEBUG] Updating progress: 14%, processedLines: 10
-[DEBUG] Final dates map size: 4
-[DEBUG] Sample dates entries:
-  2025-01-01: revenue=212.45, impressions=26500
-  2025-01-02: revenue=270, impressions=32500
-  2025-01-03: revenue=321.1, impressions=33000
-[DEBUG] Saving result with 12 sample data rows
-File 3a303107-adce-4305-8b51-56618f4859c7 processed successfully. 12 rows.
-[ACCESS] GET http://localhost:3000/api/result/3a303107-adce-4305-8b51-56618f4859c7 - curl/8.7.1
- ✓ Compiled /api/result/[fileId] in 26ms (63 modules)
- GET /api/result/3a303107-adce-4305-8b51-56618f4859c7 200 in 52ms
-[ACCESS] GET http://localhost:3000/api/result/08f58600-283d-4c59-9339-6a5f32c22311 - curl/8.7.1
- GET /api/result/08f58600-283d-4c59-9339-6a5f32c22311 200 in 20ms
-[ACCESS] GET http://localhost:3000/api/result/0b6e4165-d6f0-41ca-911e-d5e574c2d370 - curl/8.7.1
- GET /api/result/0b6e4165-d6f0-41ca-911e-d5e574c2d370 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/2a020af4-3559-456b-a47e-de1d63e8f2df - curl/8.7.1
- GET /api/result/2a020af4-3559-456b-a47e-de1d63e8f2df 200 in 4ms
-[ACCESS] GET http://localhost:3000/api/result/333c1552-e8c9-4276-8883-1704b5a12ddb - curl/8.7.1
- GET /api/result/333c1552-e8c9-4276-8883-1704b5a12ddb 200 in 2ms
-[ACCESS] GET http://localhost:3000/api/result/4b1e63f0-0733-4b93-b8c5-f890501f4ec8 - curl/8.7.1
- GET /api/result/4b1e63f0-0733-4b93-b8c5-f890501f4ec8 200 in 10ms
-[ACCESS] GET http://localhost:3000/api/result/558768df-8962-4020-a8ce-cac63ee63d27 - curl/8.7.1
- GET /api/result/558768df-8962-4020-a8ce-cac63ee63d27 200 in 19ms
-[ACCESS] GET http://localhost:3000/api/result/68985190-d411-476a-9b52-32e571feb289 - curl/8.7.1
- GET /api/result/68985190-d411-476a-9b52-32e571feb289 200 in 24ms
-[ACCESS] GET http://localhost:3000/api/result/6abf7beb-3006-426e-b202-86c49f7c2bd1 - curl/8.7.1
- GET /api/result/6abf7beb-3006-426e-b202-86c49f7c2bd1 200 in 15ms
-[ACCESS] GET http://localhost:3000/api/result/6ec570ac-559a-4bb5-b75f-31c32807ba91 - curl/8.7.1
- GET /api/result/6ec570ac-559a-4bb5-b75f-31c32807ba91 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/6fb642a5-fc4e-405c-8623-a96d1c06b59a - curl/8.7.1
- GET /api/result/6fb642a5-fc4e-405c-8623-a96d1c06b59a 200 in 15ms
-[ACCESS] GET http://localhost:3000/api/result/71e5a8fc-9b71-433b-932d-172bf581a349 - curl/8.7.1
- GET /api/result/71e5a8fc-9b71-433b-932d-172bf581a349 200 in 2ms
-[ACCESS] GET http://localhost:3000/api/result/7c052a9a-602e-4bcd-82d2-639b0587acfa - curl/8.7.1
- GET /api/result/7c052a9a-602e-4bcd-82d2-639b0587acfa 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/7c532d96-f2d5-4ccb-ace2-81070b03721d - curl/8.7.1
- GET /api/result/7c532d96-f2d5-4ccb-ace2-81070b03721d 200 in 4ms
-[ACCESS] GET http://localhost:3000/api/result/7f746447-1b70-4d72-b973-068a222d1cfd - curl/8.7.1
- GET /api/result/7f746447-1b70-4d72-b973-068a222d1cfd 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/81cba924-cd9f-4c08-947b-40b6fb327571 - curl/8.7.1
- GET /api/result/81cba924-cd9f-4c08-947b-40b6fb327571 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/83d70287-5a7e-4fe7-91d4-58699073e79c - curl/8.7.1
- GET /api/result/83d70287-5a7e-4fe7-91d4-58699073e79c 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/8c02132b-f319-4fbc-a43b-3c73b5af7968 - curl/8.7.1
- GET /api/result/8c02132b-f319-4fbc-a43b-3c73b5af7968 200 in 9ms
-[ACCESS] GET http://localhost:3000/api/result/9f0a46f0-00e0-4942-93e2-a573b6badae1 - curl/8.7.1
- GET /api/result/9f0a46f0-00e0-4942-93e2-a573b6badae1 200 in 16ms
-[ACCESS] GET http://localhost:3000/api/result/afd49058-9847-43b4-9757-853d692b7291 - curl/8.7.1
- GET /api/result/afd49058-9847-43b4-9757-853d692b7291 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/bc10be37-cc1b-4250-963b-f1598f5c3410 - curl/8.7.1
- GET /api/result/bc10be37-cc1b-4250-963b-f1598f5c3410 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/d01233d1-2f1b-456b-9795-271fae12e476 - curl/8.7.1
- GET /api/result/d01233d1-2f1b-456b-9795-271fae12e476 200 in 3ms
-[ACCESS] GET http://localhost:3000/api/result/d09ae1c0-c085-4209-be59-48e9959f458f - curl/8.7.1
- GET /api/result/d09ae1c0-c085-4209-be59-48e9959f458f 200 in 2ms
-[ACCESS] GET http://localhost:3000/api/result/f3511e2e-a4ee-46ea-88ed-ef2330e61703 - curl/8.7.1
- GET /api/result/f3511e2e-a4ee-46ea-88ed-ef2330e61703 200 in 16ms
-[ACCESS] GET http://localhost:3000/api/result/ff213509-8522-4652-b6e6-ebf806c70df5 - curl/8.7.1
- GET /api/result/ff213509-8522-4652-b6e6-ebf806c70df5 200 in 3ms
-[ACCESS] POST http://localhost:3000/api/upload-optimized - curl/8.7.1
- POST /api/upload-optimized 200 in 4ms
-[DEBUG] Headers detected: [
-  'Date',
-  'Website',
-  'Country',
-  'Device',
-  'Ad Format',
-  'Ad Unit',
-  'Requests',
-  'Impressions',
-  'Clicks',
-  'CTR',
-  'eCPM',
-  'Revenue',
-  'Viewable Impressions',
-  'Viewability Rate',
-  'Measurable Impressions',
-  'Fill Rate',
-  'ARPU'
-]
-[DEBUG] Mapped column "Date" to date at index 0
-[DEBUG] Mapped column "Website" to website at index 1
-[DEBUG] Mapped column "Country" to country at index 2
-[DEBUG] Mapped column "Device" to device at index 3
-[DEBUG] Mapped column "Ad Format" to adFormat at index 4
-[DEBUG] Mapped column "Ad Unit" to adUnit at index 5
-[DEBUG] Mapped column "Requests" to requests at index 6
-[DEBUG] Mapped column "Impressions" to impressions at index 7
-[DEBUG] Mapped column "Clicks" to clicks at index 8
-[DEBUG] Mapped column "CTR" to ctr at index 9
-[DEBUG] Mapped column "eCPM" to ecpm at index 10
-[DEBUG] Mapped column "Revenue" to revenue at index 11
-[DEBUG] Mapped column "Viewable Impressions" to viewableImpressions at index 12
-[DEBUG] Mapped column "Viewability Rate" to viewabilityRate at index 13
-[DEBUG] Mapped column "Measurable Impressions" to measurableImpressions at index 14
-[DEBUG] Column mapping created:
-  date: column 0 ("Date")
-  website: column 1 ("Website")
-  country: column 2 ("Country")
-  device: column 3 ("Device")
-  adFormat: column 4 ("Ad Format")
-  adUnit: column 5 ("Ad Unit")
-  requests: column 6 ("Requests")
-  impressions: column 7 ("Impressions")
-  clicks: column 8 ("Clicks")
-  ctr: column 9 ("CTR")
-  ecpm: column 10 ("eCPM")
-  revenue: column 11 ("Revenue")
-  viewableImpressions: column 12 ("Viewable Impressions")
-  viewabilityRate: column 13 ("Viewability Rate")
-  measurableImpressions: column 14 ("Measurable Impressions")
-[DEBUG] Adding date: 2025-01-01, revenue: 55.25, impressions: 8500, clicks: 170, requests: 10000
-[DEBUG] Dates map size: 1
-[DEBUG] Updating progress: 10%, processedLines: 1
-[DEBUG] Adding date: 2025-01-01, revenue: 102, impressions: 12000, clicks: 360, requests: 15000
-[DEBUG] Dates map size: 1
-[DEBUG] Adding date: 2025-01-01, revenue: 55.2, impressions: 6000, clicks: 120, requests: 8000
-[DEBUG] Dates map size: 1
-[DEBUG] Adding date: 2025-01-02, revenue: 72, impressions: 10000, clicks: 250, requests: 12000
-[DEBUG] Dates map size: 2
-[DEBUG] Adding date: 2025-01-02, revenue: 147, impressions: 15000, clicks: 450, requests: 18000
-[DEBUG] Dates map size: 2
-[DEBUG] Updating progress: 14%, processedLines: 10
-[DEBUG] Final dates map size: 4
-[DEBUG] Sample dates entries:
-  2025-01-01: revenue=212.45, impressions=26500
-  2025-01-02: revenue=270, impressions=32500
-  2025-01-03: revenue=321.1, impressions=33000
-[DEBUG] Saving result with 12 sample data rows
-File b77fd278-8b8b-4c86-9ca9-a2f023245616 processed successfully. 12 rows.
-[ACCESS] GET http://localhost:3000/api/result/b77fd278-8b8b-4c86-9ca9-a2f023245616 - curl/8.7.1
- GET /api/result/b77fd278-8b8b-4c86-9ca9-a2f023245616 200 in 7ms
-[?25h
+ GET /api/alerts?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 78ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Error reading analysis result: Error: ENOENT: no such file or directory, open 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAnalysisResult (webpack-internal:///(rsc)/./lib/fs-manager.ts:64:29)
+    at async GET (webpack-internal:///(rsc)/./app/api/alerts/route.ts:16:28)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+}
+ GET /api/alerts?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 65ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Error reading analysis results: Error: ENOENT: no such file or directory, open 'results/9bed4811-f186-4f28-939c-a30d8ec171f0.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAllAnalysisResults (webpack-internal:///(rsc)/./lib/fs-manager.ts:38:37)
+    at async GET (webpack-internal:///(rsc)/./app/api/alerts/route.ts:204:30)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/9bed4811-f186-4f28-939c-a30d8ec171f0.json'
+}
+ GET /api/alerts?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 65372ms
+Error reading analysis result: Error: ENOENT: no such file or directory, open 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAnalysisResult (webpack-internal:///(rsc)/./lib/fs-manager.ts:64:29)
+    at async GET (webpack-internal:///(rsc)/./app/api/alerts/route.ts:16:28)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+}
+ GET /api/alerts?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 281ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Error reading analysis result: Error: ENOENT: no such file or directory, open 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAnalysisResult (webpack-internal:///(rsc)/./lib/fs-manager.ts:64:29)
+    at async GET (webpack-internal:///(rsc)/./app/api/analytics-enhanced/route.ts:395:28)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+}
+ GET /api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 404 in 254ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Error reading analysis result: Error: ENOENT: no such file or directory, open 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAnalysisResult (webpack-internal:///(rsc)/./lib/fs-manager.ts:64:29)
+    at async GET (webpack-internal:///(rsc)/./app/api/analytics-enhanced/route.ts:395:28)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+}
+ GET /api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 404 in 78ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Error reading analysis result: Error: ENOENT: no such file or directory, open 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAnalysisResult (webpack-internal:///(rsc)/./lib/fs-manager.ts:64:29)
+    at async GET (webpack-internal:///(rsc)/./app/api/analytics-enhanced/route.ts:395:28)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+}
+ GET /api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 404 in 84ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Error reading analysis result: Error: ENOENT: no such file or directory, open 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAnalysisResult (webpack-internal:///(rsc)/./lib/fs-manager.ts:64:29)
+    at async GET (webpack-internal:///(rsc)/./app/api/analytics-enhanced/route.ts:395:28)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+}
+ GET /api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 404 in 1022ms
+ GET /api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 2701ms
+Error reading analysis results: Error: ENOENT: no such file or directory, open 'results/9bed4811-f186-4f28-939c-a30d8ec171f0.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAllAnalysisResults (webpack-internal:///(rsc)/./lib/fs-manager.ts:38:37)
+    at async GET (webpack-internal:///(rsc)/./app/api/alerts/route.ts:204:30)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/9bed4811-f186-4f28-939c-a30d8ec171f0.json'
+}
+ GET /api/alerts?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 71418ms
+Error reading analysis results: Error: ENOENT: no such file or directory, open 'results/9bed4811-f186-4f28-939c-a30d8ec171f0.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAllAnalysisResults (webpack-internal:///(rsc)/./lib/fs-manager.ts:38:37)
+    at async GET (webpack-internal:///(rsc)/./app/api/alerts/route.ts:204:30)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/9bed4811-f186-4f28-939c-a30d8ec171f0.json'
+}
+ GET /api/alerts?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 71417ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 1303ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 2246ms
+Error reading analysis results: Error: ENOENT: no such file or directory, open 'results/9bed4811-f186-4f28-939c-a30d8ec171f0.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAllAnalysisResults (webpack-internal:///(rsc)/./lib/fs-manager.ts:38:37)
+    at async GET (webpack-internal:///(rsc)/./app/api/alerts/route.ts:204:30)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/9bed4811-f186-4f28-939c-a30d8ec171f0.json'
+}
+ GET /api/alerts?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 62425ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Error reading analysis result: Error: ENOENT: no such file or directory, open 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAnalysisResult (webpack-internal:///(rsc)/./lib/fs-manager.ts:64:29)
+    at async GET (webpack-internal:///(rsc)/./app/api/analytics-enhanced/route.ts:395:28)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+}
+ GET /api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 404 in 211ms
+Error reading analysis results: Error: ENOENT: no such file or directory, open 'results/9bed4811-f186-4f28-939c-a30d8ec171f0.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAllAnalysisResults (webpack-internal:///(rsc)/./lib/fs-manager.ts:38:37)
+    at async GET (webpack-internal:///(rsc)/./app/api/alerts/route.ts:204:30)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/9bed4811-f186-4f28-939c-a30d8ec171f0.json'
+}
+ GET /api/alerts?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 200 in 58672ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Error reading analysis result: Error: ENOENT: no such file or directory, open 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+    at async open (node:internal/fs/promises:640:25)
+    at async Object.readFile (node:internal/fs/promises:1277:14)
+    at async FileSystemManager.getAnalysisResult (webpack-internal:///(rsc)/./lib/fs-manager.ts:64:29)
+    at async GET (webpack-internal:///(rsc)/./app/api/analytics-enhanced/route.ts:395:28)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/jason/Documents/Kiro/google_adx_optimization/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'results/c03abf9a-734d-49e8-ab64-d0df4968fd13.json'
+}
+ GET /api/analytics-enhanced?fileId=c03abf9a-734d-49e8-ab64-d0df4968fd13 404 in 2ms
+[ACCESS] GET http://localhost:3000/ - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Resource monitor started
+Development mode: Resource monitor started
+No current file, showing uploader - currentFileId: null currentFile: null
+ GET / 200 in 116ms
+Deleted expired file: c421d30f-0567-4082-98ca-d5fcdeb87211.status
+Deleted expired file: c421d30f-0567-4082-98ca-d5fcdeb87211
+Memory usage: 221/228MB, External: 129MB
+Cleanup completed
+[ACCESS] POST http://localhost:3000/api/upload-optimized - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ POST /api/upload-optimized 200 in 69ms
+[DEBUG] Mapped column "网站" to website at index 0
+[DEBUG] Mapped column "国家/地区" to country at index 1
+[DEBUG] Mapped column "广告资源格式" to adFormat at index 2
+[DEBUG] Mapped column "广告单元（所有级别）" to adUnit at index 3
+[DEBUG] Mapped column "广告客户（已分类）" to advertiser at index 4
+[DEBUG] Mapped column "广告客户网域" to domain at index 5
+[DEBUG] Mapped column "设备" to device at index 6
+[DEBUG] Mapped column "浏览器" to browser at index 7
+[DEBUG] Mapped column "日期" to date at index 8
+[DEBUG] Mapped column "Ad Exchange 请求总数" to requests at index 9
+[DEBUG] Mapped column "Ad Exchange 展示次数" to impressions at index 10
+[DEBUG] Mapped column "Ad Exchange 点击次数" to clicks at index 11
+[DEBUG] Mapped column "Ad Exchange 点击率" to ctr at index 12
+[DEBUG] Mapped column "Ad Exchange 平均 eCPM" to ecpm at index 13
+[DEBUG] Mapped column "Ad Exchange 收入" to revenue at index 14
+[DEBUG] Mapped column "Ad Exchange Active View可见展示次数" to viewableImpressions at index 15
+[DEBUG] Mapped column "Ad Exchange Active View可见展示次数百分比" to viewabilityRate at index 16
+[DEBUG] Mapped column "Ad Exchange Active View可衡量展示次数" to measurableImpressions at index 17
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=89307bd0-9ccf-4487-a703-11af696317a9 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=89307bd0-9ccf-4487-a703-11af696317a9 200 in 43ms
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=89307bd0-9ccf-4487-a703-11af696317a9 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=89307bd0-9ccf-4487-a703-11af696317a9 200 in 58ms
+File 89307bd0-9ccf-4487-a703-11af696317a9 processed successfully. 217402 rows.
+File 89307bd0-9ccf-4487-a703-11af696317a9 processed successfully
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=89307bd0-9ccf-4487-a703-11af696317a9 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=89307bd0-9ccf-4487-a703-11af696317a9 200 in 4ms
+[ACCESS] GET http://localhost:3000/api/result/89307bd0-9ccf-4487-a703-11af696317a9 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/result/89307bd0-9ccf-4487-a703-11af696317a9 200 in 10ms
+[ACCESS] GET http://localhost:3000/api/analytics?fileId=89307bd0-9ccf-4487-a703-11af696317a9 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics?fileId=89307bd0-9ccf-4487-a703-11af696317a9 200 in 7ms
+[ACCESS] GET http://localhost:3000/api/analytics?fileId=89307bd0-9ccf-4487-a703-11af696317a9 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics?fileId=89307bd0-9ccf-4487-a703-11af696317a9 200 in 5ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=89307bd0-9ccf-4487-a703-11af696317a9 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+ GET /api/analytics-enhanced?fileId=89307bd0-9ccf-4487-a703-11af696317a9 200 in 7ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=89307bd0-9ccf-4487-a703-11af696317a9 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+Warning: detailedData is empty or missing. Analysis may be incomplete.
+ GET /api/analytics-enhanced?fileId=89307bd0-9ccf-4487-a703-11af696317a9 200 in 5ms
+ ✓ Compiled in 124ms (804 modules)
+[ACCESS] GET http://localhost:3000/?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Resource monitor started
+Development mode: Resource monitor started
+No current file, showing uploader - currentFileId: null currentFile: null
+ GET /?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 125ms
+Deleted expired file: a63c5913-b4fa-4aca-8816-ad087a8553de.status
+Deleted expired file: a63c5913-b4fa-4aca-8816-ad087a8553de
+Memory usage: 230/239MB, External: 130MB
+Cleanup completed
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/analytics-enhanced in 113ms (835 modules)
+ GET /api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 775ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 200 in 621ms
+[ACCESS] GET http://localhost:3000/ - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Resource monitor started
+Development mode: Resource monitor started
+No current file, showing uploader - currentFileId: null currentFile: null
+ GET / 200 in 85ms
+Memory usage: 244/255MB, External: 229MB
+Cleanup completed
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced? 404 in 9ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced? 404 in 4ms
+[ACCESS] GET http://localhost:3000/api/analytics - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/analytics in 94ms (837 modules)
+ GET /api/analytics? 404 in 113ms
+[ACCESS] GET http://localhost:3000/api/analytics - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics? 404 in 2ms
+[ACCESS] GET http://localhost:3000/api/predictive-analytics?days=30 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/predictive-analytics in 45ms (839 modules)
+[DEBUG] Predictive analytics called with fileId: null
+ GET /api/predictive-analytics?days=30 404 in 53ms
+[ACCESS] GET http://localhost:3000/api/predictive-analytics?days=30 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[DEBUG] Predictive analytics called with fileId: null
+ GET /api/predictive-analytics?days=30 404 in 1ms
+[ACCESS] GET http://localhost:3000/ - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Resource monitor started
+Development mode: Resource monitor started
+No current file, showing uploader - currentFileId: null currentFile: null
+ GET / 200 in 50ms
+Deleted expired file: ff213509-8522-4652-b6e6-ebf806c70df5.status
+Deleted expired file: ff213509-8522-4652-b6e6-ebf806c70df5
+Memory usage: 268/333MB, External: 333MB
+Cleanup completed
+[ACCESS] POST http://localhost:3000/api/upload-optimized - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/upload-optimized in 150ms (848 modules)
+ POST /api/upload-optimized 200 in 230ms
+[DEBUG] Mapped column "网站" to website at index 0
+[DEBUG] Mapped column "国家/地区" to country at index 1
+[DEBUG] Mapped column "广告资源格式" to adFormat at index 2
+[DEBUG] Mapped column "广告单元（所有级别）" to adUnit at index 3
+[DEBUG] Mapped column "广告客户（已分类）" to advertiser at index 4
+[DEBUG] Mapped column "广告客户网域" to domain at index 5
+[DEBUG] Mapped column "设备" to device at index 6
+[DEBUG] Mapped column "浏览器" to browser at index 7
+[DEBUG] Mapped column "日期" to date at index 8
+[DEBUG] Mapped column "Ad Exchange 请求总数" to requests at index 9
+[DEBUG] Mapped column "Ad Exchange 展示次数" to impressions at index 10
+[DEBUG] Mapped column "Ad Exchange 点击次数" to clicks at index 11
+[DEBUG] Mapped column "Ad Exchange 点击率" to ctr at index 12
+[DEBUG] Mapped column "Ad Exchange 平均 eCPM" to ecpm at index 13
+[DEBUG] Mapped column "Ad Exchange 收入" to revenue at index 14
+[DEBUG] Mapped column "Ad Exchange Active View可见展示次数" to viewableImpressions at index 15
+[DEBUG] Mapped column "Ad Exchange Active View可见展示次数百分比" to viewabilityRate at index 16
+[DEBUG] Mapped column "Ad Exchange Active View可衡量展示次数" to measurableImpressions at index 17
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 42ms
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 42ms
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 44ms
+File 7e011430-b3a6-496f-a9f7-386ea5ccd52d processed successfully. 217402 rows.
+File 7e011430-b3a6-496f-a9f7-386ea5ccd52d processed successfully
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 4ms
+[ACCESS] GET http://localhost:3000/api/result/7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/result/[fileId] in 43ms (850 modules)
+ GET /api/result/7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 897ms
+[ACCESS] GET http://localhost:3000/api/analytics?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 382ms
+[ACCESS] GET http://localhost:3000/api/analytics?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 416ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 771ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 678ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/alerts in 69ms (852 modules)
+[ACCESS] GET http://localhost:3000/api/predictive-analytics?days=30&fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[DEBUG] Predictive analytics called with fileId: 7e011430-b3a6-496f-a9f7-386ea5ccd52d
+[DEBUG] Data loaded: { dailyDataLength: 15, topWebsitesLength: 1, sampleDataLength: 20 }
+ GET /api/predictive-analytics?days=30&fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 850ms
+[ACCESS] GET http://localhost:3000/api/predictive-analytics?days=30&fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[DEBUG] Predictive analytics called with fileId: 7e011430-b3a6-496f-a9f7-386ea5ccd52d
+[DEBUG] Data loaded: { dailyDataLength: 15, topWebsitesLength: 1, sampleDataLength: 20 }
+ GET /api/predictive-analytics?days=30&fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 745ms
+[ACCESS] GET http://localhost:3000/api/automation-engine?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/automation-engine in 100ms (854 modules)
+ GET /api/automation-engine?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 768ms
+[ACCESS] GET http://localhost:3000/api/automation-engine?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/automation-engine?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 719ms
+ GET /api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 18956ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 1026ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 28210ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 1716ms
+ GET /api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 43914ms
+ GET /api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 44133ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 1230ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 714ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 707ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 671ms
+[ACCESS] GET http://localhost:3000/api/analytics?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 382ms
+[ACCESS] GET http://localhost:3000/api/analytics?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 381ms
+ ✓ Compiled in 224ms (1652 modules)
+[ACCESS] GET http://localhost:3000/?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Resource monitor started
+Development mode: Resource monitor started
+Deleted expired file: 83d70287-5a7e-4fe7-91d4-58699073e79c.status
+Deleted expired file: 83d70287-5a7e-4fe7-91d4-58699073e79c
+Memory usage: 281/351MB, External: 337MB
+Cleanup completed
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - curl/8.7.1
+ ✓ Compiled /api/alerts in 89ms (840 modules)
+[ACCESS] GET http://localhost:3000/?fileId=ff213509-8522-4652-b6e6-ebf806c70df5 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+Resource monitor started
+Development mode: Resource monitor started
+Memory usage: 347/503MB, External: 330MB
+Cleanup completed
+ GET /api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 480ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - curl/8.7.1
+ GET /api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 382ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - curl/8.7.1
+ GET /api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 381ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - curl/8.7.1
+ GET /api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 403ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - curl/8.7.1
+ GET /api/alerts?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 451ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 679ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=7e011430-b3a6-496f-a9f7-386ea5ccd52d 200 in 702ms
+[ACCESS] GET http://localhost:3000/ - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+No current file, showing uploader - currentFileId: null currentFile: null
+ GET / 200 in 108ms
+[ACCESS] POST http://localhost:3000/api/upload-optimized - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/upload-optimized in 119ms (847 modules)
+ POST /api/upload-optimized 200 in 232ms
+[DEBUG] Mapped column "网站" to website at index 0
+[DEBUG] Mapped column "国家/地区" to country at index 1
+[DEBUG] Mapped column "广告资源格式" to adFormat at index 2
+[DEBUG] Mapped column "广告单元（所有级别）" to adUnit at index 3
+[DEBUG] Mapped column "广告客户（已分类）" to advertiser at index 4
+[DEBUG] Mapped column "广告客户网域" to domain at index 5
+[DEBUG] Mapped column "设备" to device at index 6
+[DEBUG] Mapped column "浏览器" to browser at index 7
+[DEBUG] Mapped column "日期" to date at index 8
+[DEBUG] Mapped column "Ad Exchange 请求总数" to requests at index 9
+[DEBUG] Mapped column "Ad Exchange 展示次数" to impressions at index 10
+[DEBUG] Mapped column "Ad Exchange 点击次数" to clicks at index 11
+[DEBUG] Mapped column "Ad Exchange 点击率" to ctr at index 12
+[DEBUG] Mapped column "Ad Exchange 平均 eCPM" to ecpm at index 13
+[DEBUG] Mapped column "Ad Exchange 收入" to revenue at index 14
+[DEBUG] Mapped column "Ad Exchange Active View可见展示次数" to viewableImpressions at index 15
+[DEBUG] Mapped column "Ad Exchange Active View可见展示次数百分比" to viewabilityRate at index 16
+[DEBUG] Mapped column "Ad Exchange Active View可衡量展示次数" to measurableImpressions at index 17
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 42ms
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 41ms
+File ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 processed successfully. 217402 rows.
+File ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 processed successfully
+[ACCESS] GET http://localhost:3000/api/upload-optimized?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/upload-optimized?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 4ms
+[ACCESS] GET http://localhost:3000/api/result/ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/result/[fileId] in 42ms (849 modules)
+ GET /api/result/ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 923ms
+[ACCESS] GET http://localhost:3000/api/analytics?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/analytics in 47ms (851 modules)
+ GET /api/analytics?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 487ms
+[ACCESS] GET http://localhost:3000/api/analytics?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 400ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 735ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 680ms
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/alerts?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 418ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[ACCESS] GET http://localhost:3000/api/alerts?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 794ms
+ GET /api/alerts?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 1033ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 733ms
+[ACCESS] GET http://localhost:3000/api/predictive-analytics?days=30&fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/predictive-analytics in 171ms (853 modules)
+[DEBUG] Predictive analytics called with fileId: ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0
+[DEBUG] Data loaded: { dailyDataLength: 15, topWebsitesLength: 1, sampleDataLength: 20 }
+ GET /api/predictive-analytics?days=30&fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 566ms
+[ACCESS] GET http://localhost:3000/api/predictive-analytics?days=30&fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+[DEBUG] Predictive analytics called with fileId: ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0
+[DEBUG] Data loaded: { dailyDataLength: 15, topWebsitesLength: 1, sampleDataLength: 20 }
+ GET /api/predictive-analytics?days=30&fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 343ms
+[ACCESS] GET http://localhost:3000/api/automation-engine?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ ✓ Compiled /api/automation-engine in 117ms (855 modules)
+ GET /api/automation-engine?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 480ms
+[ACCESS] GET http://localhost:3000/api/automation-engine?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/automation-engine?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 331ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 696ms
+[ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+ GET /api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 669ms

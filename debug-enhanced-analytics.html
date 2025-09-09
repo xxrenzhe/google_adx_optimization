@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Enhanced Analytics</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .log { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e9; color: #2e7d32; }
+        .info { background: #e3f2fd; color: #1565c0; }
+        pre { background: #263238; color: #fff; padding: 15px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Debug Enhanced Analytics</h1>
+    <div id="logs"></div>
+    
+    <script>
+        const logs = document.getElementById('logs');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            logs.appendChild(div);
+            console.log(message);
+        }
+        
+        async function testAPI() {
+            log('Starting API test...', 'info');
+            
+            try {
+                // Test 1: Check if we can access the page
+                log('Testing page access...', 'info');
+                const response = await fetch('/api/analytics-enhanced?fileId=3111174a-1310-4145-b0e5-a892ff3ec686');
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log(`Error response: ${errorText}`, 'error');
+                    return;
+                }
+                
+                const data = await response.json();
+                log(`API returned data with keys: ${Object.keys(data).join(', ')}`, 'success');
+                log(`advertiserAnalysis length: ${data.advertiserAnalysis?.length || 0}`, 'info');
+                log(`geoAnalysis length: ${data.geoAnalysis?.length || 0}`, 'info');
+                
+                // Test 2: Simulate component behavior
+                log('<br>Simulating component behavior...', 'info');
+                
+                // Check if fileId is available in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const fileId = urlParams.get('fileId');
+                log(`FileId from URL: ${fileId}`, fileId ? 'success' : 'error');
+                
+                // Test the same fetch as the component
+                log('Fetching data as component would...', 'info');
+                const componentResponse = await fetch(`/api/analytics-enhanced?fileId=${fileId || '3111174a-1310-4145-b0e5-a892ff3ec686'}`);
+                const componentData = await componentResponse.json();
+                log('Component data received successfully', 'success');
+                
+                // Show sample data
+                log('<br>Sample advertiser data:', 'info');
+                if (componentData.advertiserAnalysis && componentData.advertiserAnalysis.length > 0) {
+                    log(`First advertiser: ${JSON.stringify(componentData.advertiserAnalysis[0], null, 2)}`, 'info');
+                }
+                
+            } catch (error) {
+                log(`Test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Run test when page loads
+        testAPI();
+    </script>
+</body>
+</html>
