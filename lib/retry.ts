@@ -18,7 +18,7 @@ export function isRetryableError(error: Error): boolean {
     'ENOMEM', 'ENOSPC', 'ECANCELED'
   ]
   
-  if ((error as any).code && retryableCodes.includes(error.code)) {
+  if ((error as any).code && retryableCodes.includes((error as any).code)) {
     return true
   }
   

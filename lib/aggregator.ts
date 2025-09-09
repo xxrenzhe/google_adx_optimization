@@ -99,10 +99,10 @@ export class LightweightAggregator {
       }
     }
     
-    data[key].revenue += values.revenue
-    data[key].impressions += values.impressions
-    data[key].clicks += values.clicks
-    data[key].requests += values.requests
+    data[key].revenue += (values as any).revenue
+    data[key].impressions += (values as any).impressions
+    data[key].clicks += (values as any).clicks
+    data[key].requests += (values as any).requests
   }
   
   // 更新组合数据
@@ -116,10 +116,10 @@ export class LightweightAggregator {
       }
     }
     
-    data[key].revenue += values.revenue
-    data[key].impressions += values.impressions
-    data[key].clicks += values.clicks
-    data[key].requests += values.requests
+    data[key].revenue += (values as any).revenue
+    data[key].impressions += (values as any).impressions
+    data[key].clicks += (values as any).clicks
+    data[key].requests += (values as any).requests
   }
   
   // 处理单行数据 - 极度优化
@@ -243,12 +243,12 @@ export class LightweightAggregator {
       return Object.entries(data)
         .map(([name, values]: [string, any]) => ({
           name,
-          revenue: values.revenue,
-          impressions: values.impressions,
-          clicks: values.clicks,
-          requests: values.requests,
-          ecpm: values.impressions > 0 ? (values.revenue / values.impressions * 1000) : 0,
-          ctr: values.impressions > 0 ? (values.clicks / values.impressions * 100) : 0
+          revenue: (values as any).revenue,
+          impressions: (values as any).impressions,
+          clicks: (values as any).clicks,
+          requests: (values as any).requests,
+          ecpm: (values as any).impressions > 0 ? ((values as any).revenue / (values as any).impressions * 1000) : 0,
+          ctr: (values as any).impressions > 0 ? ((values as any).clicks / (values as any).impressions * 100) : 0
         }))
         .sort((a, b) => b.revenue - a.revenue)
         .slice(0, limit)
@@ -259,12 +259,12 @@ export class LightweightAggregator {
       return Object.entries(data)
         .map(([name, values]: [string, any]) => ({
           name,
-          revenue: values.revenue,
-          impressions: values.impressions,
-          clicks: values.clicks,
-          requests: values.requests,
-          ecpm: values.impressions > 0 ? (values.revenue / values.impressions * 1000) : 0,
-          ctr: values.impressions > 0 ? (values.clicks / values.impressions * 100) : 0
+          revenue: (values as any).revenue,
+          impressions: (values as any).impressions,
+          clicks: (values as any).clicks,
+          requests: (values as any).requests,
+          ecpm: (values as any).impressions > 0 ? ((values as any).revenue / (values as any).impressions * 1000) : 0,
+          ctr: (values as any).impressions > 0 ? ((values as any).clicks / (values as any).impressions * 100) : 0
         }))
         .sort((a, b) => b.revenue - a.revenue)
     }

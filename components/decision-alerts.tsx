@@ -44,7 +44,7 @@ interface DecisionAlertsProps {
 }
 
 export default function DecisionAlerts({ refreshTrigger, fileId }: DecisionAlertsProps) {
-  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [alerts, setAlerts] = useState<AlertData[]>([])
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [enhancedRecommendations, setEnhancedRecommendations] = useState<any>(null)
   const [loading, setLoading] = useState(true)

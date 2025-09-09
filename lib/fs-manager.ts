@@ -164,7 +164,7 @@ export class FileSystemManager {
             }
             current.revenue += website.revenue
             current.impressions += website.impressions
-            current.clicks += website.clicks || 0
+            (current as any).clicks += website.clicks || 0
             aggregated.websites.set(website.name, current)
           }
         }
@@ -179,7 +179,7 @@ export class FileSystemManager {
             }
             current.revenue += country.revenue
             current.impressions += country.impressions
-            current.clicks += country.clicks || 0
+            (current as any).clicks += country.clicks || 0
             aggregated.countries.set(country.name, current)
           }
         }

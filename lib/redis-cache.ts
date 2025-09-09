@@ -10,18 +10,18 @@ redisClient.on('error', (err) => {
 })
 
 // 连接Redis
-export async function connectRedis() {
+export async function connectRedis(): Promise<void> {
   if (!redisClient.isOpen) {
     await redisClient.connect()
   }
 }
 
 // 获取缓存数据
-export async function getCachedData(key: string) {
+export async function getCachedData<T>(key: string): Promise<T | null> {
   try {
     await connectRedis()
     const data = await redisClient.get(key)
-    return data ? JSON.parse(data) : null
+    return data ? JSON.parse(data) as T : null
   } catch (error) {
     console.error('Redis get error:', error)
     return null
@@ -29,7 +29,7 @@ export async function getCachedData(key: string) {
 }
 
 // 设置缓存数据
-export async function setCachedData(key: string, data: unknown, expireInSeconds: number = 300) {
+export async function setCachedData(key: string, data: unknown, expireInSeconds: number = 300): Promise<void> {
   try {
     await connectRedis()
     await redisClient.setEx(key, expireInSeconds, JSON.stringify(data))
@@ -39,7 +39,7 @@ export async function setCachedData(key: string, data: unknown, expireInSeconds:
 }
 
 // 删除缓存数据
-export async function deleteCachedData(key: string) {
+export async function deleteCachedData(key: string): Promise<void> {
   try {
     await connectRedis()
     await redisClient.del(key)
@@ -49,12 +49,12 @@ export async function deleteCachedData(key: string) {
 }
 
 // 生成缓存key
-export function generateCacheKey(fileId: string, type: string) {
+export function generateCacheKey(fileId: string, type: string): string {
   return `adx:analytics:${fileId}:${type}`
 }
 
 // 关闭Redis连接
-export async function closeRedis() {
+export async function closeRedis(): Promise<void> {
   if (redisClient.isOpen) {
     await redisClient.quit()
   }

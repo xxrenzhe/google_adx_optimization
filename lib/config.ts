@@ -57,7 +57,7 @@ if (process.env.NODE_ENV === 'production') {
   try {
     CONFIG.validate();
   } catch (error: unknown) {
-    console.error('Configuration validation failed:', error.message);
+    console.error('Configuration validation failed:', (error as any).message);
     process.exit(1);
   }
 }

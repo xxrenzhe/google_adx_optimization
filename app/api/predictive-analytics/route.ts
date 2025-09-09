@@ -50,9 +50,9 @@ export async function GET(request: NextRequest) {
     // 转换数据格式以兼容预测分析
     const dailyData = (result.dailyTrend || []).map((item: unknown) => ({
       date: item.name,
-      revenue: item.revenue,
-      impressions: item.impressions,
-      clicks: item.clicks
+      revenue: item.revenue as number,
+      impressions: item.impressions as number,
+      clicks: item.clicks as number
     }))
     
     data = {
@@ -180,7 +180,7 @@ function detectAnomalies(dailyData: unknown[]) {
   const recentData = dailyData.slice(-30) // 分析最近30天
   
   // 计算平均值和标准差
-  const revenues = recentData.map(d => d.revenue || 0)
+  const revenues = recentData.map(d => d.revenue as number || 0)
   const mean = revenues.reduce((sum: number, r: number) => sum + r, 0) / revenues.length
   const variance = revenues.reduce((sum: number, r: number) => sum + Math.pow(r - mean, 2), 0) / revenues.length
   const stdDev = Math.sqrt(variance)
@@ -245,11 +245,11 @@ function generateOpportunities(data: unknown) {
   
   // 分析不同国家-设备组合的表现
   data.samplePreview.forEach((row: unknown) => {
-    const country = row.country || '未知'
+    const country = row.country as string || '未知'
     const device = row.device || '未知'
-    const ecpm = row.ecpm || 0
-    const fillRate = row.requests > 0 ? (row.impressions || 0) / row.requests : 0
-    const revenue = row.revenue || 0
+    const ecpm = row.ecpm as number || 0
+    const fillRate = row.requests as number > 0 ? (row.impressions as number || 0) / row.requests as number : 0
+    const revenue = row.revenue as number || 0
     
     const key = `${country}-${device}`
     const current = countryDeviceMap.get(key) || {
@@ -271,19 +271,19 @@ function generateOpportunities(data: unknown) {
   
   // 识别机会（低填充率但高eCPM的组合）
   Array.from(countryDeviceMap.values())
-    .filter(item => item.fillRate < 0.3 && item.ecpm > 5 && item.revenue > 1)
-    .sort((a, b) => (b.ecpm * (1 - b.fillRate)) - (a.ecpm * (1 - a.fillRate)))
+    .filter(item => item.fillRate < 0.3 && item.ecpm as number > 5 && item.revenue as number > 1)
+    .sort((a, b) => (b.ecpm as number * (1 - b.fillRate)) - (a.ecpm as number * (1 - a.fillRate)))
     .slice(0, 10)
     .forEach(item => {
-      const potentialIncrease = item.revenue * (1 / item.fillRate - 1) * 0.5 // 假设可以改善50%
+      const potentialIncrease = item.revenue as number * (1 / item.fillRate - 1) * 0.5 // 假设可以改善50%
       
       opportunities.push({
-        country: item.country,
+        country: item.country as string,
         device: item.device,
-        current_ecpm: item.ecpm,
+        current_ecpm: item.ecpm as number,
         current_fill_rate: item.fillRate,
         potential_revenue_increase: potentialIncrease,
-        opportunity_score: item.ecpm > 10 ? 'HIGH' : item.ecpm > 5 ? 'MEDIUM' : 'LOW'
+        opportunity_score: item.ecpm as number > 10 ? 'HIGH' : item.ecpm as number > 5 ? 'MEDIUM' : 'LOW'
       })
     })
   
@@ -296,11 +296,11 @@ function generateCompetitorInsights(data: unknown) {
   const advertiserMap = new Map()
   
   data.samplePreview.forEach((row: unknown) => {
-    const advertiser = row.advertiser || '未知'
-    const domain = row.domain || '未知'
-    const ecpm = row.ecpm || 0
-    const revenue = row.revenue || 0
-    const country = row.country || '未知'
+    const advertiser = row.advertiser as string || '未知'
+    const domain = row.domain as string || '未知'
+    const ecpm = row.ecpm as number || 0
+    const revenue = row.revenue as number || 0
+    const country = row.country as string || '未知'
     
     const key = advertiser
     const current = advertiserMap.get(key) || {
@@ -323,8 +323,8 @@ function generateCompetitorInsights(data: unknown) {
   return Array.from(advertiserMap.values())
     .filter(item => item.totalRevenue > 5)
     .map(item => ({
-      advertiser: item.advertiser,
-      domain: item.domain,
+      advertiser: item.advertiser as string,
+      domain: item.domain as string,
       market_penetration: item.countries.size,
       avg_bid_strength: item.totalEcpm / item.count,
       strategy_type: item.totalEcpm / item.count > 15 ? 'AGGRESSIVE' :

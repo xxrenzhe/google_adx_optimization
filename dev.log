@@ -1088,3 +1088,34 @@ Cleanup completed
  ✓ Compiled in 51ms (815 modules)
  ✓ Compiled in 125ms (815 modules)
  ✓ Compiled in 79ms (1677 modules)
+Memory usage: 294/373MB, External: 1352MB
+Cleanup completed
+Memory usage: 295/373MB, External: 1352MB
+Cleanup completed
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/jason/Documents/Kiro/google_adx_optimization/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 282ms (1677 modules)
+ ✓ Compiled in 177ms (815 modules)
+ ✓ Compiled in 169ms (1619 modules)
+ ✓ Compiled in 69ms (815 modules)
+ ✓ Compiled in 81ms (815 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/jason/Documents/Kiro/google_adx_optimization/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 108ms (815 modules)
+ ✓ Compiled in 225ms (1619 modules)
+ ✓ Compiled in 124ms (815 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/jason/Documents/Kiro/google_adx_optimization/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 94ms (815 modules)
+Memory usage: 296/341MB, External: 334MB
+Cleanup completed
+Memory usage: 296/341MB, External: 334MB
+Cleanup completed
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/jason/Documents/Kiro/google_adx_optimization/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 245ms (1619 modules)
+Memory usage: 323/382MB, External: 434MB
+Cleanup completed
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/jason/Documents/Kiro/google_adx_optimization/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 228ms (1677 modules)
+Memory usage: 309/356MB, External: 342MB
+Cleanup completed
+Memory usage: 310/356MB, External: 342MB
+Cleanup completed
+ ✓ Compiled in 120ms (1677 modules)

@@ -22,7 +22,16 @@ import {
 } from 'recharts'
 
 interface EnhancedAnalyticsData {
-  detailedData?: unknown[]
+  date: string
+  revenue: number
+  impressions: number
+  requests: number
+  ctr: number
+  ecpm: number
+  fillRate: number
+  viewabilityRate: number
+  arpu: number
+  detailedData?: DetailedDataRow[]
   advertiser?: string
   domain?: string
   clicks?: number
@@ -53,33 +62,32 @@ interface EnhancedAnalyticsData {
   avg_ecpm?: number
   hour?: string
   count?: number
-  date: string
-  revenue: number
-  impressions: number
-  requests: number
-  ctr: number
-  ecpm: number
-  fillRate: number
-  viewabilityRate: number
-  arpu: number
-  country?: string
-  device?: string
   adFormat?: string
   adUnit?: string
   website?: string
   browser?: string
 }
 
-interface EnhancedAnalyticsData {
+interface DetailedDataRow {
   date: string
-  revenue: number
-  impressions: number
-  requests: number
-  ctr: number
-  ecpm: number
-  fillRate: number
-  viewabilityRate: number
-  arpu: number
+  website: string
+  country?: string
+  device?: string
+  browser?: string
+  adFormat?: string
+  adUnit?: string
+  requests?: number
+  impressions?: number
+  clicks?: number
+  ctr?: number
+  ecpm?: number
+  revenue?: number
+  viewableImpressions?: number
+  viewabilityRate?: number
+  fillRate?: number
+  arpu?: number
+  advertiser?: string
+  domain?: string
 }
 
 interface EnhancedAnalyticsProps {

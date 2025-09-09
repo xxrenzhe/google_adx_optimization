@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Upload error:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : '文件上传失败' },
+      { error: error instanceof Error ? (error as any).message : '文件上传失败' },
       { status: 500 }
     )
   }
