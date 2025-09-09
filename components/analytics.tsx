@@ -18,6 +18,54 @@ import {
   ResponsiveContainer
 } from 'recharts'
 
+interface AlertData {
+  type: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  title: string
+  message: string
+  data?: Record<string, unknown>
+  timestamp: string
+}
+
+interface AnalyticsDataRow {
+  date: string
+  website: string
+  country?: string
+  device?: string
+  browser?: string
+  adFormat?: string
+  adUnit?: string
+  requests?: number
+  impressions?: number
+  clicks?: number
+  ctr?: number
+  ecpm?: number
+  revenue?: number
+  viewableImpressions?: number
+  viewabilityRate?: number
+  fillRate?: number
+  arpu?: number
+}
+
+interface AlertData {
+  type: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  title: string
+  message: string
+  data?: Record<string, unknown>
+  timestamp: string
+}
+
+interface AnalyticsData {
+  date: string
+  revenue: number
+  impressions: number
+  requests: number
+  ctr: number
+  ecpm: number
+  fillRate: number
+}
+
 interface AnalyticsProps {
   fileId: string | null;
   filters?: {

@@ -1,12 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FileSystemManager } from '@/lib/fs-manager'
 
+interface AlertData {
+  name?: string
+  date?: string
+  revenue?: number
+  impressions?: number
+  clicks?: number
+  requests?: number
+  ecpm?: number
+  ctr?: number
+  type: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  title: string
+  message: string
+  data?: Record<string, unknown>
+  timestamp: string
+}
+
+interface AnalyticsDataRow {
+  date: string
+  website: string
+  country?: string
+  device?: string
+  browser?: string
+  adFormat?: string
+  adUnit?: string
+  requests?: number
+  impressions?: number
+  clicks?: number
+  ctr?: number
+  ecpm?: number
+  revenue?: number
+  viewableImpressions?: number
+  viewabilityRate?: number
+  fillRate?: number
+  arpu?: number
+}
+
+interface AlertData {
+  type: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  title: string
+  message: string
+  data?: Record<string, unknown>
+  timestamp: string
+}
+
+interface DailyData {
+  date: string
+  revenue: number
+  impressions: number
+  clicks?: number
+}
+
 interface Alert {
   id: string
   type: 'warning' | 'success' | 'error' | 'info'
   title: string
   message: string
-  data?: any
+  data?: unknown
 }
 
 interface Recommendation {
@@ -15,7 +68,7 @@ interface Recommendation {
   title: string
   message: string
   impact: 'high' | 'medium' | 'low'
-  data: any
+  data: unknown
 }
 
 export async function GET(request: NextRequest) {
@@ -36,7 +89,7 @@ export async function GET(request: NextRequest) {
       }
       
       // 转换数据格式以兼容alerts分析
-      const dailyData = (result.dailyTrend || []).map((item: any) => ({
+      const dailyData = (result.dailyTrend || []).map((item: AlertData) => ({
         date: item.name || item.date, // 兼容优化前后的格式
         revenue: item.revenue,
         impressions: item.impressions,
@@ -184,8 +237,8 @@ export async function GET(request: NextRequest) {
       const earlierDays = data.dailyData.slice(-14, -7)
       
       if (recentDays.length > 0 && earlierDays.length > 0) {
-        const recentAvg = recentDays.reduce((sum: number, day: any) => sum + (day.revenue || 0), 0) / recentDays.length
-        const earlierAvg = earlierDays.reduce((sum: number, day: any) => sum + (day.revenue || 0), 0) / earlierDays.length
+        const recentAvg = recentDays.reduce((sum: number, day: DailyData) => sum + ((day as DailyData).revenue || 0), 0) / recentDays.length
+        const earlierAvg = earlierDays.reduce((sum: number, day: DailyData) => sum + ((day as DailyData).revenue || 0), 0) / earlierDays.length
         const growth = earlierAvg > 0 ? ((recentAvg - earlierAvg) / earlierAvg) * 100 : 0
         
         if (growth > 10) {

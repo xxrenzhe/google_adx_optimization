@@ -3,7 +3,7 @@ export class ProcessingError extends Error {
   constructor(
     message: string,
     public code: string,
-    public details?: any,
+    public details?: unknown,
     public retryable: boolean = true
   ) {
     super(message)
@@ -11,14 +11,14 @@ export class ProcessingError extends Error {
   }
 }
 
-export function isRetryableError(error: any): boolean {
+export function isRetryableError(error: Error): boolean {
   // 网络错误、超时错误、临时资源不足可以重试
   const retryableCodes = [
     'ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED',
     'ENOMEM', 'ENOSPC', 'ECANCELED'
   ]
   
-  if (error.code && retryableCodes.includes(error.code)) {
+  if ((error as any).code && retryableCodes.includes(error.code)) {
     return true
   }
   

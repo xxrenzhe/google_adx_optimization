@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { FileSystemManager } from '@/lib/fs-manager'
 import { getCachedData, setCachedData, generateCacheKey } from '@/lib/redis-cache'
 
+interface AnalyticsData {
+  date: string
+  revenue: number
+  impressions: number
+  requests: number
+  ctr: number
+  ecpm: number
+  fillRate: number
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -38,7 +48,7 @@ export async function GET(request: NextRequest) {
     }
     
     // 转换数据格式以兼容预测分析
-    const dailyData = (result.dailyTrend || []).map((item: any) => ({
+    const dailyData = (result.dailyTrend || []).map((item: unknown) => ({
       date: item.name,
       revenue: item.revenue,
       impressions: item.impressions,
@@ -106,7 +116,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function generateRevenuePredictions(dailyData: any[]) {
+function generateRevenuePredictions(dailyData: unknown[]) {
   if (!dailyData || dailyData.length === 0) {
     return Array.from({ length: 7 }, (_, i) => ({
       date: new Date(Date.now() + (i + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -116,13 +126,13 @@ function generateRevenuePredictions(dailyData: any[]) {
   
   // 使用最近14天数据进行预测
   const recentData = dailyData.slice(-14)
-  const avgRevenue = recentData.reduce((sum: number, day: any) => sum + (day.revenue || 0), 0) / recentData.length
+  const avgRevenue = recentData.reduce((sum: number, day: unknown) => sum + (day.revenue || 0), 0) / recentData.length
   
   // 计算趋势
   const recentWeek = recentData.slice(-7)
   const previousWeek = recentData.slice(-14, -7)
-  const recentAvg = recentWeek.reduce((sum: number, day: any) => sum + (day.revenue || 0), 0) / recentWeek.length
-  const previousAvg = previousWeek.reduce((sum: number, day: any) => sum + (day.revenue || 0), 0) / previousWeek.length
+  const recentAvg = recentWeek.reduce((sum: number, day: unknown) => sum + (day.revenue || 0), 0) / recentWeek.length
+  const previousAvg = previousWeek.reduce((sum: number, day: unknown) => sum + (day.revenue || 0), 0) / previousWeek.length
   const growthRate = previousAvg > 0 ? (recentAvg - previousAvg) / previousAvg : 0
   
   // 生成未来7天预测
@@ -163,10 +173,10 @@ function generateRevenuePredictions(dailyData: any[]) {
   return predictions
 }
 
-function detectAnomalies(dailyData: any[]) {
+function detectAnomalies(dailyData: unknown[]) {
   if (!dailyData || dailyData.length < 7) return []
   
-  const anomalies: any[] = []
+  const anomalies: unknown[] = []
   const recentData = dailyData.slice(-30) // 分析最近30天
   
   // 计算平均值和标准差
@@ -194,7 +204,7 @@ function detectAnomalies(dailyData: any[]) {
   return anomalies.slice(-5) // 返回最近5个异常
 }
 
-function generateDayOfWeekAnalysis(dailyData: any[]) {
+function generateDayOfWeekAnalysis(dailyData: unknown[]) {
   if (!dailyData || dailyData.length === 0) {
     return Array.from({ length: 7 }, () => ({
       avg_revenue: 0,
@@ -227,14 +237,14 @@ function generateDayOfWeekAnalysis(dailyData: any[]) {
   }))
 }
 
-function generateOpportunities(data: any) {
+function generateOpportunities(data: unknown) {
   if (!data.samplePreview || data.samplePreview.length === 0) return []
   
-  const opportunities: any[] = []
+  const opportunities: unknown[] = []
   const countryDeviceMap = new Map()
   
   // 分析不同国家-设备组合的表现
-  data.samplePreview.forEach((row: any) => {
+  data.samplePreview.forEach((row: unknown) => {
     const country = row.country || '未知'
     const device = row.device || '未知'
     const ecpm = row.ecpm || 0
@@ -280,12 +290,12 @@ function generateOpportunities(data: any) {
   return opportunities
 }
 
-function generateCompetitorInsights(data: any) {
+function generateCompetitorInsights(data: unknown) {
   if (!data.samplePreview || data.samplePreview.length === 0) return []
   
   const advertiserMap = new Map()
   
-  data.samplePreview.forEach((row: any) => {
+  data.samplePreview.forEach((row: unknown) => {
     const advertiser = row.advertiser || '未知'
     const domain = row.domain || '未知'
     const ecpm = row.ecpm || 0

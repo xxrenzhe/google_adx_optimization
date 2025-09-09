@@ -3,6 +3,24 @@
 import { useState, useEffect } from 'react'
 import { useFileSession } from '@/contexts/file-session'
 
+interface AlertData {
+  type: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  title: string
+  message: string
+  data?: Record<string, unknown>
+  timestamp: string
+}
+
+interface AlertData {
+  type: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  title: string
+  message: string
+  data?: Record<string, unknown>
+  timestamp: string
+}
+
 interface Alert {
   id: string
   type: 'warning' | 'success' | 'error' | 'info'
@@ -247,19 +265,19 @@ export default function DecisionAlerts({ refreshTrigger, fileId }: DecisionAlert
           </div>
         ) : (
           <div className="space-y-4">
-            {alerts.map((alert) => (
+            {(alerts as AlertData[]).map((alert) => (
               <div
-                key={alert.id}
-                className={`border-l-4 p-4 ${getAlertColor(alert.type)}`}
+                key={(alert as AlertData).id}
+                className={`border-l-4 p-4 ${getAlertColor((alert as AlertData).type)}`}
               >
                 <div className="flex items-start">
-                  <span className="text-xl mr-3">{getAlertIcon(alert.type)}</span>
+                  <span className="text-xl mr-3">{getAlertIcon((alert as AlertData).type)}</span>
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{alert.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{alert.message}</p>
-                    {alert.data && (
+                    <h3 className="font-medium text-gray-900">{(alert as AlertData).title}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{(alert as AlertData).message}</p>
+                    {(alert as AlertData).data && (
                       <div className="mt-2 text-xs text-gray-500">
-                        详情: {JSON.stringify(alert.data)}
+                        详情: {JSON.stringify((alert as AlertData).data)}
                       </div>
                     )}
                   </div>

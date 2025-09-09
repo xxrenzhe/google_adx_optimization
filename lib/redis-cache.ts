@@ -29,7 +29,7 @@ export async function getCachedData(key: string) {
 }
 
 // 设置缓存数据
-export async function setCachedData(key: string, data: any, expireInSeconds: number = 300) {
+export async function setCachedData(key: string, data: unknown, expireInSeconds: number = 300) {
   try {
     await connectRedis()
     await redisClient.setEx(key, expireInSeconds, JSON.stringify(data))

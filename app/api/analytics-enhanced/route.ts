@@ -2,11 +2,82 @@ import { NextRequest, NextResponse } from 'next/server'
 import { FileSystemManager } from '@/lib/fs-manager'
 import { getCachedData, setCachedData, generateCacheKey } from '@/lib/redis-cache'
 
+interface AggregatedData {
+  min: number
+  max: number
+  label: string
+  count?: number
+  range?: string
+  revenue?: number
+  impressions?: number
+  ecpm?: number
+}
+
+interface EnhancedAnalyticsData {
+  detailedData?: unknown[]
+  advertiser?: string
+  domain?: string
+  clicks?: number
+  _count?: number
+  _sum?: {
+    revenue: number
+    impressions: number
+    clicks?: number
+    ctr?: number
+    ecpm?: number
+    viewabilityRate?: number
+    requests?: number
+  }
+  _avg?: {
+    ecpm?: number
+    ctr?: number
+    fillRate?: number
+    viewabilityRate?: number
+  }
+  adFormats?: Map<string, number>
+  domains?: Set<string>
+  occurrences?: number
+  websites?: Set<string>
+  country?: string
+  device?: string
+  ad_format?: string
+  total_revenue?: number
+  avg_ecpm?: number
+  hour?: string
+  date: string
+  revenue: number
+  impressions: number
+  requests: number
+  ctr: number
+  ecpm: number
+  fillRate: number
+  viewabilityRate: number
+  arpu: number
+  country?: string
+  device?: string
+  adFormat?: string
+  adUnit?: string
+  website?: string
+  browser?: string
+}
+
+interface EnhancedAnalyticsData {
+  date: string
+  revenue: number
+  impressions: number
+  requests: number
+  ctr: number
+  ecpm: number
+  fillRate: number
+  viewabilityRate: number
+  arpu: number
+}
+
 // 获取详细数据用于分析 - 现在系统确保detailedData包含全量数据
-function getDetailedData(result: any) {
+function getDetailedData(result: EnhancedAnalyticsData) {
   // 系统现在收集全量详细数据，直接返回detailedData
-  if (result.detailedData && result.detailedData.length > 0) {
-    return result.detailedData
+  if ((result as EnhancedAnalyticsData).detailedData && (result as EnhancedAnalyticsData).detailedData.length > 0) {
+    return (result as EnhancedAnalyticsData).detailedData
   }
   
   // 如果detailedData为空（理论上不应该发生），记录错误
@@ -18,7 +89,7 @@ function getDetailedData(result: any) {
 }
 
 // 生成广告客户分析 - 使用全量详细数据
-function generateAdvertiserAnalysis(result: any) {
+function generateAdvertiserAnalysis(result: EnhancedAnalyticsData) {
   // 使用全量详细数据进行准确分析
   const detailedData = getDetailedData(result)
   if (!detailedData || detailedData.length === 0) return []
@@ -26,9 +97,9 @@ function generateAdvertiserAnalysis(result: any) {
   // 按广告客户聚合数据
   const advertiserMap = new Map()
   
-  detailedData.forEach((row: any) => {
-    const advertiser = row.advertiser || 'Unknown'
-    const domain = row.domain || row.website || 'Unknown'
+  detailedData.forEach((row: EnhancedAnalyticsData) => {
+    const advertiser = (row as EnhancedAnalyticsData).advertiser || 'Unknown'
+    const domain = (row as EnhancedAnalyticsData).domain || (row as EnhancedAnalyticsData).website || 'Unknown'
     
     if (!advertiserMap.has(advertiser)) {
       advertiserMap.set(advertiser, {
@@ -42,28 +113,28 @@ function generateAdvertiserAnalysis(result: any) {
     
     const data = advertiserMap.get(advertiser)
     data._count++
-    data._sum.revenue += row.revenue || 0
-    data._sum.impressions += row.impressions || 0
-    data._sum.clicks += row.clicks || 0
+    data._sum.revenue += (row as EnhancedAnalyticsData).revenue || 0
+    data._sum.impressions += (row as EnhancedAnalyticsData).impressions || 0
+    data._sum.clicks += (row as EnhancedAnalyticsData).clicks || 0
     data.domains.add(domain)
   })
   
   return Array.from(advertiserMap.values())
     .map(item => ({
-      advertiser: item.advertiser,
-      domain: item.domains.size === 1 ? Array.from(item.domains)[0] : item.domain,
-      _count: item._count,
-      _sum: { revenue: item._sum.revenue },
+      advertiser: (item as EnhancedAnalyticsData).advertiser,
+      domain: (item as EnhancedAnalyticsData).domains.size === 1 ? Array.from((item as EnhancedAnalyticsData).domains)[0] : (item as EnhancedAnalyticsData).domain,
+      _count: (item as EnhancedAnalyticsData)._count,
+      _sum: { revenue: (item as EnhancedAnalyticsData)._sum.revenue },
       _avg: { 
-        ecpm: item._sum.impressions > 0 ? (item._sum.revenue / item._sum.impressions * 1000) : 0,
-        ctr: item._sum.impressions > 0 ? (item._sum.clicks / item._sum.impressions * 100) : 0
+        ecpm: (item as EnhancedAnalyticsData)._sum.impressions > 0 ? ((item as EnhancedAnalyticsData)._sum.revenue / (item as EnhancedAnalyticsData)._sum.impressions * 1000) : 0,
+        ctr: (item as EnhancedAnalyticsData)._sum.impressions > 0 ? ((item as EnhancedAnalyticsData)._sum.clicks / (item as EnhancedAnalyticsData)._sum.impressions * 100) : 0
       }
     }))
     .sort((a, b) => b._sum.revenue - a._sum.revenue)
 }
 
 // 生成eCPM分布 - 使用全量详细数据
-function generateEcpmDistribution(result: any) {
+function generateEcpmDistribution(result: EnhancedAnalyticsData) {
   const buckets = [
     { min: 0, max: 10, label: '$0-10' },
     { min: 10, max: 25, label: '$10-25' },
@@ -76,34 +147,34 @@ function generateEcpmDistribution(result: any) {
   const detailedData = getDetailedData(result)
   if (!detailedData || detailedData.length === 0) return []
   
-  return buckets.map((bucket: any) => {
-    const count = detailedData.filter((row: any) => {
-      const ecpm = row.ecpm || 0
-      return ecpm >= bucket.min && ecpm < bucket.max
+  return buckets.map((bucket: AggregatedData) => {
+    const count = detailedData.filter((row: EnhancedAnalyticsData) => {
+      const ecpm = (row as EnhancedAnalyticsData).ecpm || 0
+      return ecpm >= (bucket as AggregatedData).min && ecpm < (bucket as AggregatedData).max
     }).length
     
     return {
-      range: bucket.label,
+      range: (bucket as AggregatedData).label,
       count
     }
   })
 }
 
 // 生成设备-浏览器矩阵 - 使用全量详细数据
-function generateDeviceBrowserMatrix(result: any) {
+function generateDeviceBrowserMatrix(result: EnhancedAnalyticsData) {
   const matrixMap = new Map()
   
   // 使用全量详细数据
   const detailedData = getDetailedData(result)
   if (!detailedData || detailedData.length === 0) return []
   
-  detailedData.forEach((row: any) => {
-    const device = row.device || 'Unknown'
-    const browser = row.browser || 'Unknown'
-    const revenue = row.revenue || 0
-    const ecpm = row.ecpm || 0
-    const ctr = row.ctr || 0
-    const impressions = row.impressions || 0
+  detailedData.forEach((row: EnhancedAnalyticsData) => {
+    const device = (row as EnhancedAnalyticsData).device || 'Unknown'
+    const browser = (row as EnhancedAnalyticsData).browser || 'Unknown'
+    const revenue = (row as EnhancedAnalyticsData).revenue || 0
+    const ecpm = (row as EnhancedAnalyticsData).ecpm || 0
+    const ctr = (row as EnhancedAnalyticsData).ctr || 0
+    const impressions = (row as EnhancedAnalyticsData).impressions || 0
     
     const key = `${device}|${browser}`
     const current = matrixMap.get(key)
@@ -126,24 +197,24 @@ function generateDeviceBrowserMatrix(result: any) {
   
   return Array.from(matrixMap.values())
     .map(item => ({
-      device: item.device,
-      browser: item.browser,
-      _count: item._count,
+      device: (item as EnhancedAnalyticsData).device,
+      browser: (item as EnhancedAnalyticsData).browser,
+      _count: (item as EnhancedAnalyticsData)._count,
       _sum: { 
-        revenue: item._sum.revenue, 
-        impressions: item._sum.impressions 
+        revenue: (item as EnhancedAnalyticsData)._sum.revenue, 
+        impressions: (item as EnhancedAnalyticsData)._sum.impressions 
       },
       _avg: { 
-        ecpm: item._sum.ecpm / item._count,
-        ctr: item._sum.ctr / item._count
+        ecpm: (item as EnhancedAnalyticsData)._sum.ecpm / (item as EnhancedAnalyticsData)._count,
+        ctr: (item as EnhancedAnalyticsData)._sum.ctr / (item as EnhancedAnalyticsData)._count
       }
     }))
-    .filter(item => item._sum.revenue > 0.01) // 降低过滤阈值
+    .filter(item => (item as EnhancedAnalyticsData)._sum.revenue > 0.01) // 降低过滤阈值
     .sort((a, b) => b._avg.ecpm - a._avg.ecpm)
 }
 
 // 生成广告单元分析 - 使用全量详细数据
-function generateAdUnitAnalysis(result: any) {
+function generateAdUnitAnalysis(result: EnhancedAnalyticsData) {
   // 使用全量详细数据进行准确分析
   const detailedData = getDetailedData(result)
   if (!detailedData || detailedData.length === 0) return []
@@ -151,9 +222,9 @@ function generateAdUnitAnalysis(result: any) {
   // 按广告单元聚合数据
   const adUnitMap = new Map()
   
-  detailedData.forEach((row: any) => {
-    const adUnit = row.adUnit || 'Unknown'
-    const adFormat = row.adFormat || 'Unknown'
+  detailedData.forEach((row: EnhancedAnalyticsData) => {
+    const adUnit = (row as EnhancedAnalyticsData).adUnit || 'Unknown'
+    const adFormat = (row as EnhancedAnalyticsData).adFormat || 'Unknown'
     
     if (!adUnitMap.has(adUnit)) {
       adUnitMap.set(adUnit, {
@@ -166,14 +237,14 @@ function generateAdUnitAnalysis(result: any) {
     
     const data = adUnitMap.get(adUnit)
     data._count++
-    data._sum.revenue += row.revenue || 0
-    data._sum.impressions += row.impressions || 0
-    data._sum.clicks += row.clicks || 0
-    data._sum.requests += row.requests || 0
+    data._sum.revenue += (row as EnhancedAnalyticsData).revenue || 0
+    data._sum.impressions += (row as EnhancedAnalyticsData).impressions || 0
+    data._sum.clicks += (row as EnhancedAnalyticsData).clicks || 0
+    data._sum.requests += (row as EnhancedAnalyticsData).requests || 0
     
     // 记录广告格式分布
     if (adFormat !== 'Unknown') {
-      data.adFormats.set(adFormat, (data.adFormats.get(adFormat) || 0) + (row.revenue || 0))
+      data.adFormats.set(adFormat, (data.adFormats.get(adFormat) || 0) + ((row as EnhancedAnalyticsData).revenue || 0))
     }
   })
   
@@ -182,7 +253,7 @@ function generateAdUnitAnalysis(result: any) {
       // 找到该广告单元收入最高的广告格式
       let primaryFormat = 'Unknown'
       let maxRevenue = 0
-      item.adFormats.forEach((revenue: number, format: string) => {
+      (item as EnhancedAnalyticsData).adFormats.forEach((revenue: number, format: string) => {
         if (revenue > maxRevenue) {
           maxRevenue = revenue
           primaryFormat = format
@@ -190,18 +261,18 @@ function generateAdUnitAnalysis(result: any) {
       })
       
       return {
-        adUnit: item.adUnit,
+        adUnit: (item as EnhancedAnalyticsData).adUnit,
         adFormat: primaryFormat,
-        _count: item._count,
+        _count: (item as EnhancedAnalyticsData)._count,
         _sum: { 
-          revenue: item._sum.revenue, 
-          impressions: item._sum.impressions, 
-          requests: item._sum.requests 
+          revenue: (item as EnhancedAnalyticsData)._sum.revenue, 
+          impressions: (item as EnhancedAnalyticsData)._sum.impressions, 
+          requests: (item as EnhancedAnalyticsData)._sum.requests 
         },
         _avg: { 
-          ecpm: item._sum.impressions > 0 ? (item._sum.revenue / item._sum.impressions * 1000) : 0, 
-          ctr: item._sum.impressions > 0 ? (item._sum.clicks / item._sum.impressions * 100) : 0,
-          fillRate: item._sum.requests > 0 ? (item._sum.impressions / item._sum.requests) : 0
+          ecpm: (item as EnhancedAnalyticsData)._sum.impressions > 0 ? ((item as EnhancedAnalyticsData)._sum.revenue / (item as EnhancedAnalyticsData)._sum.impressions * 1000) : 0, 
+          ctr: (item as EnhancedAnalyticsData)._sum.impressions > 0 ? ((item as EnhancedAnalyticsData)._sum.clicks / (item as EnhancedAnalyticsData)._sum.impressions * 100) : 0,
+          fillRate: (item as EnhancedAnalyticsData)._sum.requests > 0 ? ((item as EnhancedAnalyticsData)._sum.impressions / (item as EnhancedAnalyticsData)._sum.requests) : 0
         }
       }
     })
@@ -209,7 +280,7 @@ function generateAdUnitAnalysis(result: any) {
 }
 
 // 生成顶级组合分析 - 使用全量详细数据
-function generateTopCombinations(result: any) {
+function generateTopCombinations(result: EnhancedAnalyticsData) {
   // 使用全量详细数据进行准确分析
   const detailedData = getDetailedData(result)
   if (!detailedData || detailedData.length === 0) return []
@@ -217,19 +288,19 @@ function generateTopCombinations(result: any) {
   // 创建组合映射：国家+设备+广告格式
   const combinationMap = new Map()
   
-  detailedData.forEach((row: any) => {
-    const country = row.country || 'Unknown'
-    const device = row.device || 'Unknown'
-    const adFormat = row.adFormat || 'Unknown'
-    const website = row.website || 'Unknown'
+  detailedData.forEach((row: EnhancedAnalyticsData) => {
+    const country = (row as EnhancedAnalyticsData).country || 'Unknown'
+    const device = (row as EnhancedAnalyticsData).device || 'Unknown'
+    const adFormat = (row as EnhancedAnalyticsData).adFormat || 'Unknown'
+    const website = (row as EnhancedAnalyticsData).website || 'Unknown'
     
     // 创建组合键
     const key = `${country}|${device}|${adFormat}`
     
     if (combinationMap.has(key)) {
       const existing = combinationMap.get(key)
-      existing.revenue += row.revenue || 0
-      existing.impressions += row.impressions || 0
+      existing.revenue += (row as EnhancedAnalyticsData).revenue || 0
+      existing.impressions += (row as EnhancedAnalyticsData).impressions || 0
       existing.occurrences += 1
       existing.websites.add(website)
     } else {
@@ -237,8 +308,8 @@ function generateTopCombinations(result: any) {
         country,
         device,
         ad_format: adFormat,
-        revenue: row.revenue || 0,
-        impressions: row.impressions || 0,
+        revenue: (row as EnhancedAnalyticsData).revenue || 0,
+        impressions: (row as EnhancedAnalyticsData).impressions || 0,
         occurrences: 1,
         websites: new Set([website])
       })
@@ -248,33 +319,33 @@ function generateTopCombinations(result: any) {
   // 转换为数组并计算平均eCPM
   return Array.from(combinationMap.values())
     .map(item => ({
-      country: item.country,
-      device: item.device,
-      ad_format: item.ad_format,
-      total_revenue: item.revenue,
-      impressions: item.impressions,
-      avg_ecpm: item.impressions > 0 ? (item.revenue / item.impressions * 1000) : 0,
-      occurrences: item.occurrences,
-      website: Array.from(item.websites)[0] || 'Unknown'
+      country: (item as EnhancedAnalyticsData).country,
+      device: (item as EnhancedAnalyticsData).device,
+      ad_format: (item as EnhancedAnalyticsData).ad_format,
+      total_revenue: (item as EnhancedAnalyticsData).revenue,
+      impressions: (item as EnhancedAnalyticsData).impressions,
+      avg_ecpm: (item as EnhancedAnalyticsData).impressions > 0 ? ((item as EnhancedAnalyticsData).revenue / (item as EnhancedAnalyticsData).impressions * 1000) : 0,
+      occurrences: (item as EnhancedAnalyticsData).occurrences,
+      website: Array.from((item as EnhancedAnalyticsData).websites)[0] || 'Unknown'
     }))
-    .filter(item => item.total_revenue > 0.01)
+    .filter(item => (item as EnhancedAnalyticsData).total_revenue > 0.01)
     .sort((a, b) => b.avg_ecpm - a.avg_ecpm)
     .slice(0, 20)
 }
 
 // 生成可见度分析 - 使用详细数据
-function generateViewabilityAnalysis(result: any) {
+function generateViewabilityAnalysis(result: EnhancedAnalyticsData) {
   const detailedData = getDetailedData(result)
   if (!detailedData || detailedData.length === 0) return []
   
   const viewabilityMap = new Map()
   
-  detailedData.forEach((row: any) => {
-    const adFormat = row.adFormat || '未知'
-    const viewabilityRate = row.viewabilityRate || 0
-    const ecpm = row.ecpm || 0
-    const revenue = row.revenue || 0
-    const impressions = row.impressions || 0
+  detailedData.forEach((row: EnhancedAnalyticsData) => {
+    const adFormat = (row as EnhancedAnalyticsData).adFormat || '未知'
+    const viewabilityRate = (row as EnhancedAnalyticsData).viewabilityRate || 0
+    const ecpm = (row as EnhancedAnalyticsData).ecpm || 0
+    const revenue = (row as EnhancedAnalyticsData).revenue || 0
+    const impressions = (row as EnhancedAnalyticsData).impressions || 0
     
     const key = adFormat
     const current = viewabilityMap.get(key)
@@ -296,23 +367,23 @@ function generateViewabilityAnalysis(result: any) {
   
   return Array.from(viewabilityMap.values())
     .map(item => ({
-      adFormat: item.adFormat,
-      _count: item._count,
+      adFormat: (item as EnhancedAnalyticsData).adFormat,
+      _count: (item as EnhancedAnalyticsData)._count,
       _sum: { 
-        revenue: item._sum.revenue, 
-        impressions: item._sum.impressions 
+        revenue: (item as EnhancedAnalyticsData)._sum.revenue, 
+        impressions: (item as EnhancedAnalyticsData)._sum.impressions 
       },
       _avg: { 
-        viewabilityRate: (item._sum.viewabilityRate / item._count) * 100, // Convert to percentage
-        ecpm: item._sum.ecpm / item._count
+        viewabilityRate: ((item as EnhancedAnalyticsData)._sum.viewabilityRate / (item as EnhancedAnalyticsData)._count) * 100, // Convert to percentage
+        ecpm: (item as EnhancedAnalyticsData)._sum.ecpm / (item as EnhancedAnalyticsData)._count
       }
     }))
-    .filter((item: any) => item._sum.impressions > 0)
+    .filter((item: EnhancedAnalyticsData) => (item as EnhancedAnalyticsData)._sum.impressions > 0)
     .sort((a, b) => b._avg.viewabilityRate - a._avg.viewabilityRate)
 }
 
 // 生成24小时表现模式 - 基于全量详细数据
-function generateHourlyPattern(result: any) {
+function generateHourlyPattern(result: EnhancedAnalyticsData) {
   const hourlyMap = new Map()
   
   // 初始化24小时
@@ -329,8 +400,8 @@ function generateHourlyPattern(result: any) {
   const detailedData = getDetailedData(result)
   if (detailedData.length === 0) {
     // 如果没有详细数据，返回空数组而不是推断数据
-    return Array.from(hourlyMap.values()).map((item: any) => ({
-      hour: item.hour,
+    return Array.from(hourlyMap.values()).map((item: EnhancedAnalyticsData) => ({
+      hour: (item as EnhancedAnalyticsData).hour,
       avg_ecpm: 0,
       total_revenue: 0,
       total_impressions: 0,
@@ -340,15 +411,15 @@ function generateHourlyPattern(result: any) {
   
   // 如果CSV中没有时间戳信息，我们无法准确分配到24小时
   // 但我们可以基于数据量生成一个均匀分布作为基础
-  const totalRevenue = detailedData.reduce((sum: number, row: any) => sum + (row.revenue || 0), 0)
-  const totalImpressions = detailedData.reduce((sum: number, row: any) => sum + (row.impressions || 0), 0)
-  const totalRequests = detailedData.reduce((sum: number, row: any) => sum + (row.requests || 0), 0)
+  const totalRevenue = detailedData.reduce((sum: number, row: EnhancedAnalyticsData) => sum + ((row as EnhancedAnalyticsData).revenue || 0), 0)
+  const totalImpressions = detailedData.reduce((sum: number, row: EnhancedAnalyticsData) => sum + ((row as EnhancedAnalyticsData).impressions || 0), 0)
+  const totalRequests = detailedData.reduce((sum: number, row: EnhancedAnalyticsData) => sum + ((row as EnhancedAnalyticsData).requests || 0), 0)
   
   // 如果有足够的记录，可以尝试基于某些特征（如日期字符串）分布数据
   if (detailedData.length > 100) {
-    detailedData.forEach((row: any) => {
+    detailedData.forEach((row: EnhancedAnalyticsData) => {
       // 使用记录的哈希值作为种子来分配小时
-      const hashStr = row.date || row.website || Math.random().toString()
+      const hashStr = (row as EnhancedAnalyticsData).date || (row as EnhancedAnalyticsData).website || Math.random().toString()
       let hash = 0
       for (let i = 0; i < hashStr.length; i++) {
         hash = ((hash << 5) - hash) + hashStr.charCodeAt(i)
@@ -366,9 +437,9 @@ function generateHourlyPattern(result: any) {
         if (weight > 0) {
           const current = hourlyMap.get(hour)
           if (current) {
-            current.revenue += (row.revenue || 0) * weight
-            current.impressions += Math.floor((row.impressions || 0) * weight)
-            current.requests += Math.floor((row.requests || 0) * weight)
+            current.revenue += ((row as EnhancedAnalyticsData).revenue || 0) * weight
+            current.impressions += Math.floor(((row as EnhancedAnalyticsData).impressions || 0) * weight)
+            current.requests += Math.floor(((row as EnhancedAnalyticsData).requests || 0) * weight)
           }
         }
       }
@@ -390,12 +461,12 @@ function generateHourlyPattern(result: any) {
   }
   
   // 计算eCPM并转换为数组
-  return Array.from(hourlyMap.values()).map((item: any) => ({
-    hour: item.hour,
-    avg_ecpm: item.impressions > 0 ? (item.revenue / item.impressions * 1000) : 0,
-    total_revenue: item.revenue,
-    total_impressions: item.impressions,
-    total_requests: item.requests
+  return Array.from(hourlyMap.values()).map((item: EnhancedAnalyticsData) => ({
+    hour: (item as EnhancedAnalyticsData).hour,
+    avg_ecpm: (item as EnhancedAnalyticsData).impressions > 0 ? ((item as EnhancedAnalyticsData).revenue / (item as EnhancedAnalyticsData).impressions * 1000) : 0,
+    total_revenue: (item as EnhancedAnalyticsData).revenue,
+    total_impressions: (item as EnhancedAnalyticsData).impressions,
+    total_requests: (item as EnhancedAnalyticsData).requests
   }))
 }
 
@@ -453,17 +524,17 @@ export async function GET(request: NextRequest) {
     const insights = []
     
     // 1. 收入趋势分析
-    const formattedDailyTrend = (dailyTrend || []).map((item: any) => ({
+    const formattedDailyTrend = (dailyTrend || []).map((item: EnhancedAnalyticsData) => ({
       ...item,
-      date: item.name || item.date // 兼容优化前后的格式
+      date: (item as EnhancedAnalyticsData).name || (item as EnhancedAnalyticsData).date // 兼容优化前后的格式
     }))
     
     if (formattedDailyTrend.length > 7) {
       const recentWeek = formattedDailyTrend.slice(-7)
       const previousWeek = formattedDailyTrend.slice(-14, -7)
       
-      const recentRevenue = recentWeek.reduce((sum: number, day: any) => sum + (day.revenue || 0), 0)
-      const previousRevenue = previousWeek.reduce((sum: number, day: any) => sum + (day.revenue || 0), 0)
+      const recentRevenue = recentWeek.reduce((sum: number, day: unknown) => sum + (day.revenue || 0), 0)
+      const previousRevenue = previousWeek.reduce((sum: number, day: unknown) => sum + (day.revenue || 0), 0)
       const weeklyGrowth = previousRevenue > 0 ? ((recentRevenue - previousRevenue) / previousRevenue) * 100 : 0
       
       insights.push({
@@ -509,8 +580,8 @@ export async function GET(request: NextRequest) {
     
     // 4. 设备效率分析
     if (topDevices && topDevices.length > 1) {
-      const mobile = topDevices.find((d: any) => d.name.toLowerCase().includes('mobile'))
-      const desktop = topDevices.find((d: any) => d.name.toLowerCase().includes('desktop'))
+      const mobile = topDevices.find((d: unknown) => d.name.toLowerCase().includes('mobile'))
+      const desktop = topDevices.find((d: unknown) => d.name.toLowerCase().includes('desktop'))
       
       if (mobile && desktop && mobile.ecpm && desktop.ecpm && desktop.ecpm > 0) {
         const mobileEcpm = mobile.ecpm
@@ -547,7 +618,7 @@ export async function GET(request: NextRequest) {
     // 6. 季节性分析（如果有足够数据）
     if (dailyTrend.length > 30) {
       const monthlyData: Record<string, { revenue: number; impressions: number }> = {}
-      dailyTrend.forEach((day: any) => {
+      dailyTrend.forEach((day: unknown) => {
         const month = day.date.substring(0, 7) // YYYY-MM
         if (!monthlyData[month]) {
           monthlyData[month] = { revenue: 0, impressions: 0 }
@@ -576,7 +647,7 @@ export async function GET(request: NextRequest) {
     const recommendations = []
     
     // 基于洞察生成建议
-    const revenueInsight = insights.find((i: any) => i.category === 'revenue')
+    const revenueInsight = insights.find((i: unknown) => i.category === 'revenue')
     if (revenueInsight && revenueInsight.trend === 'down') {
       recommendations.push({
         priority: 'high',
@@ -586,7 +657,7 @@ export async function GET(request: NextRequest) {
       })
     }
     
-    const concentrationInsight = insights.find((i: any) => i.category === 'website')
+    const concentrationInsight = insights.find((i: unknown) => i.category === 'website')
     if (concentrationInsight && concentrationInsight.recommendation?.includes('分散风险')) {
       recommendations.push({
         priority: 'medium',
@@ -596,7 +667,7 @@ export async function GET(request: NextRequest) {
       })
     }
     
-    const geoInsight = insights.find((i: any) => i.category === 'geography')
+    const geoInsight = insights.find((i: unknown) => i.category === 'geography')
     if (geoInsight && geoInsight.recommendation?.includes('拓展更多')) {
       recommendations.push({
         priority: 'medium',
@@ -606,7 +677,7 @@ export async function GET(request: NextRequest) {
       })
     }
     
-    const deviceInsight = insights.find((i: any) => i.category === 'device')
+    const deviceInsight = insights.find((i: unknown) => i.category === 'device')
     if (deviceInsight) {
       recommendations.push({
         priority: 'low',
@@ -623,10 +694,10 @@ export async function GET(request: NextRequest) {
     
     if (tempAdUnitAnalysis && tempAdUnitAnalysis.length > 0) {
       // 找出表现最好和最差的广告单元
-      const bestAdUnit = tempAdUnitAnalysis.reduce((best: any, current: any) => 
+      const bestAdUnit = tempAdUnitAnalysis.reduce((best: unknown, current: unknown) => 
         current._avg.ecpm > best._avg.ecpm ? current : best
       )
-      const worstAdUnit = tempAdUnitAnalysis.reduce((worst: any, current: any) => 
+      const worstAdUnit = tempAdUnitAnalysis.reduce((worst: unknown, current: unknown) => 
         current._avg.ecpm < worst._avg.ecpm ? current : worst
       )
       
@@ -640,7 +711,7 @@ export async function GET(request: NextRequest) {
       }
       
       // 检查填充率
-      const lowFillRateUnits = tempAdUnitAnalysis.filter((unit: any) => unit._avg.fillRate < 0.6)
+      const lowFillRateUnits = tempAdUnitAnalysis.filter((unit: unknown) => unit._avg.fillRate < 0.6)
       if (lowFillRateUnits.length > 0) {
         recommendations.push({
           priority: 'high',
@@ -653,8 +724,8 @@ export async function GET(request: NextRequest) {
     
     // 基于eCPM分布生成建议
     if (tempEcmpBuckets && tempEcmpBuckets.length > 0) {
-      const highEcpmBucket = tempEcmpBuckets.find((bucket: any) => bucket.range === '$50+')
-      const lowEcpmBucket = tempEcmpBuckets.find((bucket: any) => bucket.range === '$0-10')
+      const highEcpmBucket = tempEcmpBuckets.find((bucket: AggregatedData) => (bucket as AggregatedData).range === '$50+')
+      const lowEcpmBucket = tempEcmpBuckets.find((bucket: AggregatedData) => (bucket as AggregatedData).range === '$0-10')
       
       if (highEcpmBucket && lowEcpmBucket && highEcpmBucket.count > tempEcmpBuckets.length * 0.3) {
         recommendations.push({
@@ -689,24 +760,24 @@ export async function GET(request: NextRequest) {
     const advertiserAnalysis = generateAdvertiserAnalysis(data)
     const ecmpBuckets = generateEcpmDistribution(data)
     const deviceBrowserMatrix = generateDeviceBrowserMatrix(data)
-    const geoAnalysis = (topCountries || []).map((item: any) => ({
-      country: item.name,
+    const geoAnalysis = (topCountries || []).map((item: EnhancedAnalyticsData) => ({
+      country: (item as EnhancedAnalyticsData).name,
       _sum: {
-        revenue: item.revenue || 0,
-        impressions: item.impressions || 0
+        revenue: (item as EnhancedAnalyticsData).revenue || 0,
+        impressions: (item as EnhancedAnalyticsData).impressions || 0
       },
       _avg: {
-        ecpm: item.ecpm || item.avgEcpm || 0
+        ecpm: (item as EnhancedAnalyticsData).ecpm || (item as EnhancedAnalyticsData).avgEcpm || 0
       }
     }))
     const adUnitAnalysis = generateAdUnitAnalysis(data)
-    const topCombinations = generateTopCombinations(data).map((item: any) => ({
-      country: item.country,
-      device: item.device,
-      ad_format: item.ad_format || 'Unknown',
-      avg_ecpm: item.avg_ecpm || (item.impressions > 0 ? (item.revenue / item.impressions * 1000) : 0),
-      total_revenue: item.total_revenue || 0,
-      occurrences: item.occurrences || Math.floor((item.total_revenue || 0) * 100) // Simulate occurrences
+    const topCombinations = generateTopCombinations(data).map((item: EnhancedAnalyticsData) => ({
+      country: (item as EnhancedAnalyticsData).country,
+      device: (item as EnhancedAnalyticsData).device,
+      ad_format: (item as EnhancedAnalyticsData).ad_format || 'Unknown',
+      avg_ecpm: (item as EnhancedAnalyticsData).avg_ecpm || ((item as EnhancedAnalyticsData).impressions > 0 ? ((item as EnhancedAnalyticsData).revenue / (item as EnhancedAnalyticsData).impressions * 1000) : 0),
+      total_revenue: (item as EnhancedAnalyticsData).total_revenue || 0,
+      occurrences: (item as EnhancedAnalyticsData).occurrences || Math.floor(((item as EnhancedAnalyticsData).total_revenue || 0) * 100) // Simulate occurrences
     }))
     const hourlyPattern = generateHourlyPattern(data)
     const viewabilityAnalysis = generateViewabilityAnalysis(data)
@@ -725,7 +796,7 @@ export async function GET(request: NextRequest) {
       summary: {
         totalInsights: insights.length,
         highPriorityActions: recommendations.filter(r => r.priority === 'high').length,
-        estimatedUpside: recommendations.reduce((max: number, r: any) => {
+        estimatedUpside: recommendations.reduce((max: number, r: unknown) => {
           const match = r.impact.match(/(\d+)-(\d+)/)
           if (match) {
             return Math.max(max, parseInt(match[2]))

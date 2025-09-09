@@ -56,7 +56,7 @@ export const CONFIG = {
 if (process.env.NODE_ENV === 'production') {
   try {
     CONFIG.validate();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Configuration validation failed:', error.message);
     process.exit(1);
   }

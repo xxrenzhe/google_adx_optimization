@@ -2,6 +2,69 @@ import fs from 'fs/promises'
 import path from 'path'
 import { CONFIG } from './config'
 
+interface ResultData {
+  fileId: string
+  fileName?: string
+  uploadTime?: string
+  summary: {
+    totalRevenue: number
+    totalImpressions: number
+    totalClicks: number
+    avgEcpm: number
+    avgCtr: number
+  }
+  topWebsites: Array<{
+    name: string
+    revenue: number
+    impressions: number
+    clicks?: number
+    ecpm: number
+  }>
+  topCountries: Array<{
+    name: string
+    revenue: number
+    impressions: number
+    clicks?: number
+    ecpm: number
+  }>
+  sampleData: AnalyticsDataRow[]
+}
+
+interface AggregatedData {
+  revenue: number
+  impressions: number
+  clicks?: number
+  ecpm: number
+  count?: number
+}
+
+interface DailyData {
+  date: string
+  revenue: number
+  impressions: number
+  clicks?: number
+}
+
+interface AnalyticsDataRow {
+  date: string
+  website: string
+  country?: string
+  device?: string
+  browser?: string
+  adFormat?: string
+  adUnit?: string
+  requests?: number
+  impressions?: number
+  clicks?: number
+  ctr?: number
+  ecpm?: number
+  revenue?: number
+  viewableImpressions?: number
+  viewabilityRate?: number
+  fillRate?: number
+  arpu?: number
+}
+
 // 文件系统数据管理器
 export class FileSystemManager {
   private static dataDir = path.join(process.cwd(), 'data')
@@ -17,30 +80,30 @@ export class FileSystemManager {
     try {
       await this.ensureDirectories()
       const files = await fs.readdir(this.resultsDir)
-      const results = []
+      const results: ResultData[] = []
       
       for (const file of files) {
         if (file.endsWith('.json')) {
           const filePath = path.join(this.resultsDir, file)
           const content = await fs.readFile(filePath, 'utf-8')
-          const data = JSON.parse(content)
+          const data: unknown = JSON.parse(content)
           
           // 添加文件ID
           const fileId = file.replace('.json', '')
           results.push({
             fileId,
-            fileName: data.fileName || file,
-            uploadTime: data.uploadTime || new Date().toISOString(),
-            summary: data.summary,
-            topWebsites: data.topWebsites || [],
-            topCountries: data.topCountries || [],
-            sampleData: data.sampleData || []
+            fileName: (data as any).fileName || file,
+            uploadTime: (data as any).uploadTime || new Date().toISOString(),
+            summary: (data as any).summary,
+            topWebsites: (data as any).topWebsites || [],
+            topCountries: (data as any).topCountries || [],
+            sampleData: (data as any).sampleData || []
           })
         }
       }
       
       // 按上传时间排序
-      return results.sort((a, b) => new Date(b.uploadTime).getTime() - new Date(a.uploadTime).getTime())
+      return results.sort((a: any, b: any) => new Date(b.uploadTime).getTime() - new Date(a.uploadTime).getTime())
     } catch (error) {
       console.error('Error reading analysis results:', error)
       return []
@@ -77,23 +140,23 @@ export class FileSystemManager {
           avgEcpm: 0,
           avgCtr: 0
         },
-        dailyData: new Map<string, any>(),
-        websites: new Map<string, any>(),
-        countries: new Map<string, any>(),
-        devices: new Map<string, any>(),
-        adFormats: new Map<string, any>()
+        dailyData: new Map<string, unknown>(),
+        websites: new Map<string, unknown>(),
+        countries: new Map<string, unknown>(),
+        devices: new Map<string, unknown>(),
+        adFormats: new Map<string, unknown>()
       }
       
       for (const result of allResults) {
         // 累加汇总数据
-        aggregated.summary.totalRevenue += result.summary.totalRevenue || 0
-        aggregated.summary.totalImpressions += result.summary.totalImpressions || 0
-        aggregated.summary.totalClicks += result.summary.totalClicks || 0
+        aggregated.summary.totalRevenue += (result as ResultData).summary.totalRevenue || 0
+        aggregated.summary.totalImpressions += (result as ResultData).summary.totalImpressions || 0
+        aggregated.summary.totalClicks += (result as ResultData).summary.totalClicks || 0
         
         // 聚合网站数据
-        if (result.topWebsites) {
-          for (const website of result.topWebsites) {
-            const current = aggregated.websites.get(website.name) || {
+        if ((result as ResultData).topWebsites) {
+          for (const website of (result as ResultData).topWebsites) {
+            const current: AggregatedData = aggregated.websites.get(website.name) || {
               revenue: 0,
               impressions: 0,
               clicks: 0,
@@ -107,9 +170,9 @@ export class FileSystemManager {
         }
         
         // 聚合国家数据
-        if (result.topCountries) {
-          for (const country of result.topCountries) {
-            const current = aggregated.countries.get(country.name) || {
+        if ((result as ResultData).topCountries) {
+          for (const country of (result as ResultData).topCountries) {
+            const current: AggregatedData = aggregated.countries.get(country.name) || {
               revenue: 0,
               impressions: 0,
               clicks: 0
@@ -122,46 +185,46 @@ export class FileSystemManager {
         }
         
         // 处理样本数据以获取设备、广告格式等分布
-        if (result.sampleData) {
-          for (const row of result.sampleData) {
+        if ((result as ResultData).sampleData) {
+          for (const row of (result as ResultData).sampleData) {
             // 设备统计
             if (row.device) {
-              const device = aggregated.devices.get(row.device) || {
+              const device: AggregatedData = aggregated.devices.get((row as AnalyticsDataRow).device!) || {
                 revenue: 0,
                 impressions: 0,
                 count: 0
               }
-              device.revenue += row.revenue || 0
-              device.impressions += row.impressions || 0
+              device.revenue += (row as AnalyticsDataRow).revenue || 0
+              device.impressions += (row as AnalyticsDataRow).impressions || 0
               device.count += 1
               aggregated.devices.set(row.device, device)
             }
             
             // 广告格式统计
             if (row.adFormat) {
-              const format = aggregated.adFormats.get(row.adFormat) || {
+              const format: AggregatedData = aggregated.adFormats.get((row as AnalyticsDataRow).adFormat!) || {
                 revenue: 0,
                 impressions: 0,
                 count: 0
               }
-              format.revenue += row.revenue || 0
-              format.impressions += row.impressions || 0
+              format.revenue += (row as AnalyticsDataRow).revenue || 0
+              format.impressions += (row as AnalyticsDataRow).impressions || 0
               format.count += 1
               aggregated.adFormats.set(row.adFormat, format)
             }
             
             // 日期统计
-            if (row.dataDate) {
-              const date = row.dataDate.split(' ')[0] // 只取日期部分
-              const daily = aggregated.dailyData.get(date) || {
+            if ((row as any).date) {
+              const date = (row as any).date.split(' ')[0] // 只取日期部分
+              const daily: DailyData = aggregated.dailyData.get(date) || {
                 date,
                 revenue: 0,
                 impressions: 0,
                 clicks: 0
               }
-              daily.revenue += row.revenue || 0
-              daily.impressions += row.impressions || 0
-              daily.clicks += row.clicks || 0
+              daily.revenue += (row as AnalyticsDataRow).revenue || 0
+              daily.impressions += (row as AnalyticsDataRow).impressions || 0
+              daily.clicks += (row as AnalyticsDataRow).clicks || 0
               aggregated.dailyData.set(date, daily)
             }
           }
@@ -179,20 +242,20 @@ export class FileSystemManager {
       // 转换Map为数组并排序
       return {
         summary: aggregated.summary,
-        dailyData: Array.from(aggregated.dailyData.values()).sort((a, b) => a.date.localeCompare(b.date)),
+        dailyData: Array.from(aggregated.dailyData.values()).sort((a: any, b: any) => a.date.localeCompare(b.date)),
         topWebsites: Array.from(aggregated.websites.entries())
-          .map(([name, data]) => ({ name, ...data, ecpm: data.impressions > 0 ? data.revenue / data.impressions * 1000 : 0 }))
+          .map(([name, data]: [string, any]) => ({ name, ...(data as any), ecpm: (data as any).impressions > 0 ? (data as any).revenue / (data as any).impressions * 1000 : 0 }))
           .sort((a, b) => b.revenue - a.revenue)
           .slice(0, 20),
         topCountries: Array.from(aggregated.countries.entries())
-          .map(([name, data]) => ({ name, ...data, ecpm: data.impressions > 0 ? data.revenue / data.impressions * 1000 : 0 }))
+          .map(([name, data]: [string, any]) => ({ name, ...(data as any), ecpm: (data as any).impressions > 0 ? (data as any).revenue / (data as any).impressions * 1000 : 0 }))
           .sort((a, b) => b.revenue - a.revenue)
           .slice(0, 20),
         topDevices: Array.from(aggregated.devices.entries())
-          .map(([name, data]) => ({ name, ...data, ecpm: data.impressions > 0 ? data.revenue / data.impressions * 1000 : 0 }))
+          .map(([name, data]: [string, any]) => ({ name, ...(data as any), ecpm: (data as any).impressions > 0 ? (data as any).revenue / (data as any).impressions * 1000 : 0 }))
           .sort((a, b) => b.revenue - a.revenue),
         topAdFormats: Array.from(aggregated.adFormats.entries())
-          .map(([name, data]) => ({ name, ...data, ecpm: data.impressions > 0 ? data.revenue / data.impressions * 1000 : 0 }))
+          .map(([name, data]: [string, any]) => ({ name, ...(data as any), ecpm: (data as any).impressions > 0 ? (data as any).revenue / (data as any).impressions * 1000 : 0 }))
           .sort((a, b) => b.revenue - a.revenue)
       }
     } catch (error) {

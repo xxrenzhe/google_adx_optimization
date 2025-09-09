@@ -66,7 +66,7 @@ export default function Upload({ onUploadComplete, onDataCleared }: UploadProps)
       
       xhr.open('POST', '/api/upload')
       xhr.send(formData)
-    } catch (err) {
+    } catch {
       setError('Upload failed')
       setUploading(false)
     }
@@ -116,7 +116,7 @@ export default function Upload({ onUploadComplete, onDataCleared }: UploadProps)
       } else {
         setError('清除数据失败')
       }
-    } catch (err) {
+    } catch {
       setError('清除数据失败')
     }
   }, [onDataCleared])

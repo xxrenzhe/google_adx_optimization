@@ -1,4 +1,42 @@
-import { CONFIG } from './config'
+// import { CONFIG } from './config'
+
+interface AnalyticsDataRow {
+  date: string
+  website: string
+  country?: string
+  device?: string
+  browser?: string
+  adFormat?: string
+  adUnit?: string
+  requests?: number
+  impressions?: number
+  clicks?: number
+  ctr?: number
+  ecpm?: number
+  revenue?: number
+  viewableImpressions?: number
+  viewabilityRate?: number
+  fillRate?: number
+  arpu?: number
+}
+
+interface AggregatedData {
+  revenue: number
+  impressions: number
+  clicks?: number
+  ecpm: number
+  count?: number
+}
+
+interface AnalyticsData {
+  date: string
+  revenue: number
+  impressions: number
+  requests: number
+  ctr: number
+  ecpm: number
+  fillRate: number
+}
 
 // 轻量级聚合器 - 优化内存使用
 export class LightweightAggregator {
@@ -39,9 +77,9 @@ export class LightweightAggregator {
     "80-100%": 0
   }
   
-  private samplePreview: any[] = []
+  private samplePreview: unknown[] = []
   private readonly SAMPLE_LIMIT = 20 // 减少样本数量
-  private detailedData: any[] = [] // 存储全量详细数据用于分析
+  private detailedData: unknown[] = [] // 存储全量详细数据用于分析
   private processedLines = 0
   private columnMap: Record<string, number> = {}
   
@@ -51,7 +89,7 @@ export class LightweightAggregator {
   }
   
   // 轻量级更新函数
-  private updateMetric(data: Record<string, any>, key: string, values: any) {
+  private updateMetric(data: Record<string, any>, key: string, values: unknown) {
     if (!data[key]) {
       data[key] = {
         revenue: 0,
@@ -68,7 +106,7 @@ export class LightweightAggregator {
   }
   
   // 更新组合数据
-  private updateCombination(data: Record<string, any>, key: string, values: any) {
+  private updateCombination(data: Record<string, any>, key: string, values: unknown) {
     if (!data[key]) {
       data[key] = {
         revenue: 0,
@@ -184,7 +222,7 @@ export class LightweightAggregator {
         // MemoryMonitor.getInstance().checkMemory()
       }
       
-    } catch (e) {
+    } catch {
       // 静默忽略错误行
     }
   }

@@ -21,6 +21,67 @@ import {
   Treemap
 } from 'recharts'
 
+interface EnhancedAnalyticsData {
+  detailedData?: unknown[]
+  advertiser?: string
+  domain?: string
+  clicks?: number
+  _count?: number
+  _sum?: {
+    revenue: number
+    impressions: number
+    clicks?: number
+    ctr?: number
+    ecpm?: number
+    viewabilityRate?: number
+    requests?: number
+  }
+  _avg?: {
+    ecpm?: number
+    ctr?: number
+    fillRate?: number
+    viewabilityRate?: number
+  }
+  adFormats?: Map<string, number>
+  domains?: Set<string>
+  occurrences?: number
+  websites?: Set<string>
+  country?: string
+  device?: string
+  ad_format?: string
+  total_revenue?: number
+  avg_ecpm?: number
+  hour?: string
+  count?: number
+  date: string
+  revenue: number
+  impressions: number
+  requests: number
+  ctr: number
+  ecpm: number
+  fillRate: number
+  viewabilityRate: number
+  arpu: number
+  country?: string
+  device?: string
+  adFormat?: string
+  adUnit?: string
+  website?: string
+  browser?: string
+}
+
+interface EnhancedAnalyticsData {
+  date: string
+  revenue: number
+  impressions: number
+  requests: number
+  ctr: number
+  ecpm: number
+  fillRate: number
+  viewabilityRate: number
+  arpu: number
+}
+
 interface EnhancedAnalyticsProps {
   fileId: string | null;
   filters?: {
@@ -204,13 +265,13 @@ export default function EnhancedAnalytics({ fileId, filters }: EnhancedAnalytics
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {(data.advertiserAnalysis || []).slice(0, 10).map((item: any, index: number) => (
-                    <tr key={index} className={item._avg.ecpm > 50 ? 'bg-green-50' : ''}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.advertiser || '未知'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.domain || '-'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${(item._sum.revenue || 0).toFixed(2)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${(item._avg.ecpm || 0).toFixed(2)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{((item._avg.ctr || 0) * 100).toFixed(2)}%</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item._count}</td>
+                    <tr key={index} className={(item as EnhancedAnalyticsData)._avg.ecpm > 50 ? 'bg-green-50' : ''}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{(item as EnhancedAnalyticsData).advertiser || '未知'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{(item as EnhancedAnalyticsData).domain || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${((item as EnhancedAnalyticsData)._sum.revenue || 0).toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${((item as EnhancedAnalyticsData)._avg.ecpm || 0).toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(((item as EnhancedAnalyticsData)._avg.ctr || 0) * 100).toFixed(2)}%</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{(item as EnhancedAnalyticsData)._count}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -241,36 +302,36 @@ export default function EnhancedAnalytics({ fileId, filters }: EnhancedAnalytics
             <h3 className="text-lg font-medium mb-4">设备-浏览器性能矩阵</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {(data.deviceBrowserMatrix || [])
-                .filter((item: any) => item._sum.revenue > 1)
+                .filter((item: any) => (item as EnhancedAnalyticsData)._sum.revenue > 1)
                 .sort((a: any, b: any) => b._avg.ecpm - a._avg.ecpm)
                 .slice(0, 12)
                 .map((item: any, index: number) => (
                   <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h4 className="font-medium text-gray-900">{item.device}</h4>
-                        <p className="text-sm text-gray-500">{item.browser}</p>
+                        <h4 className="font-medium text-gray-900">{(item as EnhancedAnalyticsData).device}</h4>
+                        <p className="text-sm text-gray-500">{(item as EnhancedAnalyticsData).browser}</p>
                       </div>
                       <span className={`px-2 py-1 text-xs rounded-full ${
-                        item._avg.ecpm > 20 ? 'bg-green-100 text-green-800' :
-                        item._avg.ecpm > 10 ? 'bg-yellow-100 text-yellow-800' :
+                        (item as EnhancedAnalyticsData)._avg.ecpm > 20 ? 'bg-green-100 text-green-800' :
+                        (item as EnhancedAnalyticsData)._avg.ecpm > 10 ? 'bg-yellow-100 text-yellow-800' :
                         'bg-red-100 text-red-800'
                       }`}>
-                        ${(item._avg.ecpm || 0).toFixed(2)}
+                        ${((item as EnhancedAnalyticsData)._avg.ecpm || 0).toFixed(2)}
                       </span>
                     </div>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-500">收入:</span>
-                        <span className="font-medium">${(item._sum.revenue || 0).toFixed(2)}</span>
+                        <span className="font-medium">${((item as EnhancedAnalyticsData)._sum.revenue || 0).toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500">展示:</span>
-                        <span>{(item._sum.impressions || 0).toLocaleString()}</span>
+                        <span>{((item as EnhancedAnalyticsData)._sum.impressions || 0).toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500">点击率:</span>
-                        <span>{((item._avg.ctr || 0) * 100).toFixed(2)}%</span>
+                        <span>{(((item as EnhancedAnalyticsData)._avg.ctr || 0) * 100).toFixed(2)}%</span>
                       </div>
                     </div>
                   </div>
@@ -308,10 +369,10 @@ export default function EnhancedAnalytics({ fileId, filters }: EnhancedAnalytics
                 <PieChart>
                   <Pie
                     data={data.geoAnalysis?.map((item: any) => ({
-                      country: item.country,
-                      totalRevenue: item._sum.revenue,
-                      totalImpressions: item._sum.impressions,
-                      avgEcpm: item._avg.ecpm
+                      country: (item as EnhancedAnalyticsData).country,
+                      totalRevenue: (item as EnhancedAnalyticsData)._sum.revenue,
+                      totalImpressions: (item as EnhancedAnalyticsData)._sum.impressions,
+                      avgEcpm: (item as EnhancedAnalyticsData)._avg.ecpm
                     })) || []}
                     cx="50%"
                     cy="50%"
@@ -335,22 +396,22 @@ export default function EnhancedAnalytics({ fileId, filters }: EnhancedAnalytics
               <h3 className="text-lg font-medium mb-4">最优组合配置</h3>
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {data.topCombinations
-                  ?.filter((item: any) => item.total_revenue > 0)
-                  .sort((a: any, b: any) => b.avg_ecpm - a.avg_ecpm)
+                  ?.filter((item: any) => (item as EnhancedAnalyticsData).revenue > 0)
+                  .sort((a: any, b: any) => b.ecpm - a.ecpm)
                   .map((item: any, index: number) => (
                   <div key={index} className="border rounded-lg p-3 bg-gradient-to-r from-green-50 to-blue-50">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h4 className="font-medium text-gray-900">{item.country}</h4>
-                        <p className="text-sm text-gray-600">{item.device} · {item.ad_format}</p>
+                        <h4 className="font-medium text-gray-900">{(item as EnhancedAnalyticsData).country}</h4>
+                        <p className="text-sm text-gray-600">{(item as EnhancedAnalyticsData).device} · {(item as EnhancedAnalyticsData).adFormat}</p>
                       </div>
                       <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                        ${(item.avg_ecpm || 0).toFixed(2)}
+                        ${((item as EnhancedAnalyticsData).ecpm || 0).toFixed(2)}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm text-gray-500">
-                      <span>总收入: ${item.total_revenue.toFixed(2)}</span>
-                      <span>出现次数: {item.occurrences}</span>
+                      <span>总收入: ${(item as EnhancedAnalyticsData).revenue.toFixed(2)}</span>
+                      <span>出现次数: {(item as EnhancedAnalyticsData).count}</span>
                     </div>
                   </div>
                 ))}
@@ -380,14 +441,14 @@ export default function EnhancedAnalytics({ fileId, filters }: EnhancedAnalytics
                 <tbody className="bg-white divide-y divide-gray-200">
                   {data.adUnitAnalysis?.map((item: any, index: number) => (
                     <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.adFormat}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.adUnit}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${(item._avg.ecpm || 0).toFixed(2)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{((item._avg.fillRate || 0) * 100).toFixed(1)}%</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{(item as EnhancedAnalyticsData).adFormat}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{(item as EnhancedAnalyticsData).adUnit}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${((item as EnhancedAnalyticsData)._avg.ecpm || 0).toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(((item as EnhancedAnalyticsData)._avg.fillRate || 0) * 100).toFixed(1)}%</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {item._avg.ecpm > 10 ? (
+                        {(item as EnhancedAnalyticsData)._avg.ecpm > 10 ? (
                           <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">优先投放</span>
-                        ) : item._avg.fillRate < 30 ? (
+                        ) : (item as EnhancedAnalyticsData)._avg.fillRate < 30 ? (
                           <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">需要优化</span>
                         ) : (
                           <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">保持现状</span>

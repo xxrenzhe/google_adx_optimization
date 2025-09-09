@@ -55,7 +55,7 @@ export default function Upload({ onUploadComplete }: UploadProps) {
       xhr.open('POST', '/api/upload')
       xhr.send(formData)
       
-    } catch (err) {
+    } catch {
       setError('Upload failed')
       setUploading(false)
     }

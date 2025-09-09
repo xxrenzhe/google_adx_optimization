@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
       await writeFile(testFile, 'test')
       await unlink(testFile)
       console.log('Directory write test successful')
-    } catch (dirError: any) {
+    } catch (dirError: unknown) {
       console.error('Directory access error:', dirError)
       return NextResponse.json(
         { error: `无法访问/data目录: ${dirError.message}. 请检查/data卷的挂载和权限配置。` },

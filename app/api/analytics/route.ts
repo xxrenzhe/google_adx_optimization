@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FileSystemManager } from '@/lib/fs-manager'
 
+interface AnalyticsData {
+  date: string
+  revenue: number
+  impressions: number
+  requests: number
+  ctr: number
+  ecpm: number
+  fillRate: number
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -28,15 +38,15 @@ export async function GET(request: NextRequest) {
           avgCtr: result.summary.avgCtr
         },
         charts: {
-          revenueByDate: (result.dailyTrend || []).map((item: any) => ({
+          revenueByDate: (result.dailyTrend || []).map((item: unknown) => ({
             date: item.name || item.date, // 兼容优化前后的格式
             revenue: item.revenue
           })),
-          revenueByCountry: (result.topCountries || []).map((item: any) => ({
+          revenueByCountry: (result.topCountries || []).map((item: unknown) => ({
             country: item.name,
             revenue: item.revenue
           })),
-          revenueByDevice: (result.devices || []).map((item: any) => ({
+          revenueByDevice: (result.devices || []).map((item: unknown) => ({
             device: item.name,
             revenue: item.revenue
           })),
@@ -86,7 +96,7 @@ export async function GET(request: NextRequest) {
 }
 
 // 从样本数据计算填充率分布的备选函数
-function calculateFillRateFromSample(sampleData: any[], totalRows: number) {
+function calculateFillRateFromSample(sampleData: unknown[], totalRows: number) {
   if (!sampleData || sampleData.length === 0) {
     return [
       { range: '0-20%', count: 0 },

@@ -1050,3 +1050,41 @@ Cleanup completed
  ✓ Compiled in 71ms (815 modules)
  ✓ Compiled in 149ms (815 modules)
  ✓ Compiled in 149ms (815 modules)
+Deleted expired file: 1c62e544-170a-4377-9308-3e1d70a64b35.status
+Deleted expired file: 4214aa4b-c2ec-4225-9b09-662c6c0414a0.status
+Deleted expired file: 4c1bfe04-cfdf-4316-b63b-86e4c48164f2.status
+Deleted expired file: 56e70949-b7e2-4faa-a0f7-8667e95e8cc4.status
+Deleted expired file: 7552f045-b563-4e77-a81f-e46b6d3db9bb.status
+Deleted expired file: bdf720b1-9e29-4388-afa3-70641b19fd41.status
+Deleted expired file: fcde9529-cf9a-4514-869b-0951ce943683.status
+Deleted expired file: 1c62e544-170a-4377-9308-3e1d70a64b35
+Deleted expired file: 4214aa4b-c2ec-4225-9b09-662c6c0414a0
+Deleted expired file: 4c1bfe04-cfdf-4316-b63b-86e4c48164f2
+Deleted expired file: 56e70949-b7e2-4faa-a0f7-8667e95e8cc4
+Deleted expired file: 7552f045-b563-4e77-a81f-e46b6d3db9bb
+Deleted expired file: bdf720b1-9e29-4388-afa3-70641b19fd41
+Deleted expired file: fcde9529-cf9a-4514-869b-0951ce943683
+Memory usage: 287/371MB, External: 921MB
+Cleanup completed
+Memory usage: 287/371MB, External: 921MB
+Cleanup completed
+Memory usage: 288/371MB, External: 921MB
+Cleanup completed
+Memory usage: 288/371MB, External: 921MB
+Cleanup completed
+Memory usage: 289/371MB, External: 921MB
+Cleanup completed
+Memory usage: 289/371MB, External: 921MB
+Cleanup completed
+Memory usage: 289/371MB, External: 921MB
+Cleanup completed
+ ✓ Compiled in 682ms (1619 modules)
+ ✓ Compiled in 252ms (1619 modules)
+ ✓ Compiled in 620ms (1619 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/jason/Documents/Kiro/google_adx_optimization/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 353ms (1619 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/jason/Documents/Kiro/google_adx_optimization/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 390ms (1619 modules)
+ ✓ Compiled in 51ms (815 modules)
+ ✓ Compiled in 125ms (815 modules)
+ ✓ Compiled in 79ms (1677 modules)
