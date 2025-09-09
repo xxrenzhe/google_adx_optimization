@@ -2,7 +2,7 @@ FROM node:18-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat openssl-dev openssl
+RUN apk add --no-cache libc6-compat openssl-dev openssl su-exec
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -51,7 +51,7 @@ ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Install OpenSSL for Prisma and increase Node.js memory limit
-RUN apk add --no-cache openssl-dev openssl
+RUN apk add --no-cache openssl-dev openssl su-exec
 
 # Set Node.js memory limit to 1.5GB for processing large files
 ENV NODE_OPTIONS="--max-old-space-size=1536"
@@ -94,8 +94,11 @@ RUN mkdir -p /data/uploads /data/results && chown -R nextjs:nodejs /data && chmo
 COPY --from=builder --chown=nextjs:nodejs /app/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Switch to nextjs for running the application
-USER nextjs
+# Install su-exec for switching users (alpine doesn't have gosu)
+RUN apk add --no-cache su-exec
+
+# Stay as root - entrypoint will switch to nextjs
+USER root
 
 EXPOSE 3000
 
