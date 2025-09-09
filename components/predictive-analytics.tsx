@@ -20,25 +20,17 @@ import {
 interface PredictiveAnalyticsProps {
   refreshTrigger?: number;
   fileId: string | null;
-  cachedData?: any;
 }
 
-export default function PredictiveAnalytics({ refreshTrigger, fileId, cachedData }: PredictiveAnalyticsProps) {
+export default function PredictiveAnalytics({ refreshTrigger, fileId }: PredictiveAnalyticsProps) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedDays, setSelectedDays] = useState(30)
 
   useEffect(() => {
-    // 如果有缓存数据，直接使用
-    if (cachedData) {
-      setData(cachedData)
-      setLoading(false)
-      return
-    }
-    
     fetchPredictiveData()
-  }, [refreshTrigger, selectedDays, fileId, cachedData])
+  }, [refreshTrigger, selectedDays, fileId])
 
   const fetchPredictiveData = async () => {
     setLoading(true)

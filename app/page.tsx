@@ -4,10 +4,9 @@ import { useState, useEffect } from 'react'
 import UploadOptimized from '@/components/upload-optimized'
 import Analytics from '@/components/analytics'
 import DecisionAlerts from '@/components/decision-alerts'
-import EnhancedAnalyticsWrapper from '@/components/enhanced-analytics-wrapper'
-import PredictiveAnalyticsWrapper from '@/components/predictive-analytics-wrapper'
-import AutomationDashboardWrapper from '@/components/automation-dashboard-wrapper'
-import { AnalyticsProvider, useAnalytics } from '@/contexts/analytics-context'
+import EnhancedAnalytics from '@/components/enhanced-analytics'
+import PredictiveAnalytics from '@/components/predictive-analytics'
+import AutomationDashboard from '@/components/automation-dashboard'
 
 function HomeContent() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -163,7 +162,7 @@ function HomeContent() {
           )}
           
           {activeTab === 'enhanced' && (
-            <EnhancedAnalyticsWrapper fileId={fileId} />
+            <EnhancedAnalytics fileId={fileId} />
           )}
           
           {activeTab === 'alerts' && (
@@ -171,11 +170,11 @@ function HomeContent() {
           )}
           
           {activeTab === 'predictive' && (
-            <PredictiveAnalyticsWrapper refreshTrigger={refreshTrigger} fileId={fileId} />
+            <PredictiveAnalytics refreshTrigger={refreshTrigger} fileId={fileId} />
           )}
           
           {activeTab === 'automation' && (
-            <AutomationDashboardWrapper refreshTrigger={refreshTrigger} fileId={fileId} />
+            <AutomationDashboard refreshTrigger={refreshTrigger} fileId={fileId} />
           )}
         </div>
       </main>
@@ -184,9 +183,5 @@ function HomeContent() {
 }
 
 export default function Home() {
-  return (
-    <AnalyticsProvider>
-      <HomeContent />
-    </AnalyticsProvider>
-  )
+  return <HomeContent />
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FileSystemManager } from '@/lib/fs-manager'
+import { getCachedData, setCachedData, generateCacheKey } from '@/lib/redis-cache'
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,54 +10,57 @@ export async function GET(request: NextRequest) {
     
     console.log(`[DEBUG] Predictive analytics called with fileId: ${fileId}`)
     
+    if (!fileId) {
+      return NextResponse.json({ 
+        error: 'No file ID provided'
+      }, { status: 400 })
+    }
+    
+    // 生成缓存key，包含days参数
+    const cacheKey = generateCacheKey(fileId, `predictive-${days}`)
+    
+    // 尝试从缓存获取数据
+    const cachedData = await getCachedData(cacheKey)
+    if (cachedData) {
+      console.log(`[DEBUG] Returning cached data for fileId: ${fileId}`)
+      return NextResponse.json(cachedData)
+    }
+    
     let data
     
-    if (fileId) {
-      // 分析单个文件
-      const result = await FileSystemManager.getAnalysisResult(fileId)
-      if (!result) {
-        console.log(`[DEBUG] No result found for fileId: ${fileId}`)
-        return NextResponse.json({ 
-          error: 'File not found'
-        }, { status: 404 })
-      }
-      
-      // 转换数据格式以兼容预测分析
-      const dailyData = (result.dailyTrend || []).map((item: any) => ({
-        date: item.name,
-        revenue: item.revenue,
-        impressions: item.impressions,
-        clicks: item.clicks
-      }))
-      
-      data = {
-        dailyData,
-        topWebsites: result.topWebsites || [],
-        topCountries: result.topCountries || [],
-        topDevices: result.devices || [],
-        topAdFormats: result.adFormats || [],
-        sampleData: result.samplePreview || []
-      }
-      
-      console.log(`[DEBUG] Data loaded:`, {
-        dailyDataLength: data.dailyData.length,
-        topWebsitesLength: data.topWebsites.length,
-        sampleDataLength: data.sampleData.length
-      })
-    } else {
-      // 没有提供fileId时，不返回任何数据
+    // 分析单个文件
+    const result = await FileSystemManager.getAnalysisResult(fileId)
+    if (!result) {
+      console.log(`[DEBUG] No result found for fileId: ${fileId}`)
       return NextResponse.json({ 
-        error: 'No data uploaded yet',
-        predictions: [],
-        modelAccuracy: 0,
-        anomalies: [],
-        dayOfWeekAnalysis: [],
-        opportunities: [],
-        competitorInsights: []
+        error: 'File not found'
       }, { status: 404 })
     }
     
-    const { dailyData, topWebsites, topCountries, topDevices, topAdFormats } = data
+    // 转换数据格式以兼容预测分析
+    const dailyData = (result.dailyTrend || []).map((item: any) => ({
+      date: item.name,
+      revenue: item.revenue,
+      impressions: item.impressions,
+      clicks: item.clicks
+    }))
+    
+    data = {
+      dailyData,
+      topWebsites: result.topWebsites || [],
+      topCountries: result.topCountries || [],
+      topDevices: result.devices || [],
+      topAdFormats: result.adFormats || [],
+      sampleData: result.samplePreview || []
+    }
+    
+    console.log(`[DEBUG] Data loaded:`, {
+      dailyDataLength: data.dailyData.length,
+      topWebsitesLength: data.topWebsites.length,
+        sampleDataLength: data.sampleData.length
+      })
+    
+    const { dailyData: parsedDailyData, topWebsites, topCountries, topDevices, topAdFormats } = data
     const sampleData = (data as any).samplePreview || []
     
     try {
@@ -75,14 +79,19 @@ export async function GET(request: NextRequest) {
       // 生成竞争对手分析
       const competitorInsights = generateCompetitorInsights(data)
       
-      return NextResponse.json({
+      const response = {
         predictions,
         modelAccuracy: 0.87, // 87% 模型准确度
         anomalies,
         dayOfWeekAnalysis,
         opportunities,
         competitorInsights
-      })
+      }
+      
+      // 缓存结果，减少到2分钟
+      await setCachedData(cacheKey, response, 120)
+      
+      return NextResponse.json(response)
     } catch (genError) {
       console.error('[DEBUG] Error generating predictions:', genError)
       return NextResponse.json({ 

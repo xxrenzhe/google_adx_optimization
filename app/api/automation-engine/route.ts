@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FileSystemManager } from '@/lib/fs-manager'
+import { getCachedData, setCachedData, generateCacheKey } from '@/lib/redis-cache'
 
 // Automation rules database simulation
 const automationRules = [
@@ -38,46 +39,50 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const fileId = searchParams.get('fileId')
     
-    let data
-    
-    if (fileId) {
-      // 分析单个文件
-      const result = await FileSystemManager.getAnalysisResult(fileId)
-      if (!result) {
-        return NextResponse.json({ 
-          rules: [],
-          actions: [],
-          summary: {
-            totalRules: 0,
-            enabledRules: 0,
-            triggeredRules: 0,
-            currentMetrics: {},
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
-      
-      data = {
-        summary: result.summary,
-        dailyData: result.dailyTrend || []
-      }
-    } else {
-      // 没有提供fileId时，不返回任何数据
+    if (!fileId) {
       return NextResponse.json({ 
-        rules: automationRules.map(rule => ({
-          rule,
-          triggered: false,
-          recommendation: null
-        })),
+        rules: [],
         actions: [],
         summary: {
-          totalRules: automationRules.length,
-          enabledRules: automationRules.filter(r => r.enabled).length,
+          totalRules: 0,
+          enabledRules: 0,
           triggeredRules: 0,
           currentMetrics: {},
           timestamp: new Date().toISOString()
         }
       })
+    }
+    
+    // 生成缓存key
+    const cacheKey = generateCacheKey(fileId, 'automation')
+    
+    // 尝试从缓存获取数据
+    const cachedData = await getCachedData(cacheKey)
+    if (cachedData) {
+      return NextResponse.json(cachedData)
+    }
+    
+    let data
+    
+    // 分析单个文件
+    const result = await FileSystemManager.getAnalysisResult(fileId)
+    if (!result) {
+      return NextResponse.json({ 
+        rules: [],
+        actions: [],
+        summary: {
+          totalRules: 0,
+          enabledRules: 0,
+          triggeredRules: 0,
+          currentMetrics: {},
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+    
+    data = {
+      summary: result.summary,
+      dailyData: result.dailyTrend || []
     }
     
     // Calculate current stats from data
@@ -147,6 +152,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // 缓存结果，减少到2分钟
+    await setCachedData(cacheKey, response, 120)
+    
     return NextResponse.json(response)
     
   } catch (error) {

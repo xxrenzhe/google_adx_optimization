@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FileSystemManager } from '@/lib/fs-manager'
+import { getCachedData, setCachedData, generateCacheKey } from '@/lib/redis-cache'
 
 // 获取详细数据用于分析 - 现在系统确保detailedData包含全量数据
 function getDetailedData(result: any) {
@@ -403,22 +404,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const fileId = searchParams.get('fileId')
     
-    let data
-    
-    if (fileId) {
-      // 分析单个文件
-      const result = await FileSystemManager.getAnalysisResult(fileId)
-      if (!result) {
-        return NextResponse.json({ 
-          error: 'File not found',
-          insights: [],
-          recommendations: []
-        }, { status: 404 })
-      }
-      
-      // Pass the full result to generator functions
-      data = result
-    } else {
+    if (!fileId) {
       // 没有提供fileId时，不返回任何数据
       return NextResponse.json({ 
         error: 'No data uploaded yet',
@@ -428,14 +414,31 @@ export async function GET(request: NextRequest) {
           totalInsights: 0,
           highPriorityActions: 0,
           estimatedUpside: 0
-        },
-        dataQuality: {
-          daysAnalyzed: 0,
-          websitesAnalyzed: 0,
-          countriesAnalyzed: 0
         }
+      })
+    }
+    
+    // 生成缓存key
+    const cacheKey = generateCacheKey(fileId, 'enhanced')
+    
+    // 尝试从缓存获取数据
+    const cachedData = await getCachedData(cacheKey)
+    if (cachedData) {
+      return NextResponse.json(cachedData)
+    }
+    
+    // 分析单个文件
+    const result = await FileSystemManager.getAnalysisResult(fileId)
+    if (!result) {
+      return NextResponse.json({ 
+        error: 'File not found',
+        insights: [],
+        recommendations: []
       }, { status: 404 })
     }
+    
+    // Pass the full result to generator functions
+    const data = result
     
     const { 
       summary, 
@@ -708,7 +711,7 @@ export async function GET(request: NextRequest) {
     const hourlyPattern = generateHourlyPattern(data)
     const viewabilityAnalysis = generateViewabilityAnalysis(data)
     
-    return NextResponse.json({
+    const response = {
       advertiserAnalysis,
       ecmpBuckets,
       deviceBrowserMatrix,
@@ -735,7 +738,12 @@ export async function GET(request: NextRequest) {
         websitesAnalyzed: topWebsites.length,
         countriesAnalyzed: topCountries.length
       }
-    })
+    }
+    
+    // 缓存结果，减少到2分钟
+    await setCachedData(cacheKey, response, 120)
+    
+    return NextResponse.json(response)
     
   } catch (error) {
     console.error('Enhanced analytics API error:', error)
