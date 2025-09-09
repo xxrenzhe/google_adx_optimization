@@ -100,8 +100,22 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    await mkdir(CONFIG.DIRECTORIES.UPLOAD_DIR, { recursive: true })
-    await mkdir(CONFIG.DIRECTORIES.RESULTS_DIR, { recursive: true })
+    // 确保目录存在并可访问
+    try {
+      await mkdir(CONFIG.DIRECTORIES.UPLOAD_DIR, { recursive: true })
+      await mkdir(CONFIG.DIRECTORIES.RESULTS_DIR, { recursive: true })
+      
+      // 测试写入权限
+      const testFile = `${CONFIG.DIRECTORIES.UPLOAD_DIR}/.test`
+      await writeFile(testFile, 'test')
+      await unlink(testFile)
+    } catch (dirError: any) {
+      console.error('Directory access error:', dirError)
+      return NextResponse.json(
+        { error: `无法访问存储目录: ${dirError.message}` },
+        { status: 500 }
+      )
+    }
 
     const formData = await request.formData()
     const file = formData.get('file') as File

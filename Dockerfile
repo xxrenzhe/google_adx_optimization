@@ -80,6 +80,13 @@ RUN mkdir -p uploads results data && chown nextjs:nodejs uploads results data &&
 USER root
 RUN mkdir -p /data/uploads /data/results && chown nextjs:nodejs /data/uploads /data/results && chmod 755 /data/uploads /data/results
 
+# Start as root to ensure /data permissions are correct
+USER root
+
+# Ensure /data directories exist and have correct permissions on startup
+RUN mkdir -p /data/uploads /data/results && chown -R nextjs:nodejs /data && chmod -R 755 /data
+
+# Switch to nextjs for running the application
 USER nextjs
 
 EXPOSE 3000
