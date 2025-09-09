@@ -30,36 +30,71 @@ export default function FileUploader({ onUploadStart, onUploadComplete }: FileUp
       // 上传文件
       onUploadStart?.()
       
+      // 生成临时fileId用于进度跟踪
+      const tempFileId = crypto.randomUUID()
+      
+      // 创建文件对象，初始状态为uploading
+      const fileWithProgress: FileWithProgress = {
+        file,
+        id: tempFileId,
+        status: 'uploading',
+        progress: 0
+      }
+      
+      // 添加到store，立即显示上传进度
+      setFile(tempFileId, fileWithProgress)
+      
+      // 使用XMLHttpRequest监控上传进度
+      const xhr = new XMLHttpRequest()
+      
+      // 监控上传进度
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 90) // 上传占90%
+          updateFileProgress(tempFileId, progress, 'uploading')
+        }
+      })
+      
+      // 监控上传完成
+      xhr.addEventListener('load', async () => {
+        if (xhr.status === 200) {
+          const result = JSON.parse(xhr.responseText)
+          
+          // 更新为服务器返回的fileId
+          const serverFileId = result.fileId
+          
+          // 上传完成，开始处理阶段（90-100%）
+          updateFileProgress(tempFileId, 95, 'processing')
+          
+          // 更新fileId
+          setTimeout(() => {
+            // 添加到store，使用服务器返回的fileId
+            setFile(serverFileId, {
+              ...fileWithProgress,
+              id: serverFileId,
+              status: 'processing',
+              progress: 95
+            })
+            
+            // 通知完成
+            onUploadComplete?.(serverFileId)
+          }, 500)
+        } else {
+          throw new Error('上传失败')
+        }
+      })
+      
+      // 监控错误
+      xhr.addEventListener('error', () => {
+        throw new Error('网络错误，请重试')
+      })
+      
+      // 发送请求
       const formData = new FormData()
       formData.append('file', file)
       
-      const response = await fetch(`/api/upload-optimized`, {
-        method: 'POST',
-        body: formData
-      })
-      
-      const result = await response.json()
-      
-      if (!response.ok) {
-        throw new Error(result.error || '上传失败')
-      }
-      
-      // 使用服务器返回的fileId
-      const serverFileId = result.fileId
-      
-      // 创建文件对象 - 使用服务器返回的fileId
-      const fileWithProgress: FileWithProgress = {
-        file,
-        id: serverFileId,
-        status: 'processing',
-        progress: 10 // 上传已完成，处理开始
-      }
-      
-      // 添加到store
-      setFile(serverFileId, fileWithProgress)
-      
-      // 通知完成
-      onUploadComplete?.(serverFileId)
+      xhr.open('POST', `/api/upload-optimized`)
+      xhr.send(formData)
       
     } catch (error) {
       console.error('Upload error:', error)

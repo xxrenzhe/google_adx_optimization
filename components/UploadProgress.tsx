@@ -70,10 +70,10 @@ export default function UploadProgress({ fileId }: UploadProgressProps) {
         
         <div className="text-right">
           <p className="text-sm font-medium text-gray-900">
-            {file.status === 'uploading' && '上传中...'}
-            {file.status === 'processing' && '分析中...'}
-            {file.status === 'completed' && '已完成'}
-            {file.status === 'failed' && '失败'}
+            {file.status === 'uploading' && '上传文件中...'}
+            {file.status === 'processing' && '分析处理中...'}
+            {file.status === 'completed' && '分析完成'}
+            {file.status === 'failed' && '上传失败'}
           </p>
           <p className="text-sm text-gray-500">
             {(file.status === 'processing' || status?.status === 'processing') && `已处理: ${status?.processedLines || 0} 行`}
