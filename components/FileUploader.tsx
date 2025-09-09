@@ -80,13 +80,35 @@ export default function FileUploader({ onUploadStart, onUploadComplete }: FileUp
             onUploadComplete?.(serverFileId)
           }, 500)
         } else {
-          throw new Error('上传失败')
+          // 尝试解析服务器返回的错误信息
+          let errorMessage = '上传失败'
+          try {
+            const errorResponse = JSON.parse(xhr.responseText)
+            errorMessage = errorResponse.error || errorResponse.message || errorMessage
+          } catch {
+            // 如果无法解析JSON，使用HTTP状态码
+            if (xhr.status === 413) {
+              errorMessage = '文件过大，请上传小于200MB的文件'
+            } else if (xhr.status === 415) {
+              errorMessage = '文件格式不支持，请上传CSV文件'
+            } else if (xhr.status >= 500) {
+              errorMessage = '服务器错误，请稍后重试'
+            } else if (xhr.status >= 400) {
+              errorMessage = `请求错误 (${xhr.status})`
+            }
+          }
+          throw new Error(errorMessage)
         }
       })
       
-      // 监控错误
+      // 监控网络错误
       xhr.addEventListener('error', () => {
-        throw new Error('网络错误，请重试')
+        throw new Error('网络连接错误，请检查网络后重试')
+      })
+      
+      // 监控超时
+      xhr.addEventListener('timeout', () => {
+        throw new Error('上传超时，请重试')
       })
       
       // 发送请求
@@ -94,6 +116,7 @@ export default function FileUploader({ onUploadStart, onUploadComplete }: FileUp
       formData.append('file', file)
       
       xhr.open('POST', `/api/upload-optimized`)
+      xhr.timeout = 5 * 60 * 1000 // 5分钟超时
       xhr.send(formData)
       
     } catch (error) {

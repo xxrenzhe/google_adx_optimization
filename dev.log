@@ -1170,3 +1170,23 @@ Cleanup completed
 <w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/jason/Documents/Kiro/google_adx_optimization/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
  ✓ Compiled in 362ms (1619 modules)
  ✓ Compiled in 118ms (1619 modules)
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 757ms (1831 modules)
+ GET / 404 in 1ms
+ ✓ Compiled /_not-found in 273ms (1834 modules)
+ GET / 404 in 0ms
+Resource monitor started
+Development mode: Resource monitor started
+ ⨯ Error [ERR_HTTP_HEADERS_SENT]: Cannot append headers after they are sent to the client
+    at ServerResponse.appendHeader (node:_http_outgoing:698:11)
+digest: "1440520262"
+ ⨯ Error [ERR_HTTP_HEADERS_SENT]: Cannot append headers after they are sent to the client
+    at ServerResponse.appendHeader (node:_http_outgoing:698:11)
+digest: "1440520262"
+Deleted expired file: 47997444-7799-4c30-8ef6-773123aaadda.status
+Deleted expired file: e6789f4a-db14-4848-b714-cb7f06943e34.status
+Deleted expired file: 47997444-7799-4c30-8ef6-773123aaadda
+Deleted expired file: e6789f4a-db14-4848-b714-cb7f06943e34
+Memory usage: 393/510MB, External: 789MB
+Cleanup completed
+[?25h
