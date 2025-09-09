@@ -10,10 +10,11 @@ import type { FileWithProgress } from '@/types'
 
 interface FileUploaderProps {
   onUploadStart?: () => void
+  onUploadProgress?: (fileId: string) => void
   onUploadComplete?: (fileId: string) => void
 }
 
-export default function FileUploader({ onUploadStart, onUploadComplete }: FileUploaderProps) {
+export default function FileUploader({ onUploadStart, onUploadProgress, onUploadComplete }: FileUploaderProps) {
   const { setFile, updateFileProgress } = useUploadStore()
   const [error, setError] = useState<string | null>(null)
 
@@ -43,6 +44,9 @@ export default function FileUploader({ onUploadStart, onUploadComplete }: FileUp
       
       // 添加到store，立即显示上传进度
       setFile(tempFileId, fileWithProgress)
+      
+      // 立即通知父组件更新状态，显示进度条
+      onUploadProgress?.(tempFileId)
       
       // 使用XMLHttpRequest监控上传进度
       const xhr = new XMLHttpRequest()

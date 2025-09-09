@@ -32,6 +32,12 @@ export default function FileUploadOptimized({ fileId, onFileUploaded, onClearFil
     }
   }, [fileId, currentFileId, setCurrentFileId])
 
+  // 处理上传进度（立即显示进度条）
+  const handleUploadProgress = (fileId: string) => {
+    // 立即设置fileId，显示进度条
+    setCurrentFileId(fileId)
+  }
+  
   // 处理上传完成
   const handleUploadComplete = (fileId: string) => {
     // 直接设置服务器返回的fileId
@@ -54,6 +60,7 @@ export default function FileUploadOptimized({ fileId, onFileUploaded, onClearFil
       <div key="uploader" className="space-y-6">
         <FileUploader 
           onUploadStart={() => {}}
+          onUploadProgress={handleUploadProgress}
           onUploadComplete={handleUploadComplete}
         />
       </div>
