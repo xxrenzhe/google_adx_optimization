@@ -50,7 +50,7 @@ export default function FileUploader({ onUploadStart, onUploadComplete }: FileUp
       // 监控上传进度
       xhr.upload.addEventListener('progress', (event) => {
         if (event.lengthComputable) {
-          const progress = Math.round((event.loaded / event.total) * 90) // 上传占90%
+          const progress = Math.round((event.loaded / event.total) * 100)
           updateFileProgress(tempFileId, progress, 'uploading')
         }
       })
@@ -63,8 +63,8 @@ export default function FileUploader({ onUploadStart, onUploadComplete }: FileUp
           // 更新为服务器返回的fileId
           const serverFileId = result.fileId
           
-          // 上传完成，开始处理阶段（90-100%）
-          updateFileProgress(tempFileId, 95, 'processing')
+          // 上传完成，开始处理阶段
+          updateFileProgress(tempFileId, 100, 'processing')
           
           // 更新fileId
           setTimeout(() => {
@@ -73,7 +73,7 @@ export default function FileUploader({ onUploadStart, onUploadComplete }: FileUp
               ...fileWithProgress,
               id: serverFileId,
               status: 'processing',
-              progress: 95
+              progress: 100
             })
             
             // 通知完成

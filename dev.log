@@ -1167,3 +1167,6 @@ Memory usage: 295/442MB, External: 1252MB
 Cleanup completed
 Memory usage: 295/442MB, External: 1252MB
 Cleanup completed
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/jason/Documents/Kiro/google_adx_optimization/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 362ms (1619 modules)
+ ✓ Compiled in 118ms (1619 modules)
