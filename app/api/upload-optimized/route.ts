@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
     } catch (dirError: unknown) {
       console.error('Directory access error:', dirError)
       return NextResponse.json(
-        { error: `无法访问/data目录: ${dirError.message}. 请检查/data卷的挂载和权限配置。` },
+        { error: `无法访问/data目录: ${(dirError as Error).message}. 请检查/data卷的挂载和权限配置。` },
         { status: 500 }
       )
     }

@@ -15,10 +15,10 @@ export async function initializeDatabase() {
     const count = await prisma.adReport.count()
     console.log(`[DB-INIT] Database tables already exist. Current record count: ${count}`)
   } catch (error: unknown) {
-    console.log(`[DB-INIT] Database error occurred: ${error.code || 'UNKNOWN_CODE'}`)
-    console.log(`[DB-INIT] Error message: ${error.message}`)
+    console.log(`[DB-INIT] Database error occurred: ${(error as any).code || 'UNKNOWN_CODE'}`)
+    console.log(`[DB-INIT] Error message: ${(error as Error).message}`)
     
-    if (error.code === 'P2021') {
+    if ((error as any).code === 'P2021') {
       console.log('[DB-INIT] Tables do not exist (P2021), creating schema...')
       try {
         // Use db push to create tables
@@ -31,13 +31,13 @@ export async function initializeDatabase() {
         console.log('[DB-INIT] Database schema created successfully')
       } catch (pushError: unknown) {
         console.error('[DB-INIT] Failed to create database schema:', pushError)
-        console.error('[DB-INIT] Stack trace:', pushError.stack)
+        console.error('[DB-INIT] Stack trace:', (pushError as Error).stack)
         // Don't exit process, let the app start anyway
       }
     } else {
       console.error('[DB-INIT] Database connection error:', error)
-      console.error('[DB-INIT] Error code:', error.code)
-      console.error('[DB-INIT] Error stack:', error.stack)
+      console.error('[DB-INIT] Error code:', (error as any).code)
+      console.error('[DB-INIT] Error stack:', (error as Error).stack)
     }
   } finally {
     console.log('[DB-INIT] Database initialization completed')

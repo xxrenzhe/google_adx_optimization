@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     }
     
     // 转换数据格式以兼容预测分析
-    const dailyData = (result.dailyTrend || []).map((item: unknown) => ({
+    const dailyData = (result.dailyTrend || []).map((item: any) => ({
       date: item.name,
       revenue: item.revenue as number,
       impressions: item.impressions as number,
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function generateRevenuePredictions(dailyData: unknown[]) {
+function generateRevenuePredictions(dailyData: any[]) {
   if (!dailyData || dailyData.length === 0) {
     return Array.from({ length: 7 }, (_, i) => ({
       date: new Date(Date.now() + (i + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -126,13 +126,13 @@ function generateRevenuePredictions(dailyData: unknown[]) {
   
   // 使用最近14天数据进行预测
   const recentData = dailyData.slice(-14)
-  const avgRevenue = recentData.reduce((sum: number, day: unknown) => sum + (day.revenue || 0), 0) / recentData.length
+  const avgRevenue = recentData.reduce((sum: number, day: any) => sum + (day.revenue || 0), 0) / recentData.length
   
   // 计算趋势
   const recentWeek = recentData.slice(-7)
   const previousWeek = recentData.slice(-14, -7)
-  const recentAvg = recentWeek.reduce((sum: number, day: unknown) => sum + (day.revenue || 0), 0) / recentWeek.length
-  const previousAvg = previousWeek.reduce((sum: number, day: unknown) => sum + (day.revenue || 0), 0) / previousWeek.length
+  const recentAvg = recentWeek.reduce((sum: number, day: any) => sum + (day.revenue || 0), 0) / recentWeek.length
+  const previousAvg = previousWeek.reduce((sum: number, day: any) => sum + (day.revenue || 0), 0) / previousWeek.length
   const growthRate = previousAvg > 0 ? (recentAvg - previousAvg) / previousAvg : 0
   
   // 生成未来7天预测
@@ -173,14 +173,14 @@ function generateRevenuePredictions(dailyData: unknown[]) {
   return predictions
 }
 
-function detectAnomalies(dailyData: unknown[]) {
+function detectAnomalies(dailyData: any[]) {
   if (!dailyData || dailyData.length < 7) return []
   
   const anomalies: unknown[] = []
   const recentData = dailyData.slice(-30) // 分析最近30天
   
   // 计算平均值和标准差
-  const revenues = recentData.map(d => d.revenue as number || 0)
+  const revenues = recentData.map((d: any) => d.revenue as number || 0)
   const mean = revenues.reduce((sum: number, r: number) => sum + r, 0) / revenues.length
   const variance = revenues.reduce((sum: number, r: number) => sum + Math.pow(r - mean, 2), 0) / revenues.length
   const stdDev = Math.sqrt(variance)
@@ -204,7 +204,7 @@ function detectAnomalies(dailyData: unknown[]) {
   return anomalies.slice(-5) // 返回最近5个异常
 }
 
-function generateDayOfWeekAnalysis(dailyData: unknown[]) {
+function generateDayOfWeekAnalysis(dailyData: any[]) {
   if (!dailyData || dailyData.length === 0) {
     return Array.from({ length: 7 }, () => ({
       avg_revenue: 0,
@@ -237,14 +237,14 @@ function generateDayOfWeekAnalysis(dailyData: unknown[]) {
   }))
 }
 
-function generateOpportunities(data: unknown) {
+function generateOpportunities(data: any) {
   if (!data.samplePreview || data.samplePreview.length === 0) return []
   
   const opportunities: unknown[] = []
   const countryDeviceMap = new Map()
   
   // 分析不同国家-设备组合的表现
-  data.samplePreview.forEach((row: unknown) => {
+  data.samplePreview.forEach((row: any) => {
     const country = row.country as string || '未知'
     const device = row.device || '未知'
     const ecpm = row.ecpm as number || 0
@@ -261,8 +261,8 @@ function generateOpportunities(data: unknown) {
       count: 0
     }
     
-    current.ecpm = (current.ecpm * current.count + ecpm) / (current.count + 1)
-    current.fillRate = (current.fillRate * current.count + fillRate) / (current.count + 1)
+    current.ecpm = ((current.ecpm as number) * current.count + ecpm) / (current.count + 1)
+    current.fillRate = ((current.fillRate as number) * current.count + fillRate) / (current.count + 1)
     current.revenue += revenue
     current.count += 1
     
@@ -271,17 +271,17 @@ function generateOpportunities(data: unknown) {
   
   // 识别机会（低填充率但高eCPM的组合）
   Array.from(countryDeviceMap.values())
-    .filter(item => item.fillRate < 0.3 && item.ecpm as number > 5 && item.revenue as number > 1)
-    .sort((a, b) => (b.ecpm as number * (1 - b.fillRate)) - (a.ecpm as number * (1 - a.fillRate)))
+    .filter(item => (item.fillRate as number) < 0.3 && (item.ecpm as number) > 5 && (item.revenue as number) > 1)
+    .sort((a, b) => ((b.ecpm as number) * (1 - (b.fillRate as number))) - ((a.ecpm as number) * (1 - (a.fillRate as number))))
     .slice(0, 10)
     .forEach(item => {
-      const potentialIncrease = item.revenue as number * (1 / item.fillRate - 1) * 0.5 // 假设可以改善50%
+      const potentialIncrease = (item.revenue as number) * (1 / (item.fillRate as number) - 1) * 0.5 // 假设可以改善50%
       
       opportunities.push({
         country: item.country as string,
         device: item.device,
         current_ecpm: item.ecpm as number,
-        current_fill_rate: item.fillRate,
+        current_fill_rate: item.fillRate as number,
         potential_revenue_increase: potentialIncrease,
         opportunity_score: item.ecpm as number > 10 ? 'HIGH' : item.ecpm as number > 5 ? 'MEDIUM' : 'LOW'
       })
@@ -290,12 +290,12 @@ function generateOpportunities(data: unknown) {
   return opportunities
 }
 
-function generateCompetitorInsights(data: unknown) {
+function generateCompetitorInsights(data: any) {
   if (!data.samplePreview || data.samplePreview.length === 0) return []
   
   const advertiserMap = new Map()
   
-  data.samplePreview.forEach((row: unknown) => {
+  data.samplePreview.forEach((row: any) => {
     const advertiser = row.advertiser as string || '未知'
     const domain = row.domain as string || '未知'
     const ecpm = row.ecpm as number || 0

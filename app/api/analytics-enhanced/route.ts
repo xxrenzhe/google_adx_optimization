@@ -532,7 +532,7 @@ export async function GET(request: NextRequest) {
     const insights = []
     
     // 1. 收入趋势分析
-    const formattedDailyTrend = (dailyTrend || []).map((item: EnhancedAnalyticsData) => ({
+    const formattedDailyTrend = (dailyTrend || []).map((item: any) => ({
       ...item,
       date: item.name || item.date // 兼容优化前后的格式
     }))
@@ -624,7 +624,7 @@ export async function GET(request: NextRequest) {
     }
     
     // 6. 季节性分析（如果有足够数据）
-    if (dailyTrend.length > 30) {
+    if (dailyTrend && dailyTrend.length > 30) {
       const monthlyData: Record<string, { revenue: number; impressions: number }> = {}
       dailyTrend.forEach((day: any) => {
         const month = day.date.substring(0, 7) // YYYY-MM
@@ -732,8 +732,8 @@ export async function GET(request: NextRequest) {
     
     // 基于eCPM分布生成建议
     if (tempEcmpBuckets && tempEcmpBuckets.length > 0) {
-      const highEcpmBucket = tempEcmpBuckets.find((bucket: AggregatedData) => bucket.range === '$50+')
-      const lowEcpmBucket = tempEcmpBuckets.find((bucket: AggregatedData) => bucket.range === '$0-10')
+      const highEcpmBucket = tempEcmpBuckets.find((bucket: any) => bucket.range === '$50+')
+      const lowEcpmBucket = tempEcmpBuckets.find((bucket: any) => bucket.range === '$0-10')
       
       if (highEcpmBucket && lowEcpmBucket && highEcpmBucket.count > tempEcmpBuckets.length * 0.3) {
         recommendations.push({
@@ -768,7 +768,7 @@ export async function GET(request: NextRequest) {
     const advertiserAnalysis = generateAdvertiserAnalysis(data)
     const ecmpBuckets = generateEcpmDistribution(data)
     const deviceBrowserMatrix = generateDeviceBrowserMatrix(data)
-    const geoAnalysis = (topCountries || []).map((item: EnhancedAnalyticsData) => ({
+    const geoAnalysis = (topCountries || []).map((item: any) => ({
       country: item.name,
       _sum: {
         revenue: item.revenue || 0,
@@ -779,7 +779,7 @@ export async function GET(request: NextRequest) {
       }
     }))
     const adUnitAnalysis = generateAdUnitAnalysis(data)
-    const topCombinations = generateTopCombinations(data).map((item: EnhancedAnalyticsData) => ({
+    const topCombinations = generateTopCombinations(data).map((item: any) => ({
       country: item.country,
       device: item.device,
       ad_format: item.ad_format || 'Unknown',

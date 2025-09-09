@@ -38,15 +38,15 @@ export async function GET(request: NextRequest) {
           avgCtr: result.summary.avgCtr
         },
         charts: {
-          revenueByDate: (result.dailyTrend || []).map((item: unknown) => ({
+          revenueByDate: (result.dailyTrend || []).map((item: any) => ({
             date: item.name || item.date, // 兼容优化前后的格式
             revenue: item.revenue
           })),
-          revenueByCountry: (result.topCountries || []).map((item: unknown) => ({
+          revenueByCountry: (result.topCountries || []).map((item: any) => ({
             country: item.name,
             revenue: item.revenue
           })),
-          revenueByDevice: (result.devices || []).map((item: unknown) => ({
+          revenueByDevice: (result.devices || []).map((item: any) => ({
             device: item.name,
             revenue: item.revenue
           })),
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
 }
 
 // 从样本数据计算填充率分布的备选函数
-function calculateFillRateFromSample(sampleData: unknown[], totalRows: number) {
+function calculateFillRateFromSample(sampleData: any[], totalRows: number) {
   if (!sampleData || sampleData.length === 0) {
     return [
       { range: '0-20%', count: 0 },

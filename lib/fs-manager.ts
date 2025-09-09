@@ -140,11 +140,11 @@ export class FileSystemManager {
           avgEcpm: 0,
           avgCtr: 0
         },
-        dailyData: new Map<string, unknown>(),
-        websites: new Map<string, unknown>(),
-        countries: new Map<string, unknown>(),
-        devices: new Map<string, unknown>(),
-        adFormats: new Map<string, unknown>()
+        dailyData: new Map<string, DailyData>(),
+        websites: new Map<string, AggregatedData>(),
+        countries: new Map<string, AggregatedData>(),
+        devices: new Map<string, AggregatedData>(),
+        adFormats: new Map<string, AggregatedData>()
       }
       
       for (const result of allResults) {
@@ -160,11 +160,16 @@ export class FileSystemManager {
               revenue: 0,
               impressions: 0,
               clicks: 0,
-              ecpm: 0
+              ecpm: 0,
+              count: 0
             }
-            current.revenue += website.revenue
-            current.impressions += website.impressions
-            (current as any).clicks += website.clicks || 0
+            const wRevenue = website.revenue as number
+          const wImpressions = website.impressions as number
+          const wClicks = (website.clicks || 0) as number
+          
+          (current as AggregatedData).revenue += wRevenue
+          ;(current as AggregatedData).impressions += wImpressions
+          ;(current as any).clicks += wClicks
             aggregated.websites.set(website.name, current)
           }
         }
@@ -175,11 +180,17 @@ export class FileSystemManager {
             const current: AggregatedData = aggregated.countries.get(country.name) || {
               revenue: 0,
               impressions: 0,
-              clicks: 0
+              clicks: 0,
+              ecpm: 0,
+              count: 0
             }
-            current.revenue += country.revenue
-            current.impressions += country.impressions
-            (current as any).clicks += country.clicks || 0
+            const cRevenue = country.revenue as number
+          const cImpressions = country.impressions as number
+          const cClicks = (country.clicks || 0) as number
+          
+          (current as AggregatedData).revenue += cRevenue
+          ;(current as AggregatedData).impressions += cImpressions
+          ;(current as any).clicks += cClicks
             aggregated.countries.set(country.name, current)
           }
         }
@@ -192,6 +203,8 @@ export class FileSystemManager {
               const device: AggregatedData = aggregated.devices.get((row as AnalyticsDataRow).device!) || {
                 revenue: 0,
                 impressions: 0,
+                clicks: 0,
+                ecpm: 0,
                 count: 0
               }
               device.revenue += (row as AnalyticsDataRow).revenue || 0
@@ -205,6 +218,8 @@ export class FileSystemManager {
               const format: AggregatedData = aggregated.adFormats.get((row as AnalyticsDataRow).adFormat!) || {
                 revenue: 0,
                 impressions: 0,
+                clicks: 0,
+                ecpm: 0,
                 count: 0
               }
               format.revenue += (row as AnalyticsDataRow).revenue || 0

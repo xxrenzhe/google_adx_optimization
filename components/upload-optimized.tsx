@@ -99,7 +99,7 @@ export default function FileUploadOptimized({ fileId, onFileUploaded, onClearFil
               <div className="bg-blue-50 rounded-lg p-4">
                 <div className="text-blue-600 text-sm font-medium">总收入</div>
                 <div className="text-2xl font-bold text-blue-900">
-                  ¥{formatNumber(Number(result.summary.totalRevenue.toFixed(2)))}
+                  ¥{Number(result.summary.totalRevenue).toFixed(2)}
                 </div>
               </div>
               <div className="bg-green-50 rounded-lg p-4">
@@ -111,7 +111,7 @@ export default function FileUploadOptimized({ fileId, onFileUploaded, onClearFil
               <div className="bg-purple-50 rounded-lg p-4">
                 <div className="text-purple-600 text-sm font-medium">平均eCPM</div>
                 <div className="text-2xl font-bold text-purple-900">
-                  ¥{formatNumber(Number(result.summary.avgEcpm.toFixed(2)))}
+                  ¥{Number(result.summary.avgEcpm).toFixed(2)}
                 </div>
               </div>
               <div className="bg-orange-50 rounded-lg p-4">
@@ -161,7 +161,7 @@ export default function FileUploadOptimized({ fileId, onFileUploaded, onClearFil
                       </div>
                       <div className="text-right ml-4">
                         <div className="text-sm font-medium text-gray-900">
-                          ¥{formatNumber(Number((item as UploadResult).revenue).toFixed(2))}
+                          ¥{Number((item as UploadResult).revenue).toFixed(2)}
                         </div>
                         <div className="text-xs text-gray-500">
                           展示: {formatNumber((item as UploadResult).impressions)}

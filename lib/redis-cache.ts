@@ -21,7 +21,7 @@ export async function getCachedData<T>(key: string): Promise<T | null> {
   try {
     await connectRedis()
     const data = await redisClient.get(key)
-    return data ? JSON.parse(data) as T : null
+    return data ? JSON.parse(data.toString()) as T : null
   } catch (error) {
     console.error('Redis get error:', error)
     return null

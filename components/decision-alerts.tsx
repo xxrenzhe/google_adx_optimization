@@ -4,15 +4,7 @@ import { useState, useEffect } from 'react'
 import { useFileSession } from '@/contexts/file-session'
 
 interface AlertData {
-  type: string
-  severity: 'low' | 'medium' | 'high' | 'critical'
-  title: string
-  message: string
-  data?: Record<string, unknown>
-  timestamp: string
-}
-
-interface AlertData {
+  id: string
   type: string
   severity: 'low' | 'medium' | 'high' | 'critical'
   title: string
@@ -144,7 +136,7 @@ export default function DecisionAlerts({ refreshTrigger, fileId }: DecisionAlert
     }
   }
 
-  const getAlertIcon = (type: Alert['type']) => {
+  const getAlertIcon = (type: string) => {
     switch (type) {
       case 'warning':
         return '⚠️'
@@ -159,7 +151,7 @@ export default function DecisionAlerts({ refreshTrigger, fileId }: DecisionAlert
     }
   }
 
-  const getAlertColor = (type: Alert['type']) => {
+  const getAlertColor = (type: string) => {
     switch (type) {
       case 'warning':
         return 'border-yellow-400 bg-yellow-50'

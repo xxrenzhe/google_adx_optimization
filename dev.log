@@ -1119,3 +1119,51 @@ Cleanup completed
 Memory usage: 310/356MB, External: 342MB
 Cleanup completed
  ✓ Compiled in 120ms (1677 modules)
+ ✓ Compiled in 120ms (815 modules)
+ ✓ Compiled in 66ms (815 modules)
+ ✓ Compiled in 132ms (815 modules)
+ ✓ Compiled in 112ms (815 modules)
+ ✓ Compiled in 78ms (815 modules)
+ ✓ Compiled in 65ms (815 modules)
+ ✓ Compiled in 59ms (815 modules)
+ ✓ Compiled in 116ms (815 modules)
+ ✓ Compiled in 111ms (815 modules)
+ ✓ Compiled in 149ms (815 modules)
+ ✓ Compiled in 116ms (815 modules)
+ ✓ Compiled in 108ms (815 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/jason/Documents/Kiro/google_adx_optimization/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 71ms (815 modules)
+ ✓ Compiled in 95ms (815 modules)
+ ✓ Compiled in 86ms (815 modules)
+ ✓ Compiled in 79ms (815 modules)
+ ✓ Compiled in 57ms (815 modules)
+ ✓ Compiled in 102ms (815 modules)
+ ✓ Compiled in 54ms (815 modules)
+ ✓ Compiled in 66ms (815 modules)
+ ✓ Compiled in 99ms (815 modules)
+ ✓ Compiled in 59ms (815 modules)
+ ✓ Compiled in 156ms (815 modules)
+ ✓ Compiled in 127ms (815 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/jason/Documents/Kiro/google_adx_optimization/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 159ms (815 modules)
+ ✓ Compiled in 57ms (815 modules)
+ ✓ Compiled in 220ms (1619 modules)
+ ✓ Compiled in 204ms (1619 modules)
+ ✓ Compiled in 188ms (1619 modules)
+ ✓ Compiled in 298ms (1619 modules)
+ ✓ Compiled in 104ms (1619 modules)
+ ✓ Compiled in 127ms (1619 modules)
+Memory usage: 293/442MB, External: 1252MB
+Cleanup completed
+Memory usage: 293/442MB, External: 1252MB
+Cleanup completed
+Memory usage: 294/442MB, External: 1252MB
+Cleanup completed
+Memory usage: 294/442MB, External: 1252MB
+Cleanup completed
+Memory usage: 294/442MB, External: 1252MB
+Cleanup completed
+Memory usage: 295/442MB, External: 1252MB
+Cleanup completed
+Memory usage: 295/442MB, External: 1252MB
+Cleanup completed
