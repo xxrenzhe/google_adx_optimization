@@ -101,9 +101,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 确保目录存在并可访问
-    // 强制使用/data目录 - 不降级
-    if (!CONFIG.DIRECTORIES.UPLOAD_DIR.startsWith('/data') || 
-        !CONFIG.DIRECTORIES.RESULTS_DIR.startsWith('/data')) {
+    // 生产环境强制使用/data目录
+    if (process.env.NODE_ENV === 'production' && 
+        (!CONFIG.DIRECTORIES.UPLOAD_DIR.startsWith('/data') || 
+         !CONFIG.DIRECTORIES.RESULTS_DIR.startsWith('/data'))) {
       return NextResponse.json(
         { error: 'Configuration error: Must use /data directory for production' },
         { status: 500 }
