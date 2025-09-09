@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react'
 import UploadOptimized from '@/components/upload-optimized'
 import Analytics from '@/components/analytics'
 import DecisionAlerts from '@/components/decision-alerts'
-import EnhancedAnalytics from '@/components/enhanced-analytics'
-import PredictiveAnalytics from '@/components/predictive-analytics'
-import AutomationDashboard from '@/components/automation-dashboard'
+import EnhancedAnalyticsWrapper from '@/components/enhanced-analytics-wrapper'
+import PredictiveAnalyticsWrapper from '@/components/predictive-analytics-wrapper'
+import AutomationDashboardWrapper from '@/components/automation-dashboard-wrapper'
+import { AnalyticsProvider, useAnalytics } from '@/contexts/analytics-context'
 
-export default function Home() {
+function HomeContent() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [activeTab, setActiveTab] = useState<'upload' | 'analytics' | 'alerts' | 'enhanced' | 'predictive' | 'automation'>('upload')
   
@@ -162,7 +163,7 @@ export default function Home() {
           )}
           
           {activeTab === 'enhanced' && (
-            <EnhancedAnalytics fileId={fileId} />
+            <EnhancedAnalyticsWrapper fileId={fileId} />
           )}
           
           {activeTab === 'alerts' && (
@@ -170,14 +171,22 @@ export default function Home() {
           )}
           
           {activeTab === 'predictive' && (
-            <PredictiveAnalytics refreshTrigger={refreshTrigger} fileId={fileId} />
+            <PredictiveAnalyticsWrapper refreshTrigger={refreshTrigger} fileId={fileId} />
           )}
           
           {activeTab === 'automation' && (
-            <AutomationDashboard refreshTrigger={refreshTrigger} fileId={fileId} />
+            <AutomationDashboardWrapper refreshTrigger={refreshTrigger} fileId={fileId} />
           )}
         </div>
       </main>
     </div>
+  )
+}
+
+export default function Home() {
+  return (
+    <AnalyticsProvider>
+      <HomeContent />
+    </AnalyticsProvider>
   )
 }
