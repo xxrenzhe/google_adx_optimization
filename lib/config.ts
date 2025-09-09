@@ -35,12 +35,32 @@ export const CONFIG = {
     PROCESSING_TIMEOUT: 60 * 60 * 1000, // 1小时
   },
   
-  // 目录配置 - 生产环境使用/data目录以获得10GB空间
+  // 目录配置 - 生产环境必须使用/data目录
   DIRECTORIES: {
     UPLOAD_DIR: process.env.NODE_ENV === 'production' ? '/data/uploads' : './uploads',
     RESULTS_DIR: process.env.NODE_ENV === 'production' ? '/data/results' : './results',
+  },
+  
+  // 验证配置
+  validate() {
+    if (process.env.NODE_ENV === 'production') {
+      if (!this.DIRECTORIES.UPLOAD_DIR.startsWith('/data') || 
+          !this.DIRECTORIES.RESULTS_DIR.startsWith('/data')) {
+        throw new Error('Production environment must use /data directory');
+      }
+    }
   }
 } as const;
+
+// 执行验证
+if (process.env.NODE_ENV === 'production') {
+  try {
+    CONFIG.validate();
+  } catch (error: any) {
+    console.error('Configuration validation failed:', error.message);
+    process.exit(1);
+  }
+}
 
 // 便于使用的导出
 export const DATA_RETENTION_HOURS = CONFIG.DATA_RETENTION.RESULT_RETENTION_MS / (60 * 60 * 1000);

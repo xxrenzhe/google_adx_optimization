@@ -38,9 +38,35 @@ else
     exit 1
 fi
 
-# 简化的权限测试 - 只要目录存在且有正确的所有者就继续
+# 详细的权限测试
 echo "Directory setup completed successfully"
-echo "Application will run with nextjs user privileges"
+echo "Running detailed permission tests..."
+
+# 检查文件系统类型
+echo "Filesystem info for /data:"
+df -T /data | tail -1
+echo "Mount options:"
+mount | grep /data
+
+# 检查ACL
+echo "ACL information:"
+getfacl /data 2>/dev/null || echo "No ACL support or getfacl not available"
+
+# 测试nextjs用户的实际权限
+echo "Testing nextjs user capabilities:"
+su-exec nextjs:nodejs ls -la /data/
+su-exec nextjs:nodejs touch /data/uploads/test_file_$$
+if [ $? -eq 0 ]; then
+    echo "SUCCESS: nextjs can write to /data/uploads"
+    rm -f /data/uploads/test_file_$$
+else
+    echo "FAILURE: nextjs cannot write to /data/uploads"
+    echo "This is a critical error - the application will not work properly"
+    echo "Please check the storage system configuration"
+    exit 1
+fi
+
+echo "All permission tests passed"
 
 # 切换到nextjs用户启动应用
 echo "Starting Next.js application as nextjs user..."

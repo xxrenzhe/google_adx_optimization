@@ -101,20 +101,30 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 确保目录存在并可访问
+    // 强制使用/data目录 - 不降级
+    if (!CONFIG.DIRECTORIES.UPLOAD_DIR.startsWith('/data') || 
+        !CONFIG.DIRECTORIES.RESULTS_DIR.startsWith('/data')) {
+      return NextResponse.json(
+        { error: 'Configuration error: Must use /data directory for production' },
+        { status: 500 }
+      )
+    }
+    
     try {
       await mkdir(CONFIG.DIRECTORIES.UPLOAD_DIR, { recursive: true })
       await mkdir(CONFIG.DIRECTORIES.RESULTS_DIR, { recursive: true })
       
-      // 测试写入权限
-      const testFile = `${CONFIG.DIRECTORIES.UPLOAD_DIR}/.test`
+      // 测试写入权限 - 必须成功
+      const testFile = `${CONFIG.DIRECTORIES.UPLOAD_DIR}/.test_${Date.now()}`
       await writeFile(testFile, 'test')
       await unlink(testFile)
+      console.log('Directory write test successful')
     } catch (dirError: any) {
       console.error('Directory access error:', dirError)
-      console.log('Attempting to continue with upload anyway...')
-      
-      // 不返回错误，让上传继续进行
-      // 文件系统权限问题会在实际写入时暴露
+      return NextResponse.json(
+        { error: `无法访问/data目录: ${dirError.message}. 请检查/data卷的挂载和权限配置。` },
+        { status: 500 }
+      )
     }
 
     const formData = await request.formData()
