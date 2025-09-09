@@ -2,10 +2,12 @@
 export const CONFIG = {
   // 数据保留配置
   DATA_RETENTION: {
-    // 分析结果保留时间（毫秒）
-    RESULT_RETENTION_MS: 24 * 60 * 60 * 1000, // 24小时
+    // 分析结果保留时间（毫秒）- 减少到4小时以节省存储空间
+    RESULT_RETENTION_MS: 4 * 60 * 60 * 1000, // 4小时
     // 清理检查间隔（毫秒）
-    CLEANUP_INTERVAL_MS: 60 * 60 * 1000, // 1小时
+    CLEANUP_INTERVAL_MS: 30 * 60 * 1000, // 30分钟
+    // 紧急清理阈值（字节）- 当磁盘使用超过此值时触发紧急清理
+    EMERGENCY_CLEANUP_THRESHOLD: 50 * 1024 * 1024, // 50MB
   },
   
   // SSE配置

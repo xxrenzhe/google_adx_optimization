@@ -28,6 +28,20 @@ const handler = app.getRequestHandler()
 const serverTimeout = dev ? 600000 : 900000 // 10分钟（开发）/ 15分钟（生产）
 
 app.prepare().then(() => {
+  // 生产环境启动时立即执行清理
+  if (!dev) {
+    console.log('Production startup: executing initial cleanup...')
+    const { exec } = require('child_process')
+    
+    // 异步执行清理，不阻塞启动
+    exec('curl -s http://localhost:3000/api/data-cleanup || echo "Cleanup API not ready yet"', (error) => {
+      if (error) {
+        console.log('Initial cleanup deferred (server not ready yet)')
+      } else {
+        console.log('Initial cleanup completed')
+      }
+    })
+  }
   createServer(async (req, res) => {
     try {
       // 增加上传文件大小限制
@@ -49,7 +63,7 @@ app.prepare().then(() => {
       console.log(`> Ready on http://${hostname}:${port}`)
     })
   
-  // 定期清理内存
+  // 定期清理内存和监控存储
   if (!dev) {
     setInterval(() => {
       const memUsage = process.memoryUsage()
@@ -61,6 +75,16 @@ app.prepare().then(() => {
           global.gc()
         }
       }
-    }, 30000) // 每30秒检查一次
+    }, 30000) // 每30秒检查一次内存
+    
+    // 每5分钟检查一次存储使用情况
+    setInterval(() => {
+      const { exec } = require('child_process')
+      exec('curl -s http://localhost:3000/api/storage-monitor || echo "Storage monitor not available"', (error) => {
+        if (error) {
+          console.log('Storage monitor check failed')
+        }
+      })
+    }, 300000) // 5分钟
   }
 })

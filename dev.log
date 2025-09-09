@@ -880,3 +880,11 @@ File ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 processed successfully
  GET /api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 696ms
 [ACCESS] GET http://localhost:3000/api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
  GET /api/analytics-enhanced?fileId=ccc7cb3d-8e89-4cb0-bd15-ada02084b7f0 200 in 669ms
+ ✓ Compiled in 540ms (1619 modules)
+ ✓ Compiled in 292ms (804 modules)
+ ✓ Compiled in 358ms (815 modules)
+ ✓ Compiled in 267ms (1677 modules)
+ ✓ Compiled in 177ms (815 modules)
+ ✓ Compiled in 83ms (815 modules)
+ ✓ Compiled in 136ms (815 modules)
+ ✓ Compiled in 84ms (815 modules)
