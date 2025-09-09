@@ -16,17 +16,26 @@ interface AutomationRule {
 interface AutomationDashboardProps {
   refreshTrigger?: number;
   fileId: string | null;
+  cachedData?: any;
 }
 
-export default function AutomationDashboard({ refreshTrigger, fileId }: AutomationDashboardProps) {
+export default function AutomationDashboard({ refreshTrigger, fileId, cachedData }: AutomationDashboardProps) {
   const [rules, setRules] = useState<AutomationRule[]>([])
   const [actions, setActions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [executing, setExecuting] = useState<string | null>(null)
 
   useEffect(() => {
+    // 如果有缓存数据，直接使用
+    if (cachedData) {
+      setRules(cachedData.rules || [])
+      setActions(cachedData.actions || [])
+      setLoading(false)
+      return
+    }
+    
     fetchAutomationStatus()
-  }, [refreshTrigger, fileId])
+  }, [refreshTrigger, fileId, cachedData])
 
   const fetchAutomationStatus = async () => {
     setLoading(true)

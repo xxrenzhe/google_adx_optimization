@@ -27,20 +27,29 @@ interface EnhancedAnalyticsProps {
     startDate?: string
     endDate?: string
   }
+  cachedData?: any;
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF7C7C']
 
-export default function EnhancedAnalytics({ fileId, filters }: EnhancedAnalyticsProps) {
+export default function EnhancedAnalytics({ fileId, filters, cachedData }: EnhancedAnalyticsProps) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'advertisers' | 'devices' | 'geography' | 'optimization'>('advertisers')
 
   useEffect(() => {
-    console.log('useEffect triggered with:', { fileId, filters })
+    console.log('useEffect triggered with:', { fileId, filters, cachedData })
+    
+    // 如果有缓存数据，直接使用
+    if (cachedData) {
+      setData(cachedData)
+      setLoading(false)
+      return
+    }
+    
     fetchEnhancedAnalytics()
-  }, [filters, fileId])
+  }, [filters, fileId, cachedData])
 
   const fetchEnhancedAnalytics = async () => {
     console.log('fetchEnhancedAnalytics called')

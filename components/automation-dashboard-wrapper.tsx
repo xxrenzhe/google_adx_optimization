@@ -10,7 +10,7 @@ interface AutomationDashboardWrapperProps {
 }
 
 export default function AutomationDashboardWrapper({ fileId, refreshTrigger }: AutomationDashboardWrapperProps) {
-  const { data, loading, error, prefetch } = useAnalytics()
+  const { data, loading, error, prefetch, refresh } = useAnalytics()
 
   // 预加载数据
   useEffect(() => {
