@@ -111,10 +111,10 @@ export async function POST(request: NextRequest) {
       await unlink(testFile)
     } catch (dirError: any) {
       console.error('Directory access error:', dirError)
-      return NextResponse.json(
-        { error: `无法访问存储目录: ${dirError.message}` },
-        { status: 500 }
-      )
+      console.log('Attempting to continue with upload anyway...')
+      
+      // 不返回错误，让上传继续进行
+      // 文件系统权限问题会在实际写入时暴露
     }
 
     const formData = await request.formData()
