@@ -29,6 +29,10 @@ RUN mkdir -p /app/public
 # Create necessary directories
 RUN mkdir -p uploads results && chmod 755 uploads results
 
+# Copy entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Database initialization will be handled at runtime
 
 # Build the application
@@ -86,6 +90,10 @@ USER root
 # Ensure /data directories exist and have correct permissions on startup
 RUN mkdir -p /data/uploads /data/results && chown -R nextjs:nodejs /data && chmod -R 755 /data
 
+# Copy entrypoint script
+COPY --from=builder --chown=nextjs:nodejs /app/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Switch to nextjs for running the application
 USER nextjs
 
@@ -94,5 +102,5 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-# Start the standalone server
-CMD ["npm", "run", "start:prod"]
+# Use entrypoint script to ensure permissions
+ENTRYPOINT ["/entrypoint.sh"]

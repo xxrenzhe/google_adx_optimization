@@ -32,34 +32,6 @@ app.prepare().then(() => {
   if (!dev) {
     console.log('Production startup: executing initial cleanup...')
     const { exec } = require('child_process')
-    const fs = require('fs')
-    const path = require('path')
-    
-    // 确保/data目录存在并有正确权限
-    const dataDirs = ['/data/uploads', '/data/results']
-    dataDirs.forEach(dir => {
-      try {
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true })
-          console.log(`Created directory: ${dir}`)
-        }
-        // 尝试设置权限
-        fs.chmodSync(dir, '755')
-        // 如果是root用户，更改owner
-        if (process.getuid && process.getuid() === 0) {
-          const { execSync } = require('child_process')
-          try {
-            execSync(`chown -R nextjs:nodejs /data`, { stdio: 'pipe' })
-            console.log('Set /data ownership to nextjs:nodejs')
-          } catch (e) {
-            console.warn('Failed to chown /data:', e.message)
-          }
-        }
-      } catch (error) {
-        console.error(`Failed to setup directory ${dir}:`, error)
-        process.exit(1) // 关键目录无法访问，直接退出
-      }
-    })
     
     // 异步执行清理，不阻塞启动
     exec('curl -s http://localhost:3000/api/data-cleanup || echo "Cleanup API not ready yet"', (error) => {
