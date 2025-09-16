@@ -25,9 +25,9 @@ if [ -d "/data" ]; then
     
     # 创建子目录
     echo "Creating subdirectories..."
-    mkdir -p /data/uploads /data/results /data/next-cache
-    chmod 755 /data/uploads /data/results /data/next-cache
-    chown -R nextjs:nodejs /data/uploads /data/results /data/next-cache
+    mkdir -p /data/uploads /data/results /data/next-cache /data/.npm
+    chmod 755 /data/uploads /data/results /data/next-cache /data/.npm
+    chown -R nextjs:nodejs /data/uploads /data/results /data/next-cache /data/.npm
     
     echo "Final /data permissions: $(ls -ld /data)"
     echo "/data/uploads permissions: $(ls -ld /data/uploads)"
@@ -73,17 +73,30 @@ echo "Starting Next.js application as nextjs user..."
 
 # 数据库初始化（按需）
 if [ -n "$DATABASE_URL" ]; then
-  if [ "${DB_BOOTSTRAP:-1}" = "1" ]; then
+  if [ "${DB_BOOTSTRAP:-0}" = "1" ]; then
     echo "[ENTRYPOINT] DB_BOOTSTRAP=1 → syncing schema & bootstrap"
-    # Prefer local Prisma CLI if present to avoid network installs
+    PRISMA_OK=0
     if [ -d "/app/node_modules/prisma" ]; then
       echo "[ENTRYPOINT] Using local Prisma CLI"
-      su-exec nextjs:nodejs node /app/node_modules/prisma/build/index.js db push --schema=/app/prisma/schema.prisma || echo "[ENTRYPOINT] prisma db push failed"
-    else
-      echo "[ENTRYPOINT] Local Prisma CLI not found → falling back to npx"
-      su-exec nextjs:nodejs npx prisma db push --schema=/app/prisma/schema.prisma || echo "[ENTRYPOINT] prisma db push failed"
+      set +e
+      su-exec nextjs:nodejs node /app/node_modules/prisma/build/index.js db push --schema=/app/prisma/schema.prisma
+      rc=$?
+      set -e
+      if [ "$rc" -eq 0 ]; then PRISMA_OK=1; else echo "[ENTRYPOINT] local prisma db push failed (rc=$rc)"; fi
     fi
-    su-exec nextjs:nodejs node /app/scripts/bootstrap.js || echo "[ENTRYPOINT] bootstrap script failed"
+    if [ "$PRISMA_OK" -ne 1 ]; then
+      echo "[ENTRYPOINT] Falling back to npx prisma (cache at /data/.npm)"
+      set +e
+      su-exec nextjs:nodejs env npm_config_cache=/data/.npm npx prisma db push --schema=/app/prisma/schema.prisma
+      rc=$?
+      set -e
+      if [ "$rc" -eq 0 ]; then PRISMA_OK=1; else echo "[ENTRYPOINT] npx prisma db push failed (rc=$rc)"; fi
+    fi
+    if [ "$PRISMA_OK" -eq 1 ]; then
+      su-exec nextjs:nodejs node /app/scripts/bootstrap.js || echo "[ENTRYPOINT] bootstrap script failed"
+    else
+      echo "[ENTRYPOINT] Skip bootstrap (schema sync failed)"
+    fi
   else
     echo "[ENTRYPOINT] DB_BOOTSTRAP=0 → skip prisma db push & bootstrap"
   fi

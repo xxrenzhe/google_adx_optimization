@@ -67,6 +67,7 @@ WORKDIR /app
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV npm_config_cache=/data/.npm
 
 # Install OpenSSL for Prisma and increase Node.js memory limit
 RUN apk add --no-cache openssl-dev openssl su-exec
