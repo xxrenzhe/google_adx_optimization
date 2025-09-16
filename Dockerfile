@@ -97,6 +97,16 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 # Copy package.json for npm scripts
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
+# Prisma runtime (engines + client + CLI) for standalone output
+# This avoids downloading Prisma in entrypoint and ensures engines are available at runtime
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
+
+# Use persistent cache directory for Next.js to reduce ephemeral storage usage
+ENV NEXT_CACHE_DIR=/data/next-cache
+RUN rm -rf .next/cache && ln -s /data/next-cache .next/cache
+
 # Create directories with correct permissions
 RUN mkdir -p uploads results data && chown nextjs:nodejs uploads results data && chmod 755 uploads results data
 

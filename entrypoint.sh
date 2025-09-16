@@ -25,9 +25,9 @@ if [ -d "/data" ]; then
     
     # 创建子目录
     echo "Creating subdirectories..."
-    mkdir -p /data/uploads /data/results
-    chmod 755 /data/uploads /data/results
-    chown -R nextjs:nodejs /data/uploads /data/results
+    mkdir -p /data/uploads /data/results /data/next-cache
+    chmod 755 /data/uploads /data/results /data/next-cache
+    chown -R nextjs:nodejs /data/uploads /data/results /data/next-cache
     
     echo "Final /data permissions: $(ls -ld /data)"
     echo "/data/uploads permissions: $(ls -ld /data/uploads)"
@@ -75,7 +75,14 @@ echo "Starting Next.js application as nextjs user..."
 if [ -n "$DATABASE_URL" ]; then
   if [ "${DB_BOOTSTRAP:-1}" = "1" ]; then
     echo "[ENTRYPOINT] DB_BOOTSTRAP=1 → syncing schema & bootstrap"
-    su-exec nextjs:nodejs npx prisma db push --schema=/app/prisma/schema.prisma || echo "[ENTRYPOINT] prisma db push failed"
+    # Prefer local Prisma CLI if present to avoid network installs
+    if [ -d "/app/node_modules/prisma" ]; then
+      echo "[ENTRYPOINT] Using local Prisma CLI"
+      su-exec nextjs:nodejs node /app/node_modules/prisma/build/index.js db push --schema=/app/prisma/schema.prisma || echo "[ENTRYPOINT] prisma db push failed"
+    else
+      echo "[ENTRYPOINT] Local Prisma CLI not found → falling back to npx"
+      su-exec nextjs:nodejs npx prisma db push --schema=/app/prisma/schema.prisma || echo "[ENTRYPOINT] prisma db push failed"
+    fi
     su-exec nextjs:nodejs node /app/scripts/bootstrap.js || echo "[ENTRYPOINT] bootstrap script failed"
   else
     echo "[ENTRYPOINT] DB_BOOTSTRAP=0 → skip prisma db push & bootstrap"
