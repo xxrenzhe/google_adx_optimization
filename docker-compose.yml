@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # 如需直接拉取已构建镜像，可改为：image: ghcr.io/xxrenzhe/google_adx_optimization:prod-latest
+    environment:
+      # 必需：指向外部数据库（RDS/集群）
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      # 可选：启用缓存/启动引导/COPY 导入
+      - REDIS_URL=${REDIS_URL}
+      - DB_BOOTSTRAP=${DB_BOOTSTRAP:-0}
+      - USE_PG_COPY=${USE_PG_COPY:-1}
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - ./uploads:/app/uploads
+      - ./results:/app/results
+

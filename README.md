@@ -100,14 +100,18 @@ docker build -t google-adx-optimization .
 
 ## 环境配置
 
-### 生产环境变量
+### 生产环境变量（精简版）
 
 ```env
+# 必需
 NODE_ENV=production
-NEXT_PUBLIC_DOMAIN=moretop10.com
-NEXT_PUBLIC_DEPLOYMENT_ENV=production
 DATABASE_URL=postgresql://...
-REDIS_URL=redis://...
+
+# 可选
+REDIS_URL=redis://...        # 开启缓存时设置
+DB_BOOTSTRAP=0               # 是否在启动时自动播种/索引优化（生产建议 0）
+USE_PG_COPY=1                # 导入时使用 COPY 优化（可选）
+# PORT=3000                  # 如需自定义端口
 ```
 
 ### 域名配置
@@ -115,7 +119,7 @@ REDIS_URL=redis://...
 - 测试环境: localhost
 - 生产环境: moretop10.com
 
-注意：生产环境会自动从 moretop10.com 301重定向到 www.moretop10.com
+注意：生产环境会自动从 moretop10.com 301 重定向到 www.moretop10.com（由 DNS/CloudFlare 实现，应用层无需处理）
 
 ## 性能特性
 
@@ -123,6 +127,58 @@ REDIS_URL=redis://...
 - 批量数据库插入
 - 分页查询优化
 - 响应式设计
+
+## 部署时数据库自动化
+
+容器启动时（entrypoint.sh）：
+
+- 若存在 `DATABASE_URL` 且 `DB_BOOTSTRAP=1`：
+  - 同步 schema（`npx prisma db push`）
+  - 运行 `scripts/bootstrap.js`：仅创建缺失的 ChartQueries、常用索引与 BRIN，并执行 ANALYZE
+  - 注：生产建议设置 `DB_BOOTSTRAP=0`，由 DBA/迁移系统统一管理
+
+可选：设置 `USE_PG_COPY=1` 启用 COPY 导入（高吞吐），否则默认批量 INSERT + ON CONFLICT。
+
+## 容器联调（连接外部数据库）
+
+使用根目录的 compose 文件启动应用（只包含 APP，不包含 DB）：
+
+1) 在项目根目录创建 `.env` 并配置外部数据库（以及可选 Redis）：
+```
+DATABASE_URL=postgresql://<user>:<pass>@<host>:<port>/<db>?schema=public
+REDIS_URL=redis://<user>:<pass>@<host>:<port>
+DB_BOOTSTRAP=0
+USE_PG_COPY=1
+```
+
+2) 启动应用容器（自动安装依赖、构建、健康检查）：
+```
+docker compose up --build
+```
+
+3) 待容器健康后，运行冒烟测试：
+```
+HOST=localhost PORT=3000 sh scripts/smoke.sh
+```
+
+备注：生产镜像包含 HEALTHCHECK，通过 `/api/health` 检测服务状态。
+
+## V2 更新摘要（与 docs/Requirements_V2.md 对齐）
+
+- 上传类型拓展：/upload 页面支持 ADX、Offer、Yahoo、成本四类上传；历史记录新增类型/来源。
+- 新增 API：`GET /api/uploads/history?limit=10` 获取最近上传；`/api/upload-offer`、`/api/upload-yahoo`、`/api/upload-costs` 分别导入对应事实表。
+- 高性能导入：三类扩展导入均支持 `USE_PG_COPY=1` 走 COPY；失败自动降级批量 upsert。
+- 可编辑查询：ChartQueries 支持 SQL 模板（:from/:to/:site），并记录到 `chart_query_audits` 审计表。
+- 查询缓存：`/api/charts` 与 `/api/report/summary` 接口结果使用 Redis 短期缓存（120s）。
+- 指标补齐：/report 新增 “Profit/ROI/CPC 按日” 曲线（`report.kpi_series`）。
+  同时补齐：
+  - 首页 Top Domains 含 Cost/CPC/ROI（`home.top_domains_kpi`）
+  - 报表 Top Countries/Devices 含分摊成本的 Cost/CPC/ROI（`report.country_table_kpi`、`report.device_table_kpi`）
+
+## 运维建议
+
+- 当前数据量较小，按 BRIN + 常用组合索引即可满足查询性能，无需启用表分区转换。
+- 若未来数据量显著增长，再评估启用分区脚本（命令行执行，非 Web 接口），详见 `docs/DB_Optimization_Postgres.md`。
 
 ## 开发命令
 

@@ -64,8 +64,10 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  }
+    /* 基线字体与字号对齐 trk_ui */
+    font-family: var(--font-poppins), var(--font-rubik), system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-size: 12px;
+    }
 }
 
 /* 骨架屏加载动画 */
@@ -76,4 +78,68 @@
   100% {
     background-position: -200% 0;
   }
+}
+
+/* trk_ui 风格辅助类 */
+.trk-card { @apply bg-white rounded-lg shadow p-4 border border-gray-200; }
+.trk-section-title { @apply font-semibold mb-3 text-gray-900; font-size: 14px; }
+.trk-kpi { @apply text-2xl font-bold text-gray-900; }
+.trk-subtle { @apply text-xs text-gray-500; }
+.trk-toolbar { @apply flex items-center justify-between mb-4; }
+.trk-link { @apply text-xs text-blue-600 hover:underline; }
+.trk-table thead th { @apply bg-gray-50 text-gray-600 font-medium; }
+.trk-table thead tr { @apply border-b border-gray-200; }
+.trk-table tbody tr:hover { @apply bg-gray-50; }
+
+/* 日期工具条风格更贴近 trk_ui */
+.trk-datebar select,
+.trk-datebar input[type=date] {
+  @apply bg-white border border-gray-300 rounded px-3 py-2 text-sm;
+}
+.trk-datebar button {
+  @apply shadow-sm;
+}
+
+/* ApexCharts 主题细化（tooltip/legend） */
+.apexcharts-tooltip {
+  font-family: var(--font-poppins), var(--font-rubik), system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif !important;
+  font-size: 12px !important;
+  border: 1px solid #E5E7EB !important;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08) !important;
+  border-radius: 8px !important;
+}
+.apexcharts-tooltip-title {
+  background: #F9FAFB !important;
+  border-bottom: 1px solid #E5E7EB !important;
+  font-weight: 600 !important;
+}
+.apexcharts-legend {
+  gap: 8px;
+}
+.apexcharts-legend-text {
+  font-size: 12px !important;
+  color: #4B5563 !important;
+}
+.apexcharts-legend-marker {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 9999px !important;
+}
+
+/* flatpickr 细节微调（接近 trk_ui） */
+.flatpickr-calendar {
+  font-family: var(--font-poppins), var(--font-rubik), system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+}
+.flatpickr-day:hover {
+  background-color: #EEF2FF;
+}
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background-color: #4F46E5;
+  border-color: #4F46E5;
 }

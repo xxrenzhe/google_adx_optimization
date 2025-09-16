@@ -20,7 +20,7 @@
 - 测试环境域名：localhost
 - 生产环境域名：moretop10.com，容器内部域名是 adx-prod-xxx-xxx:3000
 4）生产环境接入了CloudFlare
-5）301强制跳转
+5）301强制跳转（已在DNS解析层面实现，业务内部无需实现）
 - 生产环境，用户访问 https://moretop10.com 会301跳转到 https://www.moretop10.com
 6）生产环境核心环境变量
 - NODE_ENV=production

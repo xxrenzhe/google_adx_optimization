@@ -39,6 +39,8 @@ model AdReport {
   @@index([website, country])
   @@index([dataDate, website, country])
   @@index([sessionId, dataDate, revenue])
+  /// 唯一性组合：按日与主要维度去重，保障幂等导入
+  @@unique([dataDate, website, country, device, browser, adFormat, adUnit, advertiser, domain])
 }
 
 model UploadSession {
@@ -52,6 +54,88 @@ model UploadSession {
   processedAt   DateTime?
   analyzedAt    DateTime?
   errorMessage  String?
+  // 数据类型与来源（用于 /upload 历史展示）
+  dataType      String?  // adx | offer | yahoo | cost
+  source        String?  // 对于 cost：google/bing 等
   
   @@map("upload_sessions")
+}
+
+/// 站点维表（供 /report 站点切换与下拉）
+model Site {
+  id        Int      @id @default(autoincrement())
+  domain    String   @unique
+  firstSeen DateTime @default(now())
+  lastSeen  DateTime @default(now())
+
+  @@map("sites")
+}
+
+/// 图表查询配置（仅允许只读 SELECT），可编辑
+model ChartQuery {
+  chartKey   String   @id
+  sqlText    String
+  params     Json?
+  enabled    Boolean  @default(true)
+  updatedAt  DateTime @updatedAt
+
+  @@map("chart_queries")
+}
+
+/// 图表查询编辑审计日志
+model ChartQueryAudit {
+  id        String   @id @default(cuid())
+  chartKey  String
+  sqlText   String
+  params    Json?
+  updatedAt DateTime @default(now())
+  updatedBy String?
+
+  @@index([chartKey, updatedAt])
+  @@map("chart_query_audits")
+}
+
+/// 广告成本事实表（可选：google/bing 等平台成本）
+model AdCost {
+  id       String   @id @default(cuid())
+  dataDate DateTime
+  website  String
+  source   String   // 平台，如 google/bing
+  clicks   BigInt?
+  cost     Float?
+  cpc      Float?
+
+  @@unique([dataDate, website, source])
+  @@index([dataDate, source])
+  @@index([website, source])
+  @@map("ad_costs")
+}
+
+/// Offer 收入事实表（可选）
+model OfferRevenue {
+  id         String   @id @default(cuid())
+  dataDate   DateTime
+  website    String
+  revenue    Float?
+  clicks     BigInt?
+  impressions BigInt?
+
+  @@unique([dataDate, website])
+  @@index([dataDate, website])
+  @@map("offer_revenue")
+}
+
+/// Yahoo 收入事实表（可选）
+model YahooRevenue {
+  id          String   @id @default(cuid())
+  dataDate    DateTime
+  website     String
+  revenue     Float?
+  impressions BigInt?
+  pageviews   BigInt?
+  paidClicks  BigInt?
+
+  @@unique([dataDate, website])
+  @@index([dataDate, website])
+  @@map("yahoo_revenue")
 }

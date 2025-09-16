@@ -1,0 +1,14 @@
+.content-box {
+    box-sizing: border-box;
+    max-width: 800px;
+    padding: 30px 50px;
+    margin: 0 auto 50px auto;
+    background-color: #fff;
+    border-radius: 2px;
+    box-shadow: 0 0 6px 0 rgb(0 0 0 / 12%), 0 2px 4px 0 rgb(0 0 0 / 24%);
+    -webkit-box-shadow: 0 0 6px 0 rgb(0 0 0 / 12%), 0 2px 4px 0 rgb(0 0 0 / 24%);
+    min-height: 80%;
+}
+.container-fluid {
+    margin: 30px;
+}

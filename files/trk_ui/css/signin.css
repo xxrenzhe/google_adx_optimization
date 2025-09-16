@@ -1,0 +1,109 @@
+.main-box {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.logo {
+    margin: 10px 0 0 10px;
+    text-align: left;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+}
+
+.logo img {
+    height: 60px;
+}
+
+.login-box {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.login-left {
+    background: #4d90fe;
+    color: #ffffff;
+    text-align: center;
+    background-position: top;
+    background-size: cover;
+}
+
+.features {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+    height: 100%;
+    font-size: 1rem;
+    padding: 0 50px;
+}
+
+.features h1 {
+    margin-bottom: 20px;
+}
+
+.features p {
+    font-size: 1.14286rem;
+}
+
+.forgot-password p {
+    font-size: 1rem;
+    color: #888888;
+}
+
+.login-right {
+    /* padding-top: 16vh; */
+    /* padding-right: 30px; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* flex-direction: column; */
+    height: 100%;
+    text-align: center;
+}
+
+.login-right h1 {
+    text-transform: uppercase;
+    font-size: 1.78571rem;
+    margin-bottom: 20px;
+}
+
+.login-right .logo-third-party {
+    margin-top: 20px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+}
+
+.login-right .logo-third-party .logo-third-party-item:not(:last-child) {
+    margin-right: 10px;
+}
+
+.login-right .third-party img {
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+}
+
+.login-right .third-party:hover {
+    background-color: #6c757d99;
+}
+
+.login-right .form-group {
+    text-align: left;
+}
+
+.login-right .intro {
+    font-size: 1rem;
+    margin-top: 20px;
+}
+
+.home-link {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    font-size: 1rem;
+}

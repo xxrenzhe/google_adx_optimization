@@ -70,4 +70,18 @@ echo "All permission tests passed"
 
 # 切换到nextjs用户启动应用
 echo "Starting Next.js application as nextjs user..."
+
+# 数据库初始化（按需）
+if [ -n "$DATABASE_URL" ]; then
+  if [ "${DB_BOOTSTRAP:-1}" = "1" ]; then
+    echo "[ENTRYPOINT] DB_BOOTSTRAP=1 → syncing schema & bootstrap"
+    su-exec nextjs:nodejs npx prisma db push --schema=/app/prisma/schema.prisma || echo "[ENTRYPOINT] prisma db push failed"
+    su-exec nextjs:nodejs node /app/scripts/bootstrap.js || echo "[ENTRYPOINT] bootstrap script failed"
+  else
+    echo "[ENTRYPOINT] DB_BOOTSTRAP=0 → skip prisma db push & bootstrap"
+  fi
+else
+  echo "[ENTRYPOINT] Skip DB steps (no DATABASE_URL)"
+fi
+
 exec su-exec nextjs:nodejs npm run start:prod

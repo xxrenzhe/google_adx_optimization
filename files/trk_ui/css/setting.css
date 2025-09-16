@@ -1,0 +1,129 @@
+.setting_box{
+    padding: 15px;
+}
+.setting_top{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 98%;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+.add_btn a{
+        cursor: pointer;
+        color: #fff;
+        background-color:#1A73E8;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        border: 1px solid transparent;
+        padding: 0.5rem 0.75rem;
+        font-size: 14px;
+        border-radius: 4px;
+}
+.create_form{
+    margin-top: 20px;
+    width: 98%;
+    max-width: 1000px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+}
+.create_form form{
+    margin-top: 20px;
+}
+.create_form .form-field{
+    margin-bottom: 20px;
+}
+.create_form .form-field .label{
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}   
+.create_form .form-field .input-container{
+    width: 100%;
+}
+.create_form .form-field .input-container .input{
+    width: 100%;
+}
+.input-border{
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+.select-border{
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+.choices__input{
+    min-width: 0 !important;
+    width: 0 !important;
+    padding: 0 !important;
+}
+
+.link-red{
+    color: red;
+    text-decoration: underline;
+    font-size: 16px;
+    font-weight: 600;
+    margin-right: 20px;
+}
+
+.justify-content-end{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.setting_content{
+    width: 98%;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.btn_box{
+    cursor: pointer;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.5rem 0.75rem;
+    font-size: 14px;
+    border-radius: 4px;
+}
+.edit_btn{
+    color:#1a73e8 !important;
+    background-color: #fff !important;
+    border-color: #1a73e8 !important;
+}
+.edit_pwdbtn{
+    color:#28a745 !important;
+    background-color: #fff !important;
+    border-color: #28a745 !important;
+}
+.edit_delebtn{
+    color:#ec3c4e !important;
+    background-color: #fff !important;
+    border-color: #ec3c4e !important;
+}
+.us_t{
+    font-size: 15px;
+    font-weight: 700;
+}

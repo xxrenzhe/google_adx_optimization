@@ -60,11 +60,9 @@ ports:
   - "3000:3000"
 environment:
   - NODE_ENV=production
-  - NEXT_PUBLIC_DOMAIN=moretop10.com
-  - NEXT_PUBLIC_DEPLOYMENT_ENV=production
   - DATABASE_URL=postgresql://postgres:w8mhnnqh@dbprovider.sg-members-1.clawcloudrun.com:32404/adx_optimization?directConnection=true
   - REDIS_URL=redis://default:9xdjb8nf@dbprovider.sg-members-1.clawcloudrun.com:32284
-  - CRON_SECRET=your-secret-key-here  # 生成一个随机字符串
+  - CRON_SECRET=your-secret-key-here  # 生成一个随机字符串（可选，用于定时任务鉴权）
 resources:
   limits:
     memory: "2Gi"
@@ -146,13 +144,13 @@ curl https://www.moretop10.com/api/health
 
 ### 生产环境变量
 ```bash
-# .env.production
+# .env.production（精简）
 NODE_ENV=production
-NEXT_PUBLIC_DOMAIN=moretop10.com
-NEXT_PUBLIC_DEPLOYMENT_ENV=production
-DATABASE_URL="postgresql://postgres:w8mhnnqh@dbprovider.sg-members-1.clawcloudrun.com:32404/adx_optimization?directConnection=true"
-REDIS_URL="redis://default:9xdjb8nf@dbprovider.sg-members-1.clawcloudrun.com:32284"
-CRON_SECRET="generate-a-random-string-here"
+DATABASE_URL="postgresql://..."
+REDIS_URL="redis://..."           # 开启缓存时配置
+DB_BOOTSTRAP=0                     # 生产建议关闭自动 bootstrap
+USE_PG_COPY=1                      # 可选：导入时使用 COPY 优化
+CRON_SECRET="generate-a-random-string-here"  # 可选：定时任务鉴权
 ```
 
 ## 监控和维护

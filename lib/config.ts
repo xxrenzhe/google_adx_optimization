@@ -3,7 +3,7 @@ export const CONFIG = {
   // 数据保留配置
   DATA_RETENTION: {
     // 分析结果保留时间（毫秒）
-    RESULT_RETENTION_MS: 24 * 60 * 60 * 1000, // 24小时
+    RESULT_RETENTION_MS: 30 * 24 * 60 * 60 * 1000, // 30天（仅文件保留，DB长期保存）
     // 清理检查间隔（毫秒）
     CLEANUP_INTERVAL_MS: 60 * 60 * 1000, // 1小时
     // 紧急清理阈值（字节）- 当磁盘使用超过8GB时触发紧急清理

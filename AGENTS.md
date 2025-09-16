@@ -16,7 +16,7 @@
 - Lint: `npm run lint` (ESLint + next config).
 - Prisma: `npx prisma generate`; local dev migration: `npx prisma migrate dev`.
 - Scripted tests/examples: `node test_basic.js`, `node scripts/test-api.js`.
-- Docker (optional): `docker compose -f docker-compose.optimized.yml up`.
+- Docker（optional 本地联调外部 DB）: `docker compose up --build`。
 
 ## Coding Style & Naming Conventions
 - Language: TypeScript; indent 2 spaces; prefer explicit types at module boundaries.

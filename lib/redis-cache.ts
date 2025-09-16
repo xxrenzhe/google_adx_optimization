@@ -48,6 +48,28 @@ export async function deleteCachedData(key: string): Promise<void> {
   }
 }
 
+// 按前缀批量删除（使用SCAN避免阻塞）
+export async function deleteByPrefix(prefix: string): Promise<number> {
+  try {
+    await connectRedis()
+    let cursor = 0
+    let count = 0
+    do {
+      const res = await (redisClient as any).scan(cursor, { MATCH: `${prefix}*`, COUNT: 100 })
+      cursor = res.cursor
+      const keys: string[] = res.keys || res[1] || []
+      if (keys.length) {
+        await redisClient.del(keys)
+        count += keys.length
+      }
+    } while (cursor !== 0)
+    return count
+  } catch (error) {
+    console.error('Redis deleteByPrefix error:', error)
+    return 0
+  }
+}
+
 // 生成缓存key
 export function generateCacheKey(fileId: string, type: string): string {
   return `adx:analytics:${fileId}:${type}`

@@ -1,0 +1,751 @@
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <title>example-site1.com</title>
+    <link rel="icon" type="image/png" href="/images/favicon.ico?v=1">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="./css/bootstrap/css/bootstrap.min.css?v249" />
+    <link rel="stylesheet" type="text/css" href="./css/common.css?v249" />
+    <link rel="stylesheet" type="text/css" href="./css/flatpickr.min.css?v249" />
+    <script type="text/javascript" src="./js/jquery.min.js?v249"></script>
+    <script type="text/javascript" src="./js/apexcharts.js?v249"></script>
+    <script type="text/javascript" src="./js/flatpickr.js?v249"></script>
+    <script type="text/javascript" src="./css/bootstrap/js/bootstrap.bundle.min.js?v249"></script>
+
+    <link rel="stylesheet" type="text/css" href="./css/index.css?v249" />
+</head>
+
+<body>
+    <div class="header fixed-top">
+
+        <a class="navbar-brand" href="/">
+            <img src="./images/logo.png?v=1" class="logo_icon" alt="">
+        </a>
+
+        <div class="navbar-box" id="navbarNav">
+            <ul class="navbar-items">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+            </ul>
+        </div>
+        <div class="menu">
+            <ul>
+                <li class="menu-profile dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <span>admin</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <!-- <a class="dropdown-item" href="/user/account">
+                            Account                        </a> -->
+                        <a class="dropdown-item" href="/user/logout">
+                            Log Out </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container-fluid main-box ">
+
+        <script>
+            // 假数据 - 确保盈利状态
+            var adsCpc15day = { 
+                "2025-01-09": { "total_cost": 45.20, "total_clicks": 1250, "average_cpc": 0.036 },
+                "2025-01-10": { "total_cost": 48.30, "total_clicks": 1380, "average_cpc": 0.035 },
+                "2025-01-11": { "total_cost": 39.20, "total_clicks": 1120, "average_cpc": 0.035 },
+                "2025-01-12": { "total_cost": 50.75, "total_clicks": 1450, "average_cpc": 0.035 },
+                "2025-01-13": { "total_cost": 46.20, "total_clicks": 1320, "average_cpc": 0.035 },
+                "2025-01-14": { "total_cost": 55.30, "total_clicks": 1580, "average_cpc": 0.035 },
+                "2025-01-15": { "total_cost": 45.15, "total_clicks": 1290, "average_cpc": 0.035 }
+            };
+            var bingCpc15day = [0.032, 0.033, 0.031, 0.034, 0.032, 0.035, 0.031];
+            var browserData = [
+                { "browser": "Google Chrome", "cpm_and_cpc_revenue": "1250.50", "total_impressions": "45000", "total_clicks": "1250", "avg_ctr": "2.78", "avg_ecpm": "27.79" },
+                { "browser": "Safari 14", "cpm_and_cpc_revenue": "890.25", "total_impressions": "32000", "total_clicks": "890", "avg_ctr": "2.78", "avg_ecpm": "27.82" },
+                { "browser": "Microsoft Edge", "cpm_and_cpc_revenue": "650.75", "total_impressions": "23000", "total_clicks": "650", "avg_ctr": "2.83", "avg_ecpm": "28.29" },
+                { "browser": "Firefox Other", "cpm_and_cpc_revenue": "420.30", "total_impressions": "15000", "total_clicks": "420", "avg_ctr": "2.80", "avg_ecpm": "28.02" },
+                { "browser": "Opera Other", "cpm_and_cpc_revenue": "180.60", "total_impressions": "6500", "total_clicks": "180", "avg_ctr": "2.77", "avg_ecpm": "27.78" }
+            ];
+            var deviceData = [
+                { "device_category_name": "Desktop", "total_revenue": "1850.50", "total_impressions": "65000", "total_clicks": "1850", "avg_ctr": "2.85", "avg_ecpm": "28.47" },
+                { "device_category_name": "Mobile", "total_revenue": "1250.25", "total_impressions": "45000", "total_clicks": "1250", "avg_ctr": "2.78", "avg_ecpm": "27.78" },
+                { "device_category_name": "Tablet", "total_revenue": "450.75", "total_impressions": "16000", "total_clicks": "450", "avg_ctr": "2.81", "avg_ecpm": "28.17" }
+            ];
+        </script>
+        <div class="main">
+            <div class="h_chart">
+                <div class="cart_box h_c_b">
+                    <div class="select_site select_data">
+                        <div class="m_fontw">
+                            WebSite:
+                        </div>
+                        <select id="siteSelect">
+                            <option value="(Not applicable)">(Not applicable)</option>
+                            <option value="demo-site1.com">demo-site1.com</option>
+                            <option value="demo-site2.com">demo-site2.com</option>
+                            <option value="demo-site3.com">demo-site3.com</option>
+                            <option value="demo-site4.com">demo-site4.com</option>
+                            <option value="demo-site5.com" selected>demo-site5.com</option>
+                        </select>
+                    </div>
+                    <a class="cart_item" href="javascript:void(0)" style="display: none;">
+                        <div class="cart_item_t">
+                            <div class="mm_title">
+                                ADX Revenue
+                            </div>
+                        </div>
+                        <div class="cart_item_d">
+                            <div class="cart_i_d">
+                                <svg t="1736330107786" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                                    xmlns="http://www.w3.org/2000/svg" p-id="6271" width="20" height="20">
+                                    <path
+                                        d="M534.08 448C404.8 416 363.2 384 363.2 327.04s57.6-104.96 153.6-104.96 138.88 48.64 142.08 119.68h128a226.56 226.56 0 0 0-184.32-216.96V0H431.68v122.88C321.6 146.56 232.64 218.24 232.64 328.32c0 131.2 108.8 197.12 267.52 234.88C642.24 597.12 670.4 647.68 670.4 700.16c0 39.04-28.16 101.76-153.6 101.76s-163.2-51.84-166.4-119.04H222.4a238.08 238.08 0 0 0 209.28 217.6V1024h170.88v-122.24C713.28 880.64 798.4 816.64 798.4 699.52 798.4 538.24 663.36 483.2 534.08 448z"
+                                        fill="#86BEEE" p-id="6272"></path>
+                                </svg>
+                                <span id="revenue_box"></span>
+                            </div>
+                            <div class="cart_it">
+                                <div class="cart_iti">
+                                    <div class="iti_t">
+                                        Impressions
+                                    </div>
+                                    <div class="iti_j" id="impresions_box">
+                                        572.00 </div>
+                                </div>
+                                <div class="cart_iti">
+                                    <div class="iti_t">
+                                        eCPM
+                                    </div>
+                                    <div class="iti_j" id="ecpm_box">
+                                        $49.07 </div>
+                                </div>
+                                <div class="cart_iti">
+                                    <div class="iti_t">
+                                        Viewability
+                                    </div>
+                                    <div class="iti_j">
+                                        45.3%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="select_databox">
+                    <div class="select_data">
+                        <div class="db_box">
+                            <label for="compare-switch" style="margin-bottom: 0px;">Compare</label>
+                            <input type="checkbox" class="compare-switch" id="compare-switch" onclick="toggleCompare()">
+                        </div>
+                        <select id="dateRange">
+                            <option value="today">Today</option>
+                            <option value="yesterday" selected>Yesterday</option>
+                            <option value="last7days">Last 7 Days</option>
+                            <option value="last14days">Last 14 Days</option>
+                            <option value="thismonth">This Month</option>
+                            <option value="lastmonth">Last Month</option>
+                        </select>
+                        <input type="text" id="dateRangePicker" placeholder="2025-09-08">
+                        <button id="confirmBtn">Search</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="top_mian">
+                <div class="top_r">
+                    <div class="cart_box p20 fsb">
+                        <a class="cart_item nbg" href="javascript:void(0)">
+                            <div class="cart_item_t">
+                                <div class="mm_title">
+                                    Today
+                                </div>
+                            </div>
+                            <div class="cart_item_d">
+                                <div class="cart_i_d">
+                                    <svg t="1736330107786" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                                        xmlns="http://www.w3.org/2000/svg" p-id="6271" width="20" height="20">
+                                        <path
+                                            d="M534.08 448C404.8 416 363.2 384 363.2 327.04s57.6-104.96 153.6-104.96 138.88 48.64 142.08 119.68h128a226.56 226.56 0 0 0-184.32-216.96V0H431.68v122.88C321.6 146.56 232.64 218.24 232.64 328.32c0 131.2 108.8 197.12 267.52 234.88C642.24 597.12 670.4 647.68 670.4 700.16c0 39.04-28.16 101.76-153.6 101.76s-163.2-51.84-166.4-119.04H222.4a238.08 238.08 0 0 0 209.28 217.6V1024h170.88v-122.24C713.28 880.64 798.4 816.64 798.4 699.52 798.4 538.24 663.36 483.2 534.08 448z"
+                                            fill="#86BEEE" p-id="6272"></path>
+                                    </svg>
+                                    <span id="revenue_boxs" class="total_s">1580.25</span>
+                                </div>
+
+                            </div>
+                        </a>
+                        <a class="cart_item">
+                            <div class="cart_item_t">
+                                <div class="mm_title">
+                                    Last 7 Day
+                                </div>
+                            </div>
+                            <div class="cart_item_d">
+                                <div class="cart_i_d">
+                                    <svg t="1736330107786" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                                        xmlns="http://www.w3.org/2000/svg" p-id="6271" width="20" height="20">
+                                        <path
+                                            d="M534.08 448C404.8 416 363.2 384 363.2 327.04s57.6-104.96 153.6-104.96 138.88 48.64 142.08 119.68h128a226.56 226.56 0 0 0-184.32-216.96V0H431.68v122.88C321.6 146.56 232.64 218.24 232.64 328.32c0 131.2 108.8 197.12 267.52 234.88C642.24 597.12 670.4 647.68 670.4 700.16c0 39.04-28.16 101.76-153.6 101.76s-163.2-51.84-166.4-119.04H222.4a238.08 238.08 0 0 0 209.28 217.6V1024h170.88v-122.24C713.28 880.64 798.4 816.64 798.4 699.52 798.4 538.24 663.36 483.2 534.08 448z"
+                                            fill="#86BEEE" p-id="6272"></path>
+                                    </svg>
+                                    <span class="total_s">9,850.50</span>
+                                </div>
+                            </div>
+                        </a>
+                        <a class="cart_item" href="javascript:void(0)">
+                            <div class="cart_item_t">
+                                <div class="mm_title">
+                                    Yesterday
+                                </div>
+                            </div>
+                            <div class="cart_item_d">
+                                <div class="cart_i_d">
+                                    <svg t="1736330107786" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                                        xmlns="http://www.w3.org/2000/svg" p-id="6271" width="20" height="20">
+                                        <path
+                                            d="M534.08 448C404.8 416 363.2 384 363.2 327.04s57.6-104.96 153.6-104.96 138.88 48.64 142.08 119.68h128a226.56 226.56 0 0 0-184.32-216.96V0H431.68v122.88C321.6 146.56 232.64 218.24 232.64 328.32c0 131.2 108.8 197.12 267.52 234.88C642.24 597.12 670.4 647.68 670.4 700.16c0 39.04-28.16 101.76-153.6 101.76s-163.2-51.84-166.4-119.04H222.4a238.08 238.08 0 0 0 209.28 217.6V1024h170.88v-122.24C713.28 880.64 798.4 816.64 798.4 699.52 798.4 538.24 663.36 483.2 534.08 448z"
+                                            fill="#86BEEE" p-id="6272"></path>
+                                    </svg>
+                                    <span>1450.90</span>
+                                </div>
+                                <div class="cart_it">
+                                 
+                                </div>
+                            </div>
+                        </a>
+
+                    </div>
+                    <div class="cart_all">
+                 
+                    </div>
+                    <div class="remind_template">
+
+                        <div class="remind_item w100">
+                       
+                            <div class="remind_item w100 mt0">
+                                <div class="remind_item_b df bgF6F8FB pad30">
+                                    <div class="remind_i_c br12">
+                                        <div class="remind_title">
+                                            Impressions
+                                        </div>
+                                        <div class="info_title">
+                                            126,000 </div>
+                                        <!-- <div class="remind_icon bg4240A0">
+                                    <svg t="1739512434702" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15152" data-spm-anchor-id="a313x.search_index.0.i11.2d8c3a81HZewC2" width="32" height="32"><path d="M512 293.236364c-116.363636 0-214.109091 97.745455-214.109091 214.109091s97.745455 214.109091 214.109091 214.10909 214.109091-97.745455 214.109091-214.10909-97.745455-214.109091-214.109091-214.109091z m0 358.4c-79.127273 0-144.290909-65.163636-144.290909-144.290909S432.872727 363.054545 512 363.054545s139.636364 65.163636 139.636364 144.29091-60.509091 144.290909-139.636364 144.290909z" p-id="15153" data-spm-anchor-id="a313x.search_index.0.i12.2d8c3a81HZewC2" class="selected" fill="#ffffff"></path><path d="M1014.690909 484.072727c-32.581818-65.163636-69.818182-121.018182-121.018182-172.218182C614.4 46.545455 158.254545 139.636364 4.654545 488.727273c-4.654545 9.309091-4.654545 27.927273 0 41.890909C107.054545 740.072727 279.272727 847.127273 512 861.090909c232.727273-9.309091 404.945455-116.363636 507.345455-325.818182 4.654545-18.618182 4.654545-32.581818-4.654546-51.2z m-74.472727 51.2C847.127273 698.181818 702.836364 791.272727 512 791.272727s-335.127273-88.436364-432.872727-256c-9.309091-13.963636-9.309091-27.927273 0-46.545454 97.745455-167.563636 237.381818-251.345455 428.218182-260.654546 195.490909 9.309091 339.781818 93.090909 432.872727 256 9.309091 18.618182 9.309091 32.581818 0 51.2z" p-id="15154" data-spm-anchor-id="a313x.search_index.0.i10.2d8c3a81HZewC2" class="selected" fill="#ffffff"></path><path d="M465.454545 465.454545m-41.890909 0a41.890909 41.890909 0 1 0 83.781819 0 41.890909 41.890909 0 1 0-83.781819 0Z" p-id="15155" data-spm-anchor-id="a313x.search_index.0.i13.2d8c3a81HZewC2" class="selected" fill="#ffffff"></path></svg>
+                                </div>      -->
+                                    </div>
+                                    <div class="remind_i_c br12">
+                                        <div class="remind_title">
+                                            Clicks
+                                        </div>
+                                        <div class="info_title">
+                                            3,550 </div>
+                                        <!-- <div class="remind_icon bg4240A0">
+                                    <svg t="1739512434702" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15152" data-spm-anchor-id="a313x.search_index.0.i11.2d8c3a81HZewC2" width="32" height="32"><path d="M512 293.236364c-116.363636 0-214.109091 97.745455-214.109091 214.109091s97.745455 214.109091 214.109091 214.10909 214.109091-97.745455 214.109091-214.10909-97.745455-214.109091-214.109091-214.109091z m0 358.4c-79.127273 0-144.290909-65.163636-144.290909-144.290909S432.872727 363.054545 512 363.054545s139.636364 65.163636 139.636364 144.29091-60.509091 144.290909-139.636364 144.290909z" p-id="15153" data-spm-anchor-id="a313x.search_index.0.i12.2d8c3a81HZewC2" class="selected" fill="#ffffff"></path><path d="M1014.690909 484.072727c-32.581818-65.163636-69.818182-121.018182-121.018182-172.218182C614.4 46.545455 158.254545 139.636364 4.654545 488.727273c-4.654545 9.309091-4.654545 27.927273 0 41.890909C107.054545 740.072727 279.272727 847.127273 512 861.090909c232.727273-9.309091 404.945455-116.363636 507.345455-325.818182 4.654545-18.618182 4.654545-32.581818-4.654546-51.2z m-74.472727 51.2C847.127273 698.181818 702.836364 791.272727 512 791.272727s-335.127273-88.436364-432.872727-256c-9.309091-13.963636-9.309091-27.927273 0-46.545454 97.745455-167.563636 237.381818-251.345455 428.218182-260.654546 195.490909 9.309091 339.781818 93.090909 432.872727 256 9.309091 18.618182 9.309091 32.581818 0 51.2z" p-id="15154" data-spm-anchor-id="a313x.search_index.0.i10.2d8c3a81HZewC2" class="selected" fill="#ffffff"></path><path d="M465.454545 465.454545m-41.890909 0a41.890909 41.890909 0 1 0 83.781819 0 41.890909 41.890909 0 1 0-83.781819 0Z" p-id="15155" data-spm-anchor-id="a313x.search_index.0.i13.2d8c3a81HZewC2" class="selected" fill="#ffffff"></path></svg>
+                                </div>     -->
+                                    </div>
+                                    <div class="remind_i_c br12">
+                                        <div class="remind_title">
+                                            eCPM
+                                        </div>
+                                        <div class="info_title today_ecmp">
+                                            $28.15 </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="remind_chart" id="remind_chart">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="top_l">
+                    <div class="echart_box w100 bg_l">
+                        <div class="m_titel">
+                            Profit
+                        </div>
+                        <!-- <div class="cart_profit">
+                    <div class="cart_revenue cart_r">
+                        <span class="legend bg-primary"></span> Revenue
+                        <div class="fontw"> $28.07</div>
+                    </div>
+                    <div class="cart_cost cart_r">
+                        <span class="legend bg-background2"></span> Cost
+                        <div class="fontw"> $43.35</div>
+                    </div>
+                </div> -->
+                        <div class="cart_profit" style="margin-top: 15px;">
+                            <div class="cart_revenue cart_r">
+                                <div class="fontw"> +$1,535.05</div>
+                            </div>
+                            <!-- <div class="cart_cost cart_r">
+                        <span class="legend bg-background2"></span> ROI
+                        <div class="fontw"> 64.75%</div>
+                    </div> -->
+                        </div>
+                        <div id="recentorders">
+
+                        </div>
+                        <div class="iti_j roi_d" style="display: none;">
+                            64.75% </div>
+                    </div>
+                    <div class="tl_i b1">
+                        <div class="ti_item">
+                            <div class="ti_left">
+                                <svg t="1739770014091" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                                    xmlns="http://www.w3.org/2000/svg" p-id="10431" width="30" height="30">
+                                    <path
+                                        d="M892 330c4.4 0 8 3.6 8 8v482c0 4.4-3.6 8-8 8H132c-4.4 0-8-3.6-8-8V338c0-4.4 3.6-8 8-8h760m0-60H132c-37.6 0-68 30.4-68 68v482c0 37.6 30.4 68 68 68h760c37.6 0 68-30.4 68-68V338c0-37.6-30.4-68-68-68z"
+                                        p-id="10432" fill="#35BDAA"></path>
+                                    <path
+                                        d="M203 270l15.7-74.2c0.9-4.2 4.6-6.4 7.8-6.4 0.6 0 1.1 0.1 1.7 0.2L608.4 270H892c3.4 0 6.7 0.3 9.9 0.7L240.6 130.9c-4.7-1-9.5-1.5-14.1-1.5-31.5 0-59.7 22-66.5 54L141.7 270H203zM899.3 508.2v122.5h-202c-33.8 0-61.3-27.5-61.3-61.3s27.5-61.3 61.3-61.3h202m60-59.9h-262c-67 0-121.3 54.3-121.3 121.3s54.3 121.3 121.3 121.3h262V448.2z"
+                                        p-id="10433" fill="#35BDAA"></path>
+                                    <path
+                                        d="M710.8 534.9c-19.1 0-34.6 15.5-34.6 34.6s15.5 34.6 34.6 34.6 34.6-15.5 34.6-34.6-15.5-34.6-34.6-34.6z"
+                                        p-id="10434" fill="#35BDAA"></path>
+                                </svg>
+                            </div>
+                            <div class="ti_right">
+                                <div class="fontw">
+                                    +1580.25$ </div>
+                                <div class="m_fontw">
+                                    ADX Revenue
+                                </div>
+                            </div>
+                            <div class="ti_right" style="margin-left: 25px;">
+                                <div class="fontw">
+                                    +0.00$ </div>
+                                <div class="m_fontw">
+                                    Offer Revenue
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tl_i b2">
+                        <div class="ti_item">
+                            <div class="ti_left">
+                                <svg t="1739770315521" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                                    xmlns="http://www.w3.org/2000/svg" p-id="11516" width="30" height="30">
+                                    <path
+                                        d="M512 96c229.76 0 416 186.24 416 416S741.76 928 512 928 96 741.76 96 512 282.24 96 512 96z m0 64C317.589333 160 160 317.589333 160 512S317.589333 864 512 864 864 706.410667 864 512 706.410667 160 512 160z m32 97.216l0.021333 75.477333c73.706667 9.152 126.101333 48.853333 128.64 105.6l0.106667 4.373334h-64c0-24.661333-36.266667-48-98.133333-48-62.912 0-98.133333 19.712-98.133334 48 0 25.386667 30.741333 46.592 91.946667 47.914666l6.186667 0.085334c96.469333 0 162.133333 43.541333 162.133333 112 0 64.512-52.693333 101.994667-128.746667 110.250666l-0.021333 76.544h-64V712.96c-75.114667-8.533333-128.810667-48.533333-131.392-105.962667l-0.085333-4.373333h64c0 24.661333 36.309333 48.021333 98.133333 48.021333 62.890667 0 98.133333-19.733333 98.133333-48 0-25.386667-30.72-46.592-91.925333-47.936l-12.458667-0.128c-93.056-1.856-155.882667-44.992-155.882666-111.936 0-65.301333 53.973333-102.890667 131.498666-110.549333l-0.021333-74.901333h64z"
+                                        fill="#FFB748" p-id="11517"></path>
+                                </svg>
+                            </div>
+                            <div class="ti_right">
+                                <div class="fontw">
+                                    -45.15$ </div>
+                                <div class="m_fontw">
+                                    Cost
+                                </div>
+                            </div>
+                            <a href="javascript:void(0)" target="_blank" class="ti_right google_ads border_r"
+                                style="margin-left: 25px;">
+                                <div class="fontw f_11">
+                                    <img width="15" height="15" src="./images/Google-ads.svg" alt="Google ads">
+                                    -45.15$
+                                </div>
+                                <div class="m_fontw f_11">
+                                    Google Ads Cost
+                                </div>
+                            </a>
+                            <a href="javascript:void(0)" target="_blank" class="ti_right bing_ads border_r"
+                                style="margin-left: 25px;">
+                                <div class="fontw f_11">
+                                    <img width="15" height="15" src="./images/bing.svg" alt="bing">
+                                    -0.00$
+                                </div>
+                                <div class="m_fontw f_11">
+                                    Bing Ads Cost
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="remind_template">
+                <div class="remind_item df">
+                    <div class="ri_l bg55BEF0">
+                        <div class="remind_title">
+                            CPC
+                        </div>
+                        <div class="info_title today_cpc">
+                            <div class="cpc_item">
+                                <img width="20" height="20" src="./images/Google-ads.svg" alt="Google ads">
+                                <span class="adscpc"></span>
+                            </div>
+                            <div class="cpc_item">
+                                <img width="20" height="20" src="./images/bing.svg" alt="bing">
+                                <span class="bingcpc"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ri_l ri_chart">
+                        <div id="cpc_chart">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="remind_item df">
+                    <div class="ri_l bgFF7043">
+                        <div class="remind_title">
+                            <img width="20" height="20" src="./images/adx.png" alt="adx"> eCPM
+                        </div>
+                        <div class="info_title today_ecmp">
+                            $28.15 </div>
+                    </div>
+                    <div class="ri_l ri_chart">
+                        <div id="ecmp_chart">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="remind_template">
+                <div class="remind_item">
+                    <div class="browser_chart" id="browser_chart">
+
+                    </div>
+                </div>
+                <div class="remind_item">
+                    <div class="device_chart" id="device_chart">
+
+                    </div>
+                </div>
+            </div>
+            <div class="df">
+                <div class="classified_advertiser_box domain-table3 w4">
+                    <div class="m_titel chart_t_m">
+                        Advertiser Inventory
+                    </div>
+                    <div class="classified_advertiser_content">
+                    </div>
+                </div>
+                <div class="classified_advertiser_box domain-table2 w6">
+
+                    <div class="m_titel chart_t_m">
+                        Classified Advertiser
+                    </div>
+                    <div class="classified_advertiser_content">
+                    </div>
+                </div>
+            </div>
+            <div class="table_box p20 domain-table">
+
+                <table id="domain-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="table_h">Domain <div class="sorting"></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="table_h">Country <div class="sorting"></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="table_h">Impressions <div class="sorting"></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="table_h">Clicks <div class="sorting"></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="table_h">CTR (Avg) <div class="sorting"></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="table_h">Epc <div class="sorting"></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="table_h">eCPM (Avg) <div class="sorting"></div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="table_h">Revenue <div class="sorting"></div>
+                                </div>
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Total</td>
+                            <td></td>
+                            <td>126,000</td>
+                            <td>3,550</td>
+                            <td>2.82%</td>
+                            <td>0.45</td>
+                            <td>$28.15</td>
+                            <td>$1,580.25</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>US</td>
+                            <td>85,000</td>
+                            <td>2,400</td>
+                            <td>2.82%</td>
+                            <td>0.46</td>
+                            <td>$28.50</td>
+                            <td>$1,104.00</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>CA</td>
+                            <td>15,000</td>
+                            <td>420</td>
+                            <td>2.80%</td>
+                            <td>0.44</td>
+                            <td>$27.80</td>
+                            <td>$184.80</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>GB</td>
+                            <td>12,000</td>
+                            <td>340</td>
+                            <td>2.83%</td>
+                            <td>0.47</td>
+                            <td>$28.90</td>
+                            <td>$159.80</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>AU</td>
+                            <td>8,500</td>
+                            <td>240</td>
+                            <td>2.82%</td>
+                            <td>0.45</td>
+                            <td>$28.20</td>
+                            <td>$108.00</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>DE</td>
+                            <td>5,500</td>
+                            <td>150</td>
+                            <td>2.73%</td>
+                            <td>0.43</td>
+                            <td>$27.50</td>
+                            <td>$64.50</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>FR</td>
+                            <td>4,200</td>
+                            <td>118</td>
+                            <td>2.81%</td>
+                            <td>0.44</td>
+                            <td>$28.00</td>
+                            <td>$51.92</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>IT</td>
+                            <td>3,800</td>
+                            <td>107</td>
+                            <td>2.82%</td>
+                            <td>0.45</td>
+                            <td>$28.15</td>
+                            <td>$48.15</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>ES</td>
+                            <td>3,200</td>
+                            <td>90</td>
+                            <td>2.81%</td>
+                            <td>0.44</td>
+                            <td>$28.00</td>
+                            <td>$39.60</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>NL</td>
+                            <td>2,800</td>
+                            <td>79</td>
+                            <td>2.82%</td>
+                            <td>0.45</td>
+                            <td>$28.15</td>
+                            <td>$35.55</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>SE</td>
+                            <td>2,500</td>
+                            <td>70</td>
+                            <td>2.80%</td>
+                            <td>0.44</td>
+                            <td>$28.00</td>
+                            <td>$30.80</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>NO</td>
+                            <td>2,200</td>
+                            <td>62</td>
+                            <td>2.82%</td>
+                            <td>0.45</td>
+                            <td>$28.15</td>
+                            <td>$27.90</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>DK</td>
+                            <td>1,800</td>
+                            <td>51</td>
+                            <td>2.83%</td>
+                            <td>0.46</td>
+                            <td>$28.50</td>
+                            <td>$23.46</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>FI</td>
+                            <td>1,500</td>
+                            <td>42</td>
+                            <td>2.80%</td>
+                            <td>0.44</td>
+                            <td>$28.00</td>
+                            <td>$18.48</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>CH</td>
+                            <td>1,200</td>
+                            <td>34</td>
+                            <td>2.83%</td>
+                            <td>0.46</td>
+                            <td>$28.50</td>
+                            <td>$15.64</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>AT</td>
+                            <td>1,000</td>
+                            <td>28</td>
+                            <td>2.80%</td>
+                            <td>0.44</td>
+                            <td>$28.00</td>
+                            <td>$12.32</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>BE</td>
+                            <td>800</td>
+                            <td>23</td>
+                            <td>2.88%</td>
+                            <td>0.47</td>
+                            <td>$29.00</td>
+                            <td>$10.81</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>IE</td>
+                            <td>600</td>
+                            <td>17</td>
+                            <td>2.83%</td>
+                            <td>0.46</td>
+                            <td>$28.50</td>
+                            <td>$7.82</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>PT</td>
+                            <td>500</td>
+                            <td>14</td>
+                            <td>2.80%</td>
+                            <td>0.44</td>
+                            <td>$28.00</td>
+                            <td>$6.16</td>
+                        </tr>
+                        <tr>
+                            <td>example-site1.com</td>
+                            <td>LU</td>
+                            <td>400</td>
+                            <td>11</td>
+                            <td>2.75%</td>
+                            <td>0.43</td>
+                            <td>$27.50</td>
+                            <td>$4.73</td>
+                        </tr>
+                    </tbody>
+                </table>
+               
+         
+                <div id="pagination">
+                    <div class="pagination-container">
+                        <div class="pagination-info">
+                            <span class="page-info">Showing <span id="showing-start">1</span> to <span id="showing-end">15</span> of <span id="total-items">150</span> entries</span>
+                        </div>
+                        <nav class="pagination-nav">
+                            <ul class="pagination-list">
+                                <li class="page-item prev-item">
+                                    <button class="page-link prev-btn" id="prev-btn" disabled>
+                                        <svg class="page-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="15,18 9,12 15,6"></polyline>
+                                        </svg>
+                                        Previous
+                                    </button>
+                                </li>
+                                
+                                <li class="page-item">
+                                    <button class="page-link page-number active" data-page="1">1</button>
+                                </li>
+                                <li class="page-item">
+                                    <button class="page-link page-number" data-page="2">2</button>
+                                </li>
+                                <li class="page-item">
+                                    <button class="page-link page-number" data-page="3">3</button>
+                                </li>
+                                
+                                <li class="page-item dots">
+                                    <span class="page-dots">...</span>
+                                </li>
+                                
+                                <li class="page-item">
+                                    <button class="page-link page-number" data-page="8">8</button>
+                                </li>
+                                <li class="page-item">
+                                    <button class="page-link page-number" data-page="9">9</button>
+                                </li>
+                                <li class="page-item">
+                                    <button class="page-link page-number" data-page="10">10</button>
+                                </li>
+                                
+                                <li class="page-item next-item">
+                                    <button class="page-link next-btn" id="next-btn">
+                                        Next
+                                        <svg class="page-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="9,18 15,12 9,6"></polyline>
+                                        </svg>
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <div class="copyright">Copyright © 2025 Trk Data Rights Reserved</div>
+    </footer>
+    <script type="text/javascript" src="./js/util.js?v249"></script>
+    <script type="text/javascript" src="./js/details.js?v249"></script>
+</body>
+
+</html>

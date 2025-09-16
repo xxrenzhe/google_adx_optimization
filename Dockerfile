@@ -35,8 +35,26 @@ RUN chmod +x /entrypoint.sh
 
 # Database initialization will be handled at runtime
 
-# Build the application
+# Lint & Build the application
 RUN \
+  if [ -f yarn.lock ]; then yarn run lint; \
+  elif [ -f package-lock.json ]; then npm run lint; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run lint; \
+  else echo "Lockfile not found." && exit 1; \
+  fi && \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
@@ -52,6 +70,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # Install OpenSSL for Prisma and increase Node.js memory limit
 RUN apk add --no-cache openssl-dev openssl su-exec
+RUN apk add --no-cache curl
 
 # Set Node.js memory limit to 1.5GB for processing large files
 ENV NODE_OPTIONS="--max-old-space-size=1536"
@@ -66,8 +85,9 @@ RUN mkdir -p uploads results && chmod 755 uploads results
 RUN mkdir -p .next
 RUN chown nextjs:nodejs .next
 
-# Copy Prisma schema
+# Copy Prisma schema and runtime scripts
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 
 # Copy the standalone output (minimal footprint for 1C2G)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -107,3 +127,7 @@ ENV HOSTNAME "0.0.0.0"
 
 # Use entrypoint script to ensure permissions
 ENTRYPOINT ["/entrypoint.sh"]
+
+# Healthcheck: app must respond on /api/health
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
