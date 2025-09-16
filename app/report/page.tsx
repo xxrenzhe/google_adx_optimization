@@ -174,6 +174,7 @@ export default function ReportPage() {
           <div className="trk-card">
             <h3 className="trk-section-title">Revenue / eCPM / Clicks / Impr</h3>
             {typeof window !== 'undefined' && (
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               <ApexChart options={tsOptions} series={tsOptions.series} type="line" height={280} />
             )}
@@ -182,6 +183,7 @@ export default function ReportPage() {
           <div className="trk-card">
             <h3 className="trk-section-title">Device Type（Only ADX）</h3>
             {typeof window !== 'undefined' && (
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               <ApexChart options={{ labels: deviceAgg.labels }} series={deviceAgg.series} type="donut" height={280} />
             )}
@@ -192,6 +194,7 @@ export default function ReportPage() {
         <div className="trk-card">
           <h3 className="trk-section-title">Profit / ROI / CPC（按日）</h3>
           {typeof window !== 'undefined' && (
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             <ApexChart options={kpiOptions} series={kpiOptions.series} type="line" height={280} />
           )}

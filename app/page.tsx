@@ -90,6 +90,7 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="trk-card">
             {typeof window !== 'undefined' && (
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               <ApexChart options={summaryOptions} series={summaryOptions.series} type="line" height={300} />
             )}
@@ -145,6 +146,7 @@ export default function Home() {
             const totalYahoo = yahoo.reduce((s:any,x:any)=>s+Number(x.revenue||0),0)
             const labels = ['ADX', ...(totalOffer>0?['Offer']:[]), ...(totalYahoo>0?['Yahoo']:[])]
             const series = [Number(totalRevenue), ...(totalOffer>0?[totalOffer]:[]), ...(totalYahoo>0?[totalYahoo]:[])]
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             return <ApexChart options={{ labels }} series={series} type="donut" height={280} />
           })()}

@@ -290,7 +290,7 @@ export default function AutomationDashboard({ refreshTrigger, fileId }: Automati
           {actions.length > 0 ? (
             actions.map((action, index) => (
               <div key={index} className="text-sm text-gray-600 p-3 bg-gray-50 rounded">
-                <p>{new Date().toLocaleString('zh-CN')} - 规则"{action.ruleName}"触发，建议执行操作：{action.action}</p>
+                <p>{new Date().toLocaleString('zh-CN')} - 规则“{action.ruleName}”触发，建议执行操作：{action.action}</p>
               </div>
             ))
           ) : (

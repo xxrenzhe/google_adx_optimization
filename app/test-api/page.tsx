@@ -153,10 +153,10 @@ export default function TestApiPage() {
           <h3 className="text-lg font-medium mb-2">使用说明:</h3>
           <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
             <li>上传一个 CSV 文件</li>
-            <li>从浏览器控制台中复制 File ID（查找 "[DEBUG] Starting polling for fileId:"）</li>
+            <li>从浏览器控制台中复制 File ID（查找 “[DEBUG] Starting polling for fileId:”）</li>
             <li>将 File ID 粘贴到输入框中</li>
-            <li>点击"测试 API"查看响应</li>
-            <li>如果遇到状态问题，可以点击"清理 LocalStorage"</li>
+            <li>点击“测试 API”查看响应</li>
+            <li>如果遇到状态问题，可以点击“清理 LocalStorage”</li>
           </ol>
         </div>
 
