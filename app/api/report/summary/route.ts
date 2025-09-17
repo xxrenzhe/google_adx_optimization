@@ -16,8 +16,8 @@ export async function GET(req: NextRequest) {
 
     const [adxRows, offerRows, yahooRows, costRows] = await Promise.all([
       prismaRead.$queryRawUnsafe(`SELECT SUM(COALESCE("revenue",0))::numeric AS v FROM "AdReport" WHERE "website" = $1 AND "dataDate" BETWEEN $2 AND $3`, site, new Date(from), new Date(to)),
-      prismaRead.$queryRawUnsafe(`SELECT SUM(COALESCE("revenue",0))::numeric AS v FROM "OfferRevenue" WHERE "website" = $1 AND "dataDate" BETWEEN $2 AND $3`, site, new Date(from), new Date(to)),
-      prismaRead.$queryRawUnsafe(`SELECT SUM(COALESCE("revenue",0))::numeric AS v FROM "YahooRevenue" WHERE "website" = $1 AND "dataDate" BETWEEN $2 AND $3`, site, new Date(from), new Date(to)),
+      prismaRead.$queryRawUnsafe(`SELECT SUM(COALESCE("revenue",0))::numeric AS v FROM "offer_revenue" WHERE "website" = $1 AND "dataDate" BETWEEN $2 AND $3`, site, new Date(from), new Date(to)),
+      prismaRead.$queryRawUnsafe(`SELECT SUM(COALESCE("revenue",0))::numeric AS v FROM "yahoo_revenue" WHERE "website" = $1 AND "dataDate" BETWEEN $2 AND $3`, site, new Date(from), new Date(to)),
       prismaRead.$queryRawUnsafe(`SELECT SUM(COALESCE("cost",0))::numeric AS c, SUM(COALESCE("clicks",0))::bigint AS k FROM "ad_costs" WHERE "website" = $1 AND "dataDate" BETWEEN $2 AND $3`, site, new Date(from), new Date(to)),
     ])
 

@@ -50,8 +50,8 @@ const defaults: Record<string,string> = {
   'alerts.summary': `SELECT SUM(revenue)::numeric AS revenue, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks, CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm, CASE WHEN SUM(impressions)>0 THEN SUM(clicks)::numeric/SUM(impressions)*100 ELSE 0 END AS ctr FROM "AdReport" WHERE dataDate BETWEEN :from AND :to;`
   ,
   // Home: Offer/Yahoo series（可选表，若无数据则返回0行）
-  'home.offer_by_day': `SELECT dataDate::date AS day, SUM(revenue)::numeric AS revenue FROM "OfferRevenue" WHERE dataDate BETWEEN :from AND :to GROUP BY 1 ORDER BY 1;`,
-  'home.yahoo_by_day': `SELECT dataDate::date AS day, SUM(revenue)::numeric AS revenue FROM "YahooRevenue" WHERE dataDate BETWEEN :from AND :to GROUP BY 1 ORDER BY 1;`
+  'home.offer_by_day': `SELECT dataDate::date AS day, SUM(revenue)::numeric AS revenue FROM "offer_revenue" WHERE dataDate BETWEEN :from AND :to GROUP BY 1 ORDER BY 1;`,
+  'home.yahoo_by_day': `SELECT dataDate::date AS day, SUM(revenue)::numeric AS revenue FROM "yahoo_revenue" WHERE dataDate BETWEEN :from AND :to GROUP BY 1 ORDER BY 1;`
   ,
   // Home: Top Domains with KPI (cost/cpc/roi)
   'home.top_domains_kpi': `WITH rev_site_day AS (

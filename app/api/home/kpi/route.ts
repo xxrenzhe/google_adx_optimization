@@ -16,12 +16,12 @@ export async function GET() {
       prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "AdReport" WHERE "dataDate"::date = $1`, toDate(todayStr)),
       prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "AdReport" WHERE "dataDate" BETWEEN $1 AND $2`, toDate(d7Start), toDate(d7End)),
       prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "AdReport" WHERE "dataDate"::date = $1`, toDate(yStr)),
-      prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "OfferRevenue" WHERE "dataDate"::date = $1`, toDate(todayStr)),
-      prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "OfferRevenue" WHERE "dataDate" BETWEEN $1 AND $2`, toDate(d7Start), toDate(d7End)),
-      prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "OfferRevenue" WHERE "dataDate"::date = $1`, toDate(yStr)),
-      prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "YahooRevenue" WHERE "dataDate"::date = $1`, toDate(todayStr)),
-      prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "YahooRevenue" WHERE "dataDate" BETWEEN $1 AND $2`, toDate(d7Start), toDate(d7End)),
-      prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "YahooRevenue" WHERE "dataDate"::date = $1`, toDate(yStr)),
+      prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "offer_revenue" WHERE "dataDate"::date = $1`, toDate(todayStr)),
+      prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "offer_revenue" WHERE "dataDate" BETWEEN $1 AND $2`, toDate(d7Start), toDate(d7End)),
+      prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "offer_revenue" WHERE "dataDate"::date = $1`, toDate(yStr)),
+      prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "yahoo_revenue" WHERE "dataDate"::date = $1`, toDate(todayStr)),
+      prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "yahoo_revenue" WHERE "dataDate" BETWEEN $1 AND $2`, toDate(d7Start), toDate(d7End)),
+      prismaRead.$queryRawUnsafe(`SELECT COALESCE(SUM("revenue"),0)::numeric AS v FROM "yahoo_revenue" WHERE "dataDate"::date = $1`, toDate(yStr)),
     ]) as any
 
     const todaySum = Number(adxToday?.v||0) + Number(offerToday?.v||0) + Number(yahooToday?.v||0)
@@ -33,4 +33,3 @@ export async function GET() {
     return NextResponse.json({ error: 'failed' }, { status: 500 })
   }
 }
-
