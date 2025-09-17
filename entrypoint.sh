@@ -76,10 +76,16 @@ if [ -n "$DATABASE_URL" ]; then
   if [ "${DB_BOOTSTRAP:-0}" = "1" ]; then
     echo "[ENTRYPOINT] DB_BOOTSTRAP=1 → syncing schema & bootstrap"
     PRISMA_OK=0
+    # Compose Prisma flags
+    PRISMA_FLAGS="--schema=/app/prisma/schema.prisma --skip-generate"
+    if [ "${DB_ACCEPT_DATA_LOSS:-0}" = "1" ]; then
+      PRISMA_FLAGS="$PRISMA_FLAGS --accept-data-loss"
+    fi
+
     if [ -d "/app/node_modules/prisma" ]; then
       echo "[ENTRYPOINT] Using local Prisma CLI"
       set +e
-      su-exec nextjs:nodejs node /app/node_modules/prisma/build/index.js db push --schema=/app/prisma/schema.prisma
+      su-exec nextjs:nodejs node /app/node_modules/prisma/build/index.js db push $PRISMA_FLAGS
       rc=$?
       set -e
       if [ "$rc" -eq 0 ]; then PRISMA_OK=1; else echo "[ENTRYPOINT] local prisma db push failed (rc=$rc)"; fi
@@ -87,7 +93,7 @@ if [ -n "$DATABASE_URL" ]; then
     if [ "$PRISMA_OK" -ne 1 ]; then
       echo "[ENTRYPOINT] Falling back to npx prisma (cache at /data/.npm)"
       set +e
-      su-exec nextjs:nodejs env npm_config_cache=/data/.npm npx prisma db push --schema=/app/prisma/schema.prisma
+      su-exec nextjs:nodejs env npm_config_cache=/data/.npm npx prisma db push $PRISMA_FLAGS
       rc=$?
       set -e
       if [ "$rc" -eq 0 ]; then PRISMA_OK=1; else echo "[ENTRYPOINT] npx prisma db push failed (rc=$rc)"; fi

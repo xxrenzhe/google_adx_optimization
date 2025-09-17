@@ -23,7 +23,13 @@ export async function GET(req: NextRequest) {
 
     // 优先使用 ChartQueries（可编辑查询）
     const db = prismaRead as any
-    const cq = await db.chartQuery.findUnique({ where: { chartKey: key } })
+    let cq: any | null = null
+    try {
+      cq = await db.chartQuery.findUnique({ where: { chartKey: key } })
+    } catch (e: any) {
+      // If chart_queries table does not exist yet, fall back to built-ins
+      if (!(e?.code === 'P2021')) throw e
+    }
     if (cq && cq.enabled) {
       const val = validateSelectOnly(cq.sqlText)
       if (!val.ok) return NextResponse.json({ error: val.error }, { status: 400 })
