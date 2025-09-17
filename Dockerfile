@@ -88,8 +88,6 @@ RUN chown nextjs:nodejs .next
 
 # Copy Prisma schema and runtime scripts
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-# Ensure migrations are present explicitly
-COPY --from=builder --chown=nextjs:nodejs /app/prisma/migrations ./prisma/migrations
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 
 # Copy the standalone output (minimal footprint for 1C2G)
