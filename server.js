@@ -4,10 +4,10 @@ const { createServer } = require('http')
 const { parse } = require('url')
 const next = require('next')
 
-// 启动资源监控
+const log = (tag, msg) => console.log(`${new Date().toISOString()} [${tag}] ${msg}`)
+// 启动资源监控（日志规范化）
 if (process.env.NODE_ENV === 'production') {
-  console.log('Starting resource monitor...')
-  // 资源监控将在应用初始化时启动
+  log('APP', 'Resource monitor starting')
 }
 
 const dev = process.env.NODE_ENV !== 'production'
@@ -28,18 +28,16 @@ const handler = app.getRequestHandler()
 const serverTimeout = dev ? 600000 : 900000 // 10分钟（开发）/ 15分钟（生产）
 
 app.prepare().then(() => {
-  // 生产环境启动时立即执行清理
+  // 生产环境启动时尝试一次清理（不阻塞，不噪音）
   if (!dev) {
-    console.log('Production startup: executing initial cleanup...')
+    log('INIT', 'Trigger initial cleanup (async)')
     const { exec } = require('child_process')
     
-    // 异步执行清理，不阻塞启动
-    exec('curl -s http://localhost:3000/api/data-cleanup || echo "Cleanup API not ready yet"', (error) => {
-      if (error) {
-        console.log('Initial cleanup deferred (server not ready yet)')
-      } else {
-        console.log('Initial cleanup completed')
-      }
+    exec('curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/data-cleanup', (error, stdout) => {
+      if (error) return log('INIT', 'Cleanup deferred (server not ready yet)')
+      const code = parseInt(`${stdout}`.trim(), 10)
+      if (code === 200) log('INIT', 'Cleanup completed')
+      else log('INIT', `Cleanup returned status ${code}`)
     })
   }
   createServer(async (req, res) => {
@@ -52,7 +50,7 @@ app.prepare().then(() => {
       const parsedUrl = parse(req.url, true)
       await handler(req, res, parsedUrl)
     } catch (err) {
-      console.error('Error occurred handling', req.url, err)
+      log('ERR', `Error handling ${req.url}: ${err?.message || err}`)
       res.statusCode = 500
       res.end('internal server error')
     }
@@ -60,7 +58,7 @@ app.prepare().then(() => {
     .setTimeout(serverTimeout)
     .listen(port, (err) => {
       if (err) throw err
-      console.log(`> Ready on http://${hostname}:${port}`)
+      log('READY', `http://${hostname}:${port}`)
     })
   
   // 定期清理内存和监控存储
@@ -70,7 +68,7 @@ app.prepare().then(() => {
       const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024)
       
       if (heapUsedMB > 1000) { // 超过1GB
-        console.log(`High memory usage detected: ${heapUsedMB}MB, triggering GC`)
+        log('MON', `High memory: ${heapUsedMB}MB → triggering GC`)
         if (global.gc) {
           global.gc()
         }
@@ -80,10 +78,10 @@ app.prepare().then(() => {
     // 每5分钟检查一次存储使用情况
     setInterval(() => {
       const { exec } = require('child_process')
-      exec('curl -s http://localhost:3000/api/storage-monitor || echo "Storage monitor not available"', (error) => {
-        if (error) {
-          console.log('Storage monitor check failed')
-        }
+      exec('curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/storage-monitor', (error, stdout) => {
+        if (error) return
+        const code = parseInt(`${stdout}`.trim(), 10)
+        if (code !== 200) log('MON', `Storage monitor returned ${code}`)
       })
     }, 300000) // 5分钟
   }
