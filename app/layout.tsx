@@ -22,7 +22,7 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body className={`${poppins.variable} ${rubik.variable} font-sans`}>
         <FileSessionProvider>
-          <div className="bg-white border-b sticky top-0 z-10">
+          <div id="global-navbar" className="bg-white border-b sticky top-0 z-10">
             <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <a className="font-bold" href="/">Dashboard</a>
