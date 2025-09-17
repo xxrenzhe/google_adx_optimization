@@ -110,6 +110,7 @@ DATABASE_URL=postgresql://...
 # 可选
 REDIS_URL=redis://...        # 开启缓存时设置
 DB_BOOTSTRAP=0               # 是否在启动时自动播种/索引优化（生产建议 0）
+DB_RESET_PUBLIC=0            # 危险：设为 1 时在启动前 DROP SCHEMA public CASCADE（仅一次性空库/可清空库使用）
 USE_PG_COPY=1                # 导入时使用 COPY 优化（可选）
 # PORT=3000                  # 如需自定义端口
 ```
@@ -137,6 +138,7 @@ USE_PG_COPY=1                # 导入时使用 COPY 优化（可选）
   - 若存在 `prisma/migrations`：执行 `prisma migrate deploy` 同步结构；
   - 否则回退执行 `prisma db push --skip-generate --accept-data-loss`；
   - 随后执行 `node scripts/bootstrap.js`（幂等）：创建缺失的 ChartQueries、追加常用索引/BRIN，并执行 ANALYZE；
+  - 可选一次性清库：将 `DB_RESET_PUBLIC=1` 一并设置，容器启动会先 DROP/CREATE SCHEMA public 后再同步结构；完成后务必改回 0。
   - 验证无误后，将 `DB_BOOTSTRAP` 还原为 `0` 再次发布。
 
 说明：schema 变更应通过 Prisma 迁移（migrations）管理；`migrate deploy` 在无待应用迁移时会快速退出，不影响启动时延。

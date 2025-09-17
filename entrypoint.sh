@@ -75,6 +75,11 @@ echo "Starting Next.js application as nextjs user..."
 if [ -n "$DATABASE_URL" ]; then
   if [ "${DB_BOOTSTRAP:-0}" = "1" ]; then
     echo "[ENTRYPOINT] DB_BOOTSTRAP=1 → syncing schema & bootstrap"
+    # Optional: reset public schema if requested (DANGEROUS)
+    if [ "${DB_RESET_PUBLIC:-0}" = "1" ]; then
+      echo "[ENTRYPOINT] DB_RESET_PUBLIC=1 → dropping and recreating public schema"
+      su-exec nextjs:nodejs node /app/scripts/db-reset.js || echo "[ENTRYPOINT] db reset failed"
+    fi
     echo "[ENTRYPOINT] Prisma directory listing:"
     ls -la /app/prisma || true
     echo "[ENTRYPOINT] Migrations directory listing:"

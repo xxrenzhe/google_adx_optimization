@@ -156,7 +156,8 @@ NODE_ENV=production
 DATABASE_URL="postgresql://..."
 REDIS_URL="redis://..."           # 开启缓存时配置
 DB_BOOTSTRAP=0                     # 默认 0；首次/变更部署时设为 1，完成后改回 0
-# 无需配置 DB_ACCEPT_DATA_LOSS；回退 db push 时默认使用 --accept-data-loss（空库/首发安全）
+DB_RESET_PUBLIC=0                  # 危险：可清空库时设为 1 一次性清库，完成后改回 0
+# 回退 db push 时默认使用 --accept-data-loss（空库/首发安全）
 USE_PG_COPY=1                      # 可选：导入时使用 COPY 优化
 CRON_SECRET="generate-a-random-string-here"  # 可选：定时任务鉴权
 ```
