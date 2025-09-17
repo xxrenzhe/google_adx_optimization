@@ -205,6 +205,7 @@ export class DBIngestionController {
       // 使用会话级临时表，结构同 AdReport（仅默认值）
       await client.query('BEGIN')
       await client.query('CREATE TEMP TABLE IF NOT EXISTS staging_adreport (LIKE "AdReport" INCLUDING DEFAULTS);')
+      await client.query('ALTER TABLE staging_adreport ALTER COLUMN "id" SET DEFAULT md5(random()::text || clock_timestamp()::text)')
 
       // COPY 到临时表（指定列）
       const cols = [
@@ -292,7 +293,7 @@ export class DBIngestionController {
 
       // 合并到正式表（去重/覆盖）
       const conflictCols = '"dataDate","website","country","device","browser","adFormat","adUnit","advertiser","domain"'
-      const insertCols = colsQuoted.join(',')
+      const insertCols = ['"id"', ...colsQuoted].join(',')
       const upsertSql = `
         INSERT INTO "AdReport" (${insertCols})
         SELECT ${insertCols} FROM staging_adreport
