@@ -20,6 +20,16 @@ export default function UploadPage() {
     loadHistory()
   }, [])
 
+  const parseResponse = async (res: Response) => {
+    const ct = res.headers.get('content-type') || ''
+    if (ct.includes('application/json')) {
+      return await res.json()
+    } else {
+      const text = await res.text()
+      throw new Error(`${res.status} ${res.statusText}: ${text.slice(0,200)}`)
+    }
+  }
+
   const onUpload = async () => {
     if (!file) return
     setUploading(true)
@@ -32,7 +42,7 @@ export default function UploadPage() {
       else if (activeType === 'yahoo') url = '/api/upload-yahoo'
       else if (activeType === 'cost') { url = '/api/upload-costs'; fd.append('source', costSource) }
       const res = await fetch(url, { method: 'POST', body: fd })
-      const data = await res.json()
+      const data = await parseResponse(res)
       if (!res.ok) throw new Error(data.error || '上传失败')
       setMessage(`上传成功：${data.fileName || file.name}`)
       setFile(null)
