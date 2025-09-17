@@ -84,9 +84,8 @@ if [ -n "$DATABASE_URL" ]; then
       echo "[ENTRYPOINT] Running prisma migrate deploy"
       su-exec nextjs:nodejs node /app/node_modules/prisma/build/index.js migrate deploy --schema=/app/prisma/schema.prisma || echo "[ENTRYPOINT] migrate deploy failed"
     else
-      echo "[ENTRYPOINT] No migrations found → fallback to prisma db push"
-      PRISMA_FLAGS="--schema=/app/prisma/schema.prisma --skip-generate"
-      if [ "${DB_ACCEPT_DATA_LOSS:-0}" = "1" ]; then PRISMA_FLAGS="$PRISMA_FLAGS --accept-data-loss"; fi
+      echo "[ENTRYPOINT] No migrations found → fallback to prisma db push (with --accept-data-loss)"
+      PRISMA_FLAGS="--schema=/app/prisma/schema.prisma --skip-generate --accept-data-loss"
       su-exec nextjs:nodejs node /app/node_modules/prisma/build/index.js db push $PRISMA_FLAGS || echo "[ENTRYPOINT] prisma db push failed"
     fi
     su-exec nextjs:nodejs node /app/scripts/bootstrap.js || echo "[ENTRYPOINT] bootstrap script failed"

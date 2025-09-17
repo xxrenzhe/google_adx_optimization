@@ -76,7 +76,7 @@ resources:
    - 等待容器启动完成
    - 检查日志：
      - 若包含迁移：应看到 `prisma migrate deploy` 与 `bootstrap` 幂等执行
-     - 若无迁移：应看到 `prisma db push` 回退执行与 `bootstrap`
+     - 若无迁移：应看到 `prisma db push --accept-data-loss` 回退执行与 `bootstrap`
 
 4. **验证后回收 DB_BOOTSTRAP**
    - 将 `DB_BOOTSTRAP` 设置为 `0` 并再次发布（正常运行期间不改表）
@@ -156,7 +156,7 @@ NODE_ENV=production
 DATABASE_URL="postgresql://..."
 REDIS_URL="redis://..."           # 开启缓存时配置
 DB_BOOTSTRAP=0                     # 默认 0；首次/变更部署时设为 1，完成后改回 0
-# DB_ACCEPT_DATA_LOSS=1            # 仅在需要允许 db push 接受数据变更警告时开启（空库一般无需）
+# 无需配置 DB_ACCEPT_DATA_LOSS；回退 db push 时默认使用 --accept-data-loss（空库/首发安全）
 USE_PG_COPY=1                      # 可选：导入时使用 COPY 优化
 CRON_SECRET="generate-a-random-string-here"  # 可选：定时任务鉴权
 ```

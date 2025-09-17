@@ -135,7 +135,7 @@ USE_PG_COPY=1                # 导入时使用 COPY 优化（可选）
 - `DB_BOOTSTRAP=0`（默认，生产建议）：不执行任何 schema 同步，仅启动应用。
 - `DB_BOOTSTRAP=1`（仅在首次部署或结构变更时开启）：
   - 若存在 `prisma/migrations`：执行 `prisma migrate deploy` 同步结构；
-  - 否则回退执行 `prisma db push`（可配合 `DB_ACCEPT_DATA_LOSS=1` 处理唯一约束等警告，空库一般无需设置）；
+  - 否则回退执行 `prisma db push --skip-generate --accept-data-loss`；
   - 随后执行 `node scripts/bootstrap.js`（幂等）：创建缺失的 ChartQueries、追加常用索引/BRIN，并执行 ANALYZE；
   - 验证无误后，将 `DB_BOOTSTRAP` 还原为 `0` 再次发布。
 
