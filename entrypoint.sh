@@ -75,14 +75,21 @@ echo "Starting Next.js application as nextjs user..."
 if [ -n "$DATABASE_URL" ]; then
   if [ "${DB_BOOTSTRAP:-0}" = "1" ]; then
     echo "[ENTRYPOINT] DB_BOOTSTRAP=1 → syncing schema & bootstrap"
+    echo "[ENTRYPOINT] Prisma directory listing:"
+    ls -la /app/prisma || true
+    echo "[ENTRYPOINT] Migrations directory listing:"
+    ls -la /app/prisma/migrations || true
     MIGRATIONS_DIR="/app/prisma/migrations"
     if [ -d "$MIGRATIONS_DIR" ] && [ -n "$(ls -A "$MIGRATIONS_DIR" 2>/dev/null)" ]; then
       echo "[ENTRYPOINT] Running prisma migrate deploy"
       su-exec nextjs:nodejs node /app/node_modules/prisma/build/index.js migrate deploy --schema=/app/prisma/schema.prisma || echo "[ENTRYPOINT] migrate deploy failed"
-      su-exec nextjs:nodejs node /app/scripts/bootstrap.js || echo "[ENTRYPOINT] bootstrap script failed"
     else
-      echo "[ENTRYPOINT] No migrations found → skip schema sync"
+      echo "[ENTRYPOINT] No migrations found → fallback to prisma db push"
+      PRISMA_FLAGS="--schema=/app/prisma/schema.prisma --skip-generate"
+      if [ "${DB_ACCEPT_DATA_LOSS:-0}" = "1" ]; then PRISMA_FLAGS="$PRISMA_FLAGS --accept-data-loss"; fi
+      su-exec nextjs:nodejs node /app/node_modules/prisma/build/index.js db push $PRISMA_FLAGS || echo "[ENTRYPOINT] prisma db push failed"
     fi
+    su-exec nextjs:nodejs node /app/scripts/bootstrap.js || echo "[ENTRYPOINT] bootstrap script failed"
   else
     echo "[ENTRYPOINT] DB_BOOTSTRAP=0 → skip prisma db push & bootstrap"
   fi
