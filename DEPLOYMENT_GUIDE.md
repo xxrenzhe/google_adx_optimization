@@ -46,7 +46,7 @@ git push origin main
 psql $DATABASE_URL -c "SELECT get_performance_stats();"
 ```
 
-### 第三步：ClawCloud部署
+### 第三步：ClawCloud部署（含 DB_BOOTSTRAP 行为）
 
 1. **登录ClawCloud控制台**
    - 访问：https://clawcloud.run
@@ -62,6 +62,8 @@ environment:
   - NODE_ENV=production
   - DATABASE_URL=postgresql://postgres:w8mhnnqh@dbprovider.sg-members-1.clawcloudrun.com:32404/adx_optimization?directConnection=true
   - REDIS_URL=redis://default:9xdjb8nf@dbprovider.sg-members-1.clawcloudrun.com:32284
+  # 首次部署/结构变更时临时开启，完成后改回 0 并再次发布
+  - DB_BOOTSTRAP=1
   - CRON_SECRET=your-secret-key-here  # 生成一个随机字符串（可选，用于定时任务鉴权）
 resources:
   limits:
@@ -69,10 +71,13 @@ resources:
     cpu: "1000m"
 ```
 
-3. **部署并启动容器**
+3. **部署并启动容器（首次/变更部署）**
    - 点击"部署"按钮
    - 等待容器启动完成
-   - 检查日志确认无错误
+   - 检查日志：应看到 `prisma migrate deploy` 与 `bootstrap` 幂等执行
+
+4. **验证后回收 DB_BOOTSTRAP**
+   - 将 `DB_BOOTSTRAP` 设置为 `0` 并再次发布（正常运行期间不改表）
 
 ### 第四步：配置定时任务
 
@@ -142,13 +147,13 @@ curl https://www.moretop10.com/api/health
 
 ## 环境变量配置
 
-### 生产环境变量
+### 生产环境变量（含 DB_BOOTSTRAP 建议）
 ```bash
 # .env.production（精简）
 NODE_ENV=production
 DATABASE_URL="postgresql://..."
 REDIS_URL="redis://..."           # 开启缓存时配置
-DB_BOOTSTRAP=0                     # 生产建议关闭自动 bootstrap
+DB_BOOTSTRAP=0                     # 默认 0；首次/变更部署时设为 1，完成后改回 0
 USE_PG_COPY=1                      # 可选：导入时使用 COPY 优化
 CRON_SECRET="generate-a-random-string-here"  # 可选：定时任务鉴权
 ```

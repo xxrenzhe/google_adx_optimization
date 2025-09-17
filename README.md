@@ -128,14 +128,17 @@ USE_PG_COPY=1                # 导入时使用 COPY 优化（可选）
 - 分页查询优化
 - 响应式设计
 
-## 部署时数据库自动化
+## 部署时数据库自动化（DB_BOOTSTRAP 默认行为）
 
-容器启动时（entrypoint.sh）：
+容器启动时（entrypoint.sh）不默认改动数据库结构。通过环境变量控制：
 
-- 若存在 `DATABASE_URL` 且 `DB_BOOTSTRAP=1`：
-  - 同步 schema（`npx prisma db push`）
-  - 运行 `scripts/bootstrap.js`：仅创建缺失的 ChartQueries、常用索引与 BRIN，并执行 ANALYZE
-  - 注：生产建议设置 `DB_BOOTSTRAP=0`，由 DBA/迁移系统统一管理
+- `DB_BOOTSTRAP=0`（默认，生产建议）：不执行任何 schema 同步，仅启动应用。
+- `DB_BOOTSTRAP=1`（仅在首次部署或结构变更时开启）：
+  - 若存在 `prisma/migrations`：执行 `prisma migrate deploy` 同步结构；
+  - 随后执行 `node scripts/bootstrap.js`（幂等）：创建缺失的 ChartQueries、追加常用索引/BRIN，并执行 ANALYZE；
+  - 验证无误后，将 `DB_BOOTSTRAP` 还原为 `0` 再次发布。
+
+说明：schema 变更应通过 Prisma 迁移（migrations）管理；`migrate deploy` 在无待应用迁移时会快速退出，不影响启动时延。
 
 可选：设置 `USE_PG_COPY=1` 启用 COPY 导入（高吞吐），否则默认批量 INSERT + ON CONFLICT。
 
