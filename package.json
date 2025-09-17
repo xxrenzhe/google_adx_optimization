@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build --no-lint",
     "start": "NODE_OPTIONS=\"--max-old-space-size=2048\" next start",
-    "start:prod": "NODE_OPTIONS=\"--max-old-space-size=2048\" node .next/standalone/server.js",
+    "start:prod": "NODE_OPTIONS=\"--max-old-space-size=2048\" node server.js",
     "lint": "next lint",
     "regenerate": "ts-node --cwd ${PWD} scripts/regenerate-results.ts",
     "pg:optimize": "ts-node scripts/pg-optimize.ts"
