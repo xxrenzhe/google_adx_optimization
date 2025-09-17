@@ -211,7 +211,8 @@ export class DBIngestionController {
         'sessionId','uploadDate','dataDate','website','country','adFormat','adUnit','advertiser','domain','device','browser',
         'requests','impressions','clicks','ctr','ecpm','revenue','viewableImpressions','viewabilityRate','measurableImpressions','fillRate','arpu'
       ]
-      const copySql = `COPY staging_adreport(${cols.join(',')}) FROM STDIN WITH (FORMAT csv)`
+      const colsQuoted = cols.map(c => '"' + c + '"')
+      const copySql = `COPY staging_adreport(${colsQuoted.join(',')}) FROM STDIN WITH (FORMAT csv)`
       const dbStream = client.query(copyFrom(copySql))
 
       const readStream = createReadStream(filePath, { highWaterMark: 256 * 1024 })
@@ -291,7 +292,7 @@ export class DBIngestionController {
 
       // 合并到正式表（去重/覆盖）
       const conflictCols = '"dataDate","website","country","device","browser","adFormat","adUnit","advertiser","domain"'
-      const insertCols = cols.join(',')
+      const insertCols = colsQuoted.join(',')
       const upsertSql = `
         INSERT INTO "AdReport" (${insertCols})
         SELECT ${insertCols} FROM staging_adreport

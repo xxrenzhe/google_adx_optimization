@@ -78,7 +78,19 @@ if [ -n "$DATABASE_URL" ]; then
     # Optional: reset public schema if requested (DANGEROUS)
     if [ "${DB_RESET_PUBLIC:-0}" = "1" ]; then
       echo "[ENTRYPOINT] DB_RESET_PUBLIC=1 → dropping and recreating public schema"
-      su-exec nextjs:nodejs node /app/scripts/db-reset.js || echo "[ENTRYPOINT] db reset failed"
+      su-exec nextjs:nodejs node -e '
+        const { Client } = require("pg");
+        (async () => {
+          const url = process.env.DATABASE_URL; if (!url) { console.error("No DATABASE_URL"); process.exit(1) }
+          const c = new Client({ connectionString: url });
+          await c.connect();
+          await c.query("DROP SCHEMA IF EXISTS public CASCADE;");
+          await c.query("CREATE SCHEMA public;");
+          await c.query("GRANT ALL ON SCHEMA public TO public;");
+          await c.end();
+          console.log("[DB-RESET] done");
+        })().catch(e => { console.error("[DB-RESET] failed:", e?.message || e); process.exit(1) })
+      ' || echo "[ENTRYPOINT] db reset failed"
     fi
     echo "[ENTRYPOINT] Prisma directory listing:"
     ls -la /app/prisma || true
