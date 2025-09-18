@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prismaRead } from '@/lib/prisma-extended'
+import { logInfo, logError, timeStart } from '@/lib/logger'
 import { getCachedData, setCachedData } from '@/lib/redis-cache'
 
 export async function GET(req: NextRequest) {
@@ -10,6 +11,7 @@ export async function GET(req: NextRequest) {
     const to = searchParams.get('to') || ''
     if (!site || !from || !to) return NextResponse.json({ error: '缺少参数site/from/to' }, { status: 400 })
 
+    const end = timeStart('API/REPORT', 'summary', { site, from, to })
     const cacheKey = `report:summary:${site}:${from}:${to}`
     const cached = await getCachedData<any>(cacheKey)
     if (cached) return NextResponse.json(cached)
@@ -33,9 +35,10 @@ export async function GET(req: NextRequest) {
 
     const payload = { ok: true, data: { adx, offer, yahoo, revenue, cost, profit, roi, cpc } }
     await setCachedData(cacheKey, payload, 120)
+    end(); logInfo('API/REPORT', 'summary ok', { site, revenue, cost })
     return NextResponse.json(payload)
   } catch (e) {
-    console.error('report summary error:', e)
+    logError('API/REPORT', 'summary error', e)
     return NextResponse.json({ error: '汇总失败' }, { status: 500 })
   }
 }

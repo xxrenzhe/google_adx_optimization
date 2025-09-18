@@ -79,17 +79,73 @@
     background-position: -200% 0;
   }
 }
+.skeleton { background: linear-gradient(90deg,#f2f4f7 25%, #eaeef3 37%, #f2f4f7 63%); background-size:400% 100%; animation: loading 1.4s ease infinite; border-radius: 8px; }
+.skeleton-line { height: 14px; border-radius: 6px; }
+.skeleton-lg { height: 200px; border-radius: 8px; }
 
 /* trk_ui 风格辅助类 */
-.trk-card { @apply bg-white rounded-lg shadow p-4 border border-gray-200; }
-.trk-section-title { @apply font-semibold mb-3 text-gray-900; font-size: 14px; }
+.trk-card { @apply bg-white rounded-lg p-4 border; }
+.trk-card { box-shadow: 0 0 7px 1px rgba(0,0,0,.12); border-color: #d2d2d2; border-radius: 8px; }
+.trk-section-title { @apply font-semibold mb-3 text-gray-900; font-size: 15px; }
 .trk-kpi { @apply text-2xl font-bold text-gray-900; }
 .trk-subtle { @apply text-xs text-gray-500; }
-.trk-toolbar { @apply flex items-center justify-between mb-4; }
+.trk-toolbar { @apply flex items-center justify-between mb-2; }
+.trk-page-title { font-weight: 700; font-size: 22px; color:#111827; line-height: 1.25; }
+@media (min-width: 768px) {
+  .trk-page-title { font-size: 24px; }
+}
 .trk-link { @apply text-xs text-blue-600 hover:underline; }
-.trk-table thead th { @apply bg-gray-50 text-gray-600 font-medium; }
-.trk-table thead tr { @apply border-b border-gray-200; }
-.trk-table tbody tr:hover { @apply bg-gray-50; }
+.trk-table thead th { background-color: #69708A; color: #fff; font-weight: 700; font-size: 13px; }
+.trk-table thead tr th, .trk-table tbody tr td { border: 1px solid #dee2e6; padding: 7px; }
+.trk-table tbody tr:nth-of-type(odd) { background-color: rgba(0,0,0,.05); }
+.trk-table tbody tr:hover { background: rgba(241,245,246); }
+.trk-note { @apply text-xs text-gray-500; }
+.mm_title { font-size: 11px; color: #333; }
+.cart_i_d { font-size: 14px; font-weight: 700; }
+.cart_i_d span { font-size: 22px; }
+.table_h { cursor: pointer; position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 0; }
+.trk-sort { width: 20px; height: 20px; display: inline-block; background-image: url('/trk_ui/images/sx.svg'); background-size: contain; background-repeat: no-repeat; }
+.trk-sort.asc { transform: rotate(0deg); }
+.trk-sort.desc { transform: rotate(180deg); }
+.table_h.active .trk-sort { filter: brightness(0.85) saturate(1.2); }
+
+/* KPI 磁贴（三列） */
+.trk-kpi-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.trk-kpi-tile { background: #fff; border: 1px solid #d2d2d2; border-radius: 8px; box-shadow: 0 0 7px 1px rgba(0,0,0,.12); padding: 10px; flex: 1 1 220px; min-width: 200px; }
+.trk-kpi-tile .mm_title { font-size: 11px; color: #333; padding-bottom: 10px; }
+.trk-kpi-tile .cart_i_d { font-size: 14px; font-weight: 700; padding-bottom: 4px; }
+.trk-kpi-tile .cart_i_d span { font-size: 22px; }
+
+/* 首页顶层 KPI（紫色风格） */
+.trk-kpi-tile.primary { background: linear-gradient(180deg,#9AA2FF 0%, #8B7EFF 100%); color:#fff; border-color: transparent; }
+.trk-kpi-tile.primary .mm_title { color:#E9EAFF; font-size:12px; }
+.trk-kpi-tile.primary .cart_i_d span { font-size: 26px; }
+
+/* 卡片头（标题+操作） */
+.trk-card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px; }
+.trk-card-title { font-weight:600; color:#111827; font-size:14px; }
+.trk-card-action { font-size:12px; color:#2563EB; }
+
+/* Pagination 控件（贴近 trk_ui） */
+.pagination-container { display:flex; justify-content:space-between; align-items:center; padding: 10px; }
+.pagination-info { color:#6b7280; font-size:12px; }
+.pagination-list { display:flex; gap:6px; align-items:center; }
+.page-link { border:1px solid #e5e7eb; background:#fff; padding:6px 10px; border-radius:6px; font-size:12px; color:#111827; }
+.page-link.active { background:#4F46E5; color:#fff; border-color:#4F46E5; }
+.page-link:disabled { opacity:.5; cursor:not-allowed; }
+.prev-btn, .next-btn { display:flex; align-items:center; gap:6px; font-weight:600; min-width:90px; }
+.page-icon { width:16px; height:16px; }
+
+/* KPI 图标背景（贴近 trk_ui 配色） */
+.kpi-icon { width: 24px; height: 24px; border-radius: 9999px; display:flex; align-items:center; justify-content:center; }
+.kpi-blue { background: #E8F4FD; }
+.kpi-teal { background: #E6F7F4; }
+.kpi-amber { background: #FFF5E6; }
+
+/* 信息条（Impr/Clicks/Avg CTR/Avg eCPM）微调 */
+.trk-metrics-bar { display:flex; flex-wrap:wrap; gap:18px; padding: 10px 6px; }
+.trk-metrics-bar .label { font-size: 12px; color:#6b7280; }
+.trk-metrics-bar .value { font-size: 18px; font-weight:600; color:#111827; }
 
 /* 日期工具条风格更贴近 trk_ui */
 .trk-datebar select,
@@ -125,6 +181,66 @@
   height: 8px !important;
   border-radius: 9999px !important;
 }
+
+/* Profit 卡视觉（贴合 trk_ui .bg_l） */
+.trk-profit-card {
+  background-image: url(/trk_ui/images/b3.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position-y: bottom;
+  box-shadow: rgba(143, 155, 166, 0.08) 0px 12px 24px -4px;
+}
+
+/* ROI 环形进度（CSS 实现） */
+.trk-ring { width: 180px; height: 180px; border-radius: 50%; position: relative; background:
+  conic-gradient(#7F77F2 calc(var(--p,0) * 1%), #E5E7EB 0);
+  display:flex; align-items:center; justify-content:center; margin:auto; }
+.trk-ring::after { content:''; position:absolute; inset:18px; background:#fff; border-radius:50%; z-index:0; }
+/* 百分比置于圆心偏上，标签置于圆心偏下 */
+.trk-ring .trk-ring-text { position: absolute; z-index:1; top: 46%; left: 50%; transform: translate(-50%, -50%); font-weight:700; font-size: 26px; color:#111827; }
+.trk-ring .trk-ring-label { position: absolute; z-index:1; top: 64%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; color:#6b7280; font-weight: 600; letter-spacing: 0.4px; }
+
+.trk-mini-tile.success { background:#E6F7F4; background-image: url('/trk_ui/images/b1.png'); background-repeat: no-repeat; background-size: cover; background-position: center bottom; }
+.trk-mini-tile.warning { background:#FFF5E6; background-image: url('/trk_ui/images/b2.png'); background-repeat: no-repeat; background-size: cover; background-position: center bottom; }
+
+/* 侧边小卡（Revenue/Cost） */
+.trk-mini-tile {
+  display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; box-shadow: 0 0 7px 1px rgba(0,0,0,.06);
+}
+.trk-mini-tile .ti_left { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #EEF2FF; border-radius: 10px; }
+.trk-mini-tile .ti_right .fontw { font-weight: 700; font-size: 16px; }
+.trk-mini-tile .ti_right .m_fontw { font-size: 12px; color: #6b7280; }
+
+/* Revenue/Cost 卡片左侧小图标（对齐示例截图） */
+.trk-mini-tile .ti_left.revenue { background: #E6F7F4; border: none; }
+.trk-mini-tile .ti_left.revenue::before { content: ''; display:block; width: 26px; height: 26px; background: url('/trk_ui/images/wallet.svg') no-repeat center/contain; }
+.trk-mini-tile .ti_left.cost { background: #FFF5E6; border: none; }
+.trk-mini-tile .ti_left.cost::before { content: ''; display:block; width: 26px; height: 26px; background: url('/trk_ui/images/dollar.svg') no-repeat center/contain; }
+
+/* Revenue/Cost 分项行（图标与间距对齐 trk_ui） */
+.cost_box { margin-top: 6px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.google_cost { font-size: 10px; color: #333; background: url('/trk_ui/images/Google-ads.svg') no-repeat left center; background-size: 11px; padding-left: 15px; }
+.bing_cost { font-size: 10px; color: #333; background: url('/trk_ui/images/bing.svg?v=2') no-repeat left center; background-size: 16px; padding-left: 18px; }
+.adx_revenue { font-size: 10px; color: #333; background: url('/trk_ui/images/adx.png') no-repeat left center; background-size: 13px; padding-left: 18px; }
+.offer_revenue { font-size: 10px; color: #333; background: url('/trk_ui/images/clickdeail.png') no-repeat left center; background-size: 24px; padding-left: 23px; }
+.just { color: #28A659; }
+.burden { color: #e85454; }
+
+/* CPC 左侧信息卡 */
+.trk-cpc-card { background: linear-gradient(180deg,#7BC0EA 0%, #67A9D8 100%); color:#fff; border-radius: 12px; padding: 16px 18px; display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; box-shadow: 0 0 7px 1px rgba(0,0,0,.06); }
+.trk-cpc-label { font-size: 14px; opacity: .95; letter-spacing: 0.3px; }
+.trk-cpc-item { display:flex; align-items:center; gap:10px; font-size: 28px; font-weight: 700; }
+.cpc-icon { width: 26px; height: 26px; background-size: contain; background-repeat: no-repeat; display:inline-block; }
+.cpc-icon.google { background-image: url('/trk_ui/images/Google-ads.svg'); }
+.cpc-icon.bing { background-image: url('/trk_ui/images/bing.svg?v=2'); }
+.cpc-badge { display:inline-flex; align-items:center; justify-content:center; padding: 0 8px; height: 22px; border-radius: 9999px; background: rgba(255,255,255,0.25); color:#fff; font-size:12px; font-weight:600; letter-spacing: .3px; }
+
+/* eCPM 左侧信息卡 */
+.trk-ecpm-card { background: linear-gradient(180deg,#F08C61 0%, #EB6F4A 100%); color:#fff; border-radius: 12px; padding: 16px 18px; display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; box-shadow: 0 0 7px 1px rgba(0,0,0,.06); }
+.trk-ecpm-label { font-size: 14px; display:flex; align-items:center; gap:8px; opacity: .95; letter-spacing: 0.3px; }
+.trk-ecpm-value { margin-top: 16px; font-size: 34px; font-weight: 700; }
+.ecpm-icon { width: 24px; height: 24px; background-size: contain; background-repeat: no-repeat; display:inline-block; }
+.ecpm-icon.adx { background-image: url('/trk_ui/images/adx.png'); }
 
 /* flatpickr 细节微调（接近 trk_ui） */
 .flatpickr-calendar {

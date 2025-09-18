@@ -11,19 +11,30 @@ export default function PredictivePage(){
   const [pred, setPred] = useState<any[]>([])
   const [anom, setAnom] = useState<any[]>([])
   const [editorKey, setEditorKey] = useState<string|null>(null)
+  const [loading, setLoading] = useState(false)
+  const [noData, setNoData] = useState(false)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(()=>{
-    fetch(`/api/charts?key=analytics.revenue_by_day&from=${range.from}&to=${range.to}`).then(r=>r.json()).then(d=>{
-      const data = d.data||[]
-      setTs(data)
-      setPred(predictNext7(data))
-      setAnom(detectAnomalies(data))
-    })
+    setLoading(true)
+    fetch(`/api/charts?key=analytics.revenue_by_day&from=${range.from}&to=${range.to}`)
+      .then(r=>{ if(!r.ok) throw new Error(String(r.status)); return r.json() })
+      .then(d=>{
+        const data = d.data||[]
+        setTs(data)
+        setPred(predictNext7(data))
+        setAnom(detectAnomalies(data))
+        setNoData(!(data && data.length>0))
+        setLoadError(false)
+      })
+      .catch(()=>{ setLoadError(true); setNoData(true) })
+      .finally(()=> setLoading(false))
   },[range.from, range.to])
 
   const chartOpt = useMemo(()=>({
     chart:{type:'line',height:300},
     xaxis:{categories:[...ts.map((x:any)=>x.day?.slice(0,10)), ...pred.map((x:any)=>x.day?.slice(0,10))]},
+    yaxis:{ labels:{ formatter:(v:number)=> String(Math.round(Number(v||0))) } },
     series:[
       { name:'Actual', data: ts.map((x:any)=>Number(x.revenue||0)) },
       { name:'Predicted', data: [...Array(ts.length).fill(null), ...pred.map((x:any)=>Number(x.revenue||0))] }
@@ -32,14 +43,25 @@ export default function PredictivePage(){
   }),[ts,pred])
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 pt-2 md:pt-3 px-4 md:px-5 pb-4 md:pb-5">
       <div className="max-w-7xl mx-auto space-y-6">
-        <header className="space-y-3">
+        <header className="space-y-2">
           <div className="trk-toolbar">
-            <h1 className="text-2xl font-bold">预测分析（Only ADX）</h1>
+            <h1 className="trk-page-title">预测分析（Only ADX）</h1>
+            <div className="ml-auto"><TopFilterBar range={range} onChange={setRange} showCompare={false} /></div>
           </div>
-          <TopFilterBar range={range} onChange={setRange} />
         </header>
+        {!loading && (noData || loadError) && (
+          <div className={`border-l-4 p-3 rounded ${loadError ? 'bg-red-50 border-red-400' : 'bg-blue-50 border-blue-400'}`} style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div className="text-sm text-gray-800">
+              {loadError ? '部分数据接口加载失败，已为你显示可用数据。' : '所选时间范围内未检测到任何数据，请调整时间范围或上传数据。'}
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="px-3 py-1 border rounded" onClick={()=>setRange(def())}>重置为最近30天</button>
+              <a href="/upload" className="px-3 py-1 bg-blue-600 text-white rounded">前往上传</a>
+            </div>
+          </div>
+        )}
         <div className="trk-card">
           <h3 className="trk-section-title">7 日收入预测</h3>
           <div className="flex justify-end -mt-2 mb-2"><button className="trk-link" onClick={()=>setEditorKey('analytics.revenue_by_day')}>编辑基础查询</button></div>
@@ -96,4 +118,22 @@ function detectAnomalies(data:any[]) {
   return out.slice(-5)
 }
 
-function def(){const d=new Date();d.setDate(d.getDate()-30);const from=d.toISOString().slice(0,10);const to=new Date().toISOString().slice(0,10);return {from,to}}
+function def(){
+  try {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search)
+      const f = sp.get('from'); const t = sp.get('to')
+      if (f && t && /^\d{4}-\d{2}-\d{2}$/.test(f) && /^\d{4}-\d{2}-\d{2}$/.test(t)) {
+        return { from: f, to: t }
+      }
+      const r = sp.get('range')
+      if (r) {
+        const m = r.split(/\s*-\s*/)
+        if (m.length===2 && /^\d{4}-\d{2}-\d{2}$/.test(m[0]) && /^\d{4}-\d{2}-\d{2}$/.test(m[1])) return { from: m[0], to: m[1] }
+      }
+    }
+  } catch {}
+  const d=new Date(); d.setDate(d.getDate()-30)
+  const from=d.toISOString().slice(0,10); const to=new Date().toISOString().slice(0,10)
+  return {from,to}
+}

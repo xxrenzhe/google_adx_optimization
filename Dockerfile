@@ -95,6 +95,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 # Copy static files - required for JS/CSS assets
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# Copy files assets used by routes (e.g., /trk_ui)
+COPY --from=builder --chown=nextjs:nodejs /app/files ./files
 # Copy package.json for npm scripts
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 

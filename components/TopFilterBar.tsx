@@ -10,6 +10,7 @@ interface TopFilterBarProps {
   showCompare?: boolean
   extraLeft?: React.ReactNode
   onCompareChange?: (enabled: boolean) => void
+  site?: string
 }
 
 const presets = [
@@ -19,9 +20,10 @@ const presets = [
   { key: 'last14days', label: 'Last 14 Days' },
   { key: 'thismonth', label: 'This Month' },
   { key: 'lastmonth', label: 'Last Month' },
+  { key: 'all', label: '全部数据' },
 ]
 
-export default function TopFilterBar({ range, onChange, showCompare = true, extraLeft, onCompareChange }: TopFilterBarProps) {
+export default function TopFilterBar({ range, onChange, showCompare = true, extraLeft, onCompareChange, site }: TopFilterBarProps) {
   const [preset, setPreset] = useState<string>('yesterday')
   const [from, setFrom] = useState(range.from)
   const [to, setTo] = useState(range.to)
@@ -32,23 +34,43 @@ export default function TopFilterBar({ range, onChange, showCompare = true, extr
     setTo(range.to)
   }, [range.from, range.to])
 
-  const onPreset = (key: string) => {
-    setPreset(key)
-    const r = calcRange(key)
-    setFrom(r.from)
-    setTo(r.to)
-  }
-
-  const onSearch = () => {
-    onChange({ from, to })
+  const syncUrl = (f: string, t: string) => {
     try {
-      // 同步 URL 中的 range 参数（若在浏览器环境）
       if (typeof window !== 'undefined') {
         const url = new URL(window.location.href)
-        url.searchParams.set('range', `${from} - ${to}`)
+        url.searchParams.set('from', f)
+        url.searchParams.set('to', t)
+        url.searchParams.delete('range')
         window.history.replaceState({}, '', url)
       }
     } catch {}
+  }
+
+  const onPreset = async (key: string) => {
+    setPreset(key)
+    if (key === 'all') {
+      try {
+        const res = await fetch(`/api/date-range${site ? `?site=${encodeURIComponent(site)}` : ''}`)
+        const data = await res.json()
+        const r = data?.data || {}
+        setFrom(r.from || range.from)
+        setTo(r.to || range.to)
+        if (r.from && r.to) {
+          onChange({ from: r.from, to: r.to })
+          syncUrl(r.from, r.to)
+        }
+        return
+      } catch {}
+    }
+    const r = calcRange(key)
+    setFrom(r.from)
+    setTo(r.to)
+    onChange({ from: r.from, to: r.to })
+    syncUrl(r.from, r.to)
+  }
+
+  const onSearch = () => {
+    onChange({ from, to }); syncUrl(from, to)
   }
 
   return (
@@ -67,16 +89,21 @@ export default function TopFilterBar({ range, onChange, showCompare = true, extr
       <span className="text-gray-400">-</span>
       <input type="date" className="border rounded px-3 py-2" value={to} onChange={e=>setTo(e.target.value)} />
       <button onClick={onSearch} className="px-4 py-2 bg-blue-600 text-white rounded">Search</button>
-      <span className="trk-subtle">{from} - {to}</span>
     </div>
   )
 }
 
+function pad(n:number){ return n<10? '0'+n : String(n) }
+function fmtLocal(d: Date){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}` }
+
 function calcRange(key: string): DateRange {
   const today = new Date()
-  const fmt = (d: Date) => d.toISOString().slice(0,10)
   let start: Date, end: Date
   switch (key) {
+    case 'all':
+      start = new Date('1970-01-01')
+      end = new Date('2100-01-01')
+      break
     case 'today':
       start = new Date(today)
       end = new Date(today)
@@ -105,5 +132,5 @@ function calcRange(key: string): DateRange {
     default:
       start = today; end = today
   }
-  return { from: fmt(start), to: fmt(end) }
+  return { from: fmtLocal(start), to: fmtLocal(end) }
 }

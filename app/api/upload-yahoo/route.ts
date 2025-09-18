@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma-extended'
+import { logInfo, logError } from '@/lib/logger'
 import { parseCSVLine, createColumnMap } from '@/lib/file-processing'
 
 let pg: any, copyFrom: any
@@ -48,13 +49,15 @@ export async function POST(req: NextRequest) {
     const session = await (prisma as any).uploadSession.create({
       data: { filename: file.name, status: 'uploading', tempTableName: `staging_yahoo_${crypto.randomUUID().replace(/-/g,'')}`, fileSize: file.size, dataType: 'yahoo' }
     })
+    logInfo('API/UPLOAD', 'yahoo session', { sessionId: session.id, filename: file.name, size: file.size })
 
     if (process.env.USE_PG_COPY === '1' && pg && copyFrom) {
       try {
         const inserted = await copyImportYahoo(session.id, file)
+        logInfo('API/UPLOAD', 'yahoo copy ok', { sessionId: session.id, inserted })
         return NextResponse.json({ ok: true, inserted, fileName: file.name })
       } catch (e) {
-        console.warn('[upload-yahoo] COPY failed, fallback to batch:', (e as Error).message)
+        logError('API/UPLOAD', 'yahoo copy failed, fallback batch', e)
       }
     }
 
@@ -83,9 +86,10 @@ export async function POST(req: NextRequest) {
       await db.yahooRevenue.createMany({ data: batch.slice(i, i+size), skipDuplicates: true })
     }
     await db.uploadSession.update({ where: { id: session.id }, data: { status: 'completed', recordCount: batch.length, processedAt: new Date() } })
+    logInfo('API/UPLOAD', 'yahoo batch ok', { sessionId: session.id, inserted: batch.length })
     return NextResponse.json({ ok: true, inserted: batch.length, fileName: file.name })
   } catch (e) {
-    console.error('upload-yahoo error:', e)
+    logError('API/UPLOAD', 'upload-yahoo error', e)
     return NextResponse.json({ error: '导入失败' }, { status: 500 })
   }
 }

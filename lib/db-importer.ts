@@ -1,6 +1,7 @@
 import { createReadStream } from 'node:fs'
 import { createInterface } from 'node:readline'
 import { prisma } from './prisma-extended'
+import { logInfo, logError } from './logger'
 import { parseCSVLine, createColumnMap } from './file-processing'
 
 // Optional COPY import
@@ -32,6 +33,7 @@ export class DBIngestionController {
 
   async add(sessionId: string, filePath: string, fileName: string, fileSize: number) {
     this.queue.push({ sessionId, filePath, fileName, fileSize })
+    logInfo('DB-IMPORT', 'queued', { sessionId, file: fileName, size: fileSize, queue: this.queue.length })
     if (!this.running) this.process()
   }
 
@@ -42,9 +44,11 @@ export class DBIngestionController {
     while (this.queue.length > 0) {
       const item = this.queue.shift()!
       try {
+        logInfo('DB-IMPORT', 'start', { sessionId: item.sessionId, file: item.fileName })
         await this.importFile(item)
+        logInfo('DB-IMPORT', 'done', { sessionId: item.sessionId })
       } catch (e) {
-        console.error('[DB-IMPORT] import failed:', e)
+        logError('DB-IMPORT', 'import failed', e, { sessionId: item.sessionId })
         await prisma.uploadSession.update({
           where: { id: item.sessionId },
           data: { status: 'failed', errorMessage: (e as Error).message }
@@ -84,6 +88,7 @@ export class DBIngestionController {
         if (columnMap.date === undefined || columnMap.website === undefined) {
           throw new Error('CSV文件必须包含日期和网站列')
         }
+        logInfo('DB-IMPORT', 'header parsed', { sessionId, headersCount: headers.length, columns: Object.keys(columnMap) })
         lineCount++
         continue
       }
@@ -154,6 +159,7 @@ export class DBIngestionController {
       if (batch.length >= batchSize) {
         await prisma.adReport.createMany({ data: batch as any[], skipDuplicates: true })
         inserted += batch.length
+        if (inserted % 10000 === 0) logInfo('DB-IMPORT', 'progress', { sessionId, inserted })
         batch = []
       }
       lineCount++
@@ -179,6 +185,7 @@ export class DBIngestionController {
         create: { domain, firstSeen: new Date(), lastSeen: new Date() }
       })
     }
+    logInfo('DB-IMPORT', 'sites upserted', { sessionId, count: sites.length })
 
     await prisma.uploadSession.update({
       where: { id: sessionId },
@@ -191,6 +198,7 @@ export class DBIngestionController {
     const client = await pool.connect()
     try {
       await prisma.uploadSession.update({ where: { id: sessionId }, data: { status: 'processing', errorMessage: null } })
+      logInfo('DB-IMPORT', 'copy mode begin', { sessionId })
 
       // 解析表头，构建列映射
       const rlHead = createInterface({ input: createReadStream(filePath, { start: 0, highWaterMark: 256 * 1024 }), crlfDelay: Infinity })
@@ -198,6 +206,7 @@ export class DBIngestionController {
       for await (const line of rlHead) { headerLine = line; break }
       const headers = parseCSVLine(headerLine)
       const columnMap = createColumnMap(headers)
+      logInfo('DB-IMPORT', 'header parsed', { sessionId, headersCount: headers.length, columns: Object.keys(columnMap) })
       if (columnMap.date === undefined || columnMap.website === undefined) {
         throw new Error('CSV文件必须包含日期和网站列')
       }
@@ -323,9 +332,11 @@ export class DBIngestionController {
       }
 
       await prisma.uploadSession.update({ where: { id: sessionId }, data: { status: 'completed', recordCount: processed, processedAt: new Date() } })
+      logInfo('DB-IMPORT', 'copy mode done', { sessionId, processed })
     } catch (e) {
       await client.query('ROLLBACK').catch(()=>{})
       await prisma.uploadSession.update({ where: { id: sessionId }, data: { status: 'failed', errorMessage: (e as Error).message } })
+      logError('DB-IMPORT', 'copy mode failed', e, { sessionId })
       throw e
     } finally {
       client.release()

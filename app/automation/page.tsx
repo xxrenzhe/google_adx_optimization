@@ -5,25 +5,48 @@ import TopFilterBar, { DateRange } from '@/components/TopFilterBar'
 export default function AutomationPage(){
   const [range, setRange] = useState<DateRange>(()=>def())
   const [summary, setSummary] = useState<any>({revenue:0,ecpm:0,ctr:0,impressions:0})
+  const [loading, setLoading] = useState(false)
+  const [noData, setNoData] = useState(false)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(()=>{
-    fetch(`/api/charts?key=alerts.summary&from=${range.from}&to=${range.to}`).then(r=>r.json()).then(d=>{
-      const s=(d.data&&d.data[0])||{}
-      setSummary({ revenue:Number(s.revenue||0), ecpm:Number(s.ecpm||0), ctr:Number(s.ctr||0), impressions:Number(s.impressions||0) })
-    })
+    setLoading(true)
+    fetch(`/api/charts?key=alerts.summary&from=${range.from}&to=${range.to}`)
+      .then(r=>{ if(!r.ok) throw new Error(String(r.status)); return r.json() })
+      .then(d=>{
+        const s=(d.data&&d.data[0])||{}
+        const next = { revenue:Number(s.revenue||0), ecpm:Number(s.ecpm||0), ctr:Number(s.ctr||0), impressions:Number(s.impressions||0) }
+        setSummary(next)
+        const hasSum = next.revenue>0 || next.impressions>0 || next.ctr>0
+        setNoData(!hasSum)
+        setLoadError(false)
+      })
+      .catch(()=>{ setLoadError(true); setNoData(true) })
+      .finally(()=> setLoading(false))
   },[range.from, range.to])
 
   const actions = buildActions(summary)
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-5xl mx-auto space-y-4">
-        <header className="space-y-3">
+    <div className="min-h-screen bg-gray-50 pt-2 md:pt-3 px-4 md:px-5 pb-4 md:pb-5">
+      <div className="max-w-7xl mx-auto space-y-4">
+        <header className="space-y-2">
           <div className="trk-toolbar">
-            <h1 className="text-2xl font-bold">自动化（建议）</h1>
+            <h1 className="trk-page-title">自动化（建议）</h1>
+            <div className="ml-auto"><TopFilterBar range={range} onChange={setRange} showCompare={false} /></div>
           </div>
-          <TopFilterBar range={range} onChange={setRange} />
         </header>
+        {!loading && (noData || loadError) && (
+          <div className={`border-l-4 p-3 rounded ${loadError ? 'bg-red-50 border-red-400' : 'bg-blue-50 border-blue-400'}`} style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div className="text-sm text-gray-800">
+              {loadError ? '部分数据接口加载失败，已为你显示可用数据。' : '所选时间范围内未检测到任何数据，请调整时间范围或上传数据。'}
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="px-3 py-1 border rounded" onClick={()=>setRange(def())}>重置为最近30天</button>
+              <a href="/upload" className="px-3 py-1 bg-blue-600 text-white rounded">前往上传</a>
+            </div>
+          </div>
+        )}
         <div className="trk-card">
           <h3 className="trk-section-title">待执行操作</h3>
           <div className="space-y-2">
@@ -55,4 +78,4 @@ function buildActions(s:any){
   return arr
 }
 
-function def(){const d=new Date();d.setDate(d.getDate()-7);const from=d.toISOString().slice(0,10);const to=new Date().toISOString().slice(0,10);return {from,to}}
+function def(){const to=new Date();const from=new Date();from.setDate(from.getDate()-30);return {from:from.toISOString().slice(0,10), to:to.toISOString().slice(0,10)}}

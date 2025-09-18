@@ -78,6 +78,34 @@ const DEFAULT_QUERIES = {
    FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY country, device, adFormat ORDER BY ecpm DESC, revenue DESC LIMIT 20;`,
   'alerts.summary': `SELECT SUM(revenue)::numeric AS revenue, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks, CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm, CASE WHEN SUM(impressions)>0 THEN SUM(clicks)::numeric/SUM(impressions)*100 ELSE 0 END AS ctr FROM "AdReport" WHERE dataDate BETWEEN :from AND :to;`
   ,
+  'home.classified_advertiser': `SELECT advertiser, SUM(COALESCE(revenue,0))::numeric AS revenue, SUM(COALESCE(impressions,0))::bigint AS impressions, SUM(COALESCE(clicks,0))::bigint AS clicks,
+     CASE WHEN SUM(COALESCE(impressions,0))>0 THEN SUM(COALESCE(revenue,0))::numeric/SUM(COALESCE(impressions,0))::numeric*1000 ELSE 0 END AS ecpm
+   FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY advertiser ORDER BY revenue DESC LIMIT 12;`,
+  // breakdown for home Top Domains
+  'home.top_domains_breakdown': `WITH adx AS (
+    SELECT website, SUM(COALESCE(revenue,0))::numeric AS adx_revenue
+    FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY website
+  ), offer AS (
+    SELECT website, SUM(COALESCE(revenue,0))::numeric AS offer_revenue
+    FROM "offer_revenue" WHERE dataDate BETWEEN :from AND :to GROUP BY website
+  ), gc AS (
+    SELECT website, SUM(COALESCE(cost,0))::numeric AS google_cost
+    FROM "ad_costs" WHERE source='google' AND dataDate BETWEEN :from AND :to GROUP BY website
+  ), bc AS (
+    SELECT website, SUM(COALESCE(cost,0))::numeric AS bing_cost
+    FROM "ad_costs" WHERE source='bing' AND dataDate BETWEEN :from AND :to GROUP BY website
+  )
+  SELECT COALESCE(adx.website, offer.website, gc.website, bc.website) AS website,
+         COALESCE(adx.adx_revenue,0)   AS adx_revenue,
+         COALESCE(offer.offer_revenue,0) AS offer_revenue,
+         COALESCE(gc.google_cost,0)    AS google_cost,
+         COALESCE(bc.bing_cost,0)      AS bing_cost
+  FROM adx
+  FULL OUTER JOIN offer USING (website)
+  FULL OUTER JOIN gc USING (website)
+  FULL OUTER JOIN bc USING (website)
+  ORDER BY (COALESCE(adx_revenue,0) + COALESCE(offer_revenue,0)) DESC
+  LIMIT 200;`,
   'report.kpi_series': `WITH rev AS (
     SELECT dataDate::date AS day, SUM(COALESCE(revenue,0))::numeric AS revenue
     FROM "AdReport"

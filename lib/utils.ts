@@ -18,9 +18,9 @@ export function formatNumber(num: number): string {
 
 // 格式化货币
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('zh-CN', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'CNY',
+    currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   }).format(amount)

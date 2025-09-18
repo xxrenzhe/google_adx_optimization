@@ -55,8 +55,8 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-50 pt-2 md:pt-3 px-4 md:px-5 pb-4 md:pb-5">
+      <div className="max-w-7xl mx-auto space-y-6">
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold mb-4">上传 CSV（写入数据库）</h1>
           <p className="text-sm text-gray-600 mb-4">仅支持 CSV；导入后数据落库（幂等去重），仅文件保留30天。</p>

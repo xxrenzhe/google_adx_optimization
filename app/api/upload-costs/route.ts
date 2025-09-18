@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma-extended'
+import { logInfo, logError } from '@/lib/logger'
 import { parseCSVLine, createColumnMap } from '@/lib/file-processing'
 
 let pg: any, copyFrom: any
@@ -62,13 +63,15 @@ export async function POST(req: NextRequest) {
     const defaultSource = (formData.get('source') as string) || 'google'
     if (!file) return NextResponse.json({ error: '未找到文件' }, { status: 400 })
     const session = await (prisma as any).uploadSession.create({ data: { filename: file.name, status: 'uploading', tempTableName: `staging_cost_${crypto.randomUUID().replace(/-/g,'')}`, fileSize: file.size, dataType: 'cost', source: defaultSource } })
+    logInfo('API/UPLOAD', 'costs session', { sessionId: session.id, filename: file.name, size: file.size, source: defaultSource })
 
     if (process.env.USE_PG_COPY === '1' && pg && copyFrom) {
       try {
         const inserted = await copyImportCosts(session.id, file, defaultSource)
+        logInfo('API/UPLOAD', 'costs copy ok', { sessionId: session.id, inserted })
         return NextResponse.json({ ok: true, inserted, fileName: file.name })
       } catch (e) {
-        console.warn('[upload-costs] COPY failed, fallback to batch:', (e as Error).message)
+        logError('API/UPLOAD', 'costs copy failed, fallback batch', e)
       }
     }
 
@@ -98,9 +101,10 @@ export async function POST(req: NextRequest) {
       await db.adCost.createMany({ data: batch.slice(i, i+size), skipDuplicates: true })
     }
     await db.uploadSession.update({ where: { id: session.id }, data: { status: 'completed', recordCount: batch.length, processedAt: new Date() } })
+    logInfo('API/UPLOAD', 'costs batch ok', { sessionId: session.id, inserted: batch.length })
     return NextResponse.json({ ok: true, inserted: batch.length, fileName: file.name })
   } catch (e) {
-    console.error('upload-costs error:', e)
+    logError('API/UPLOAD', 'upload-costs error', e)
     return NextResponse.json({ error: '导入失败' }, { status: 500 })
   }
 }

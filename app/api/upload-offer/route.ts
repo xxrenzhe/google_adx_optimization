@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma-extended'
 import { createReadStream } from 'node:fs'
 import { createInterface } from 'node:readline'
 import { parseCSVLine, createColumnMap } from '@/lib/file-processing'
+import { logInfo, logError } from '@/lib/logger'
 
 let pg: any, copyFrom: any
 try {
@@ -59,13 +60,15 @@ export async function POST(req: NextRequest) {
         dataType: 'offer'
       }
     })
+    logInfo('API/UPLOAD', 'offer session', { sessionId: session.id, filename: file.name, size: file.size })
 
     if (process.env.USE_PG_COPY === '1' && pg && copyFrom) {
       try {
         const inserted = await copyImportOffer(session.id, file)
+        logInfo('API/UPLOAD', 'offer copy ok', { sessionId: session.id, inserted })
         return NextResponse.json({ ok: true, inserted, fileName: file.name })
       } catch (e) {
-        console.warn('[upload-offer] COPY failed, fallback to batch:', (e as Error).message)
+        logError('API/UPLOAD', 'offer copy failed, fallback batch', e)
       }
     }
 
@@ -93,9 +96,10 @@ export async function POST(req: NextRequest) {
       await db.offerRevenue.createMany({ data: batch.slice(i, i+size), skipDuplicates: true })
     }
     await db.uploadSession.update({ where: { id: session.id }, data: { status: 'completed', recordCount: batch.length, processedAt: new Date() } })
+    logInfo('API/UPLOAD', 'offer batch ok', { sessionId: session.id, inserted: batch.length })
     return NextResponse.json({ ok: true, inserted: batch.length, fileName: file.name })
   } catch (e) {
-    console.error('upload-offer error:', e)
+    logError('API/UPLOAD', 'upload-offer error', e)
     return NextResponse.json({ error: '导入失败' }, { status: 500 })
   }
 }

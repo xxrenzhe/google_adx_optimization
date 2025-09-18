@@ -2,19 +2,44 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma-extended'
 
 const defaults: Record<string,string> = {
-  'home.benefit_summary': `SELECT dataDate::date AS day, SUM(revenue)::numeric AS revenue FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY 1 ORDER BY 1;`,
-  'home.top_domains': `SELECT website, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks, CASE WHEN SUM(impressions)>0 THEN SUM(clicks)::numeric/SUM(impressions)*100 ELSE 0 END AS ctr, CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm, SUM(revenue)::numeric AS revenue FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY website ORDER BY revenue DESC LIMIT 50;`,
-  'report.timeseries': `SELECT dataDate::date AS day, SUM(revenue)::numeric AS revenue, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks, CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm FROM "AdReport" WHERE website = :site AND dataDate BETWEEN :from AND :to GROUP BY 1 ORDER BY 1;`,
-  'report.device_browser': `SELECT device, browser, SUM(revenue)::numeric AS revenue, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks FROM "AdReport" WHERE website = :site AND dataDate BETWEEN :from AND :to GROUP BY 1,2 ORDER BY revenue DESC LIMIT 100;`,
-  'report.country_table': `SELECT country, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks, CASE WHEN SUM(impressions)>0 THEN SUM(clicks)::numeric/SUM(impressions)*100 ELSE 0 END AS ctr, CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm, SUM(revenue)::numeric AS revenue FROM "AdReport" WHERE website = :site AND dataDate BETWEEN :from AND :to GROUP BY country ORDER BY revenue DESC LIMIT 200;`,
+  // Home KPI tiles（可编辑：若表缺失将由后端回退内置逻辑）
+  'home.kpi.today': `SELECT 
+    COALESCE((SELECT SUM(revenue)::numeric FROM "AdReport" WHERE "dataDate"::date = CURRENT_DATE),0) +
+    COALESCE((SELECT SUM(revenue)::numeric FROM "offer_revenue" WHERE "dataDate"::date = CURRENT_DATE),0) +
+    COALESCE((SELECT SUM(revenue)::numeric FROM "yahoo_revenue" WHERE "dataDate"::date = CURRENT_DATE),0) AS v;`,
+  'home.kpi.last7': `SELECT 
+    COALESCE((SELECT SUM(revenue)::numeric FROM "AdReport" WHERE "dataDate" BETWEEN CURRENT_DATE - INTERVAL '6 day' AND CURRENT_DATE),0) +
+    COALESCE((SELECT SUM(revenue)::numeric FROM "offer_revenue" WHERE "dataDate" BETWEEN CURRENT_DATE - INTERVAL '6 day' AND CURRENT_DATE),0) +
+    COALESCE((SELECT SUM(revenue)::numeric FROM "yahoo_revenue" WHERE "dataDate" BETWEEN CURRENT_DATE - INTERVAL '6 day' AND CURRENT_DATE),0) AS v;`,
+  'home.kpi.yesterday': `SELECT 
+    COALESCE((SELECT SUM(revenue)::numeric FROM "AdReport" WHERE "dataDate"::date = CURRENT_DATE - INTERVAL '1 day'),0) +
+    COALESCE((SELECT SUM(revenue)::numeric FROM "offer_revenue" WHERE "dataDate"::date = CURRENT_DATE - INTERVAL '1 day'),0) +
+    COALESCE((SELECT SUM(revenue)::numeric FROM "yahoo_revenue" WHERE "dataDate"::date = CURRENT_DATE - INTERVAL '1 day'),0) AS v;`,
+  'home.benefit_summary': `SELECT "dataDate"::date AS day, SUM(revenue)::numeric AS revenue FROM "AdReport" WHERE "dataDate" BETWEEN :from AND :to GROUP BY 1 ORDER BY 1;`,
+  'home.top_domains': `SELECT website, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks, CASE WHEN SUM(impressions)>0 THEN SUM(clicks)::numeric/SUM(impressions)*100 ELSE 0 END AS ctr, CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm, SUM(revenue)::numeric AS revenue FROM "AdReport" WHERE "dataDate" BETWEEN :from AND :to GROUP BY website ORDER BY revenue DESC LIMIT 50;`,
+  'report.timeseries': `SELECT "dataDate"::date AS day, SUM(revenue)::numeric AS revenue, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks, CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm FROM "AdReport" WHERE website = :site AND "dataDate" BETWEEN :from AND :to GROUP BY 1 ORDER BY 1;`,
+  'report.device_browser': `SELECT device, browser, SUM(revenue)::numeric AS revenue, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks FROM "AdReport" WHERE website = :site AND "dataDate" BETWEEN :from AND :to GROUP BY 1,2 ORDER BY revenue DESC LIMIT 100;`,
+  // Report: eCPM 独立时序
+  'report.ecpm_series': `SELECT "dataDate"::date AS day,
+    CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/NULLIF(SUM(impressions),0)*1000 ELSE 0 END AS ecpm
+   FROM "AdReport"
+   WHERE website = :site AND "dataDate" BETWEEN :from AND :to
+   GROUP BY 1 ORDER BY 1;`,
+  // Report: CPC（Google/Bing）时序
+  'report.cpc_series': `SELECT "dataDate"::date AS day, LOWER(source) AS source,
+     CASE WHEN SUM(clicks)>0 THEN SUM(cost)::numeric/NULLIF(SUM(clicks),0) ELSE NULL END AS cpc
+   FROM "ad_costs"
+   WHERE website = :site AND "dataDate" BETWEEN :from AND :to
+   GROUP BY 1,2 ORDER BY 1;`,
+  'report.country_table': `SELECT country, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks, CASE WHEN SUM(impressions)>0 THEN SUM(clicks)::numeric/SUM(impressions)*100 ELSE 0 END AS ctr, CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm, SUM(revenue)::numeric AS revenue FROM "AdReport" WHERE website = :site AND "dataDate" BETWEEN :from AND :to GROUP BY country ORDER BY revenue DESC LIMIT 200;`,
   // Analytics page defaults
-  'analytics.revenue_by_day': `SELECT dataDate::date AS day, SUM(revenue)::numeric AS revenue FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY 1 ORDER BY 1;`,
-  'analytics.revenue_by_country': `SELECT country, SUM(revenue)::numeric AS revenue FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY country ORDER BY revenue DESC LIMIT 20;`,
-  'analytics.revenue_by_device': `SELECT device, SUM(revenue)::numeric AS revenue FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY device ORDER BY revenue DESC;`,
+  'analytics.revenue_by_day': `SELECT "dataDate"::date AS day, SUM(revenue)::numeric AS revenue FROM "AdReport" WHERE "dataDate" BETWEEN :from AND :to GROUP BY 1 ORDER BY 1;`,
+  'analytics.revenue_by_country': `SELECT country, SUM(revenue)::numeric AS revenue FROM "AdReport" WHERE "dataDate" BETWEEN :from AND :to GROUP BY country ORDER BY revenue DESC LIMIT 20;`,
+  'analytics.revenue_by_device': `SELECT device, SUM(revenue)::numeric AS revenue FROM "AdReport" WHERE "dataDate" BETWEEN :from AND :to GROUP BY device ORDER BY revenue DESC;`,
   'analytics.ecpm_distribution': `WITH rows AS (
     SELECT CASE WHEN COALESCE(impressions,0)>0 THEN COALESCE(revenue,0)::numeric/NULLIF(COALESCE(impressions,0),0)::numeric*1000 ELSE 0 END AS ecpm,
            COALESCE(impressions,0) AS impressions
-    FROM "AdReport" WHERE dataDate BETWEEN :from AND :to
+    FROM "AdReport" WHERE "dataDate" BETWEEN :from AND :to
   )
   SELECT bucket,
          SUM(impressions)::bigint AS impressions
@@ -35,23 +60,54 @@ const defaults: Record<string,string> = {
   'enhanced.advertisers': `SELECT advertiser, SUM(revenue)::numeric AS revenue, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks,
      CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm,
      CASE WHEN SUM(impressions)>0 THEN SUM(clicks)::numeric/SUM(impressions)*100 ELSE 0 END AS ctr
-   FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY advertiser ORDER BY revenue DESC LIMIT 20;`,
+   FROM "AdReport" WHERE "dataDate" BETWEEN :from AND :to GROUP BY advertiser ORDER BY revenue DESC LIMIT 20;`,
   'enhanced.device_browser_matrix': `SELECT device, browser,
      SUM(revenue)::numeric AS revenue,
      SUM(impressions)::bigint AS impressions,
      CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm
-   FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY device, browser ORDER BY revenue DESC LIMIT 200;`,
-  'enhanced.top_combinations': `SELECT country, device, adFormat,
+   FROM "AdReport" WHERE "dataDate" BETWEEN :from AND :to GROUP BY device, browser ORDER BY revenue DESC LIMIT 200;`,
+  'enhanced.top_combinations': `SELECT country, device, "adFormat",
      SUM(revenue)::numeric AS revenue,
      SUM(impressions)::bigint AS impressions,
      CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm
-    FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY country, device, adFormat ORDER BY ecpm DESC, revenue DESC LIMIT 20;`,
+    FROM "AdReport" WHERE "dataDate" BETWEEN :from AND :to GROUP BY country, device, "adFormat" ORDER BY ecpm DESC, revenue DESC LIMIT 20;`,
   // Alerts summary
-  'alerts.summary': `SELECT SUM(revenue)::numeric AS revenue, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks, CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm, CASE WHEN SUM(impressions)>0 THEN SUM(clicks)::numeric/SUM(impressions)*100 ELSE 0 END AS ctr FROM "AdReport" WHERE dataDate BETWEEN :from AND :to;`
+  'alerts.summary': `SELECT SUM(revenue)::numeric AS revenue, SUM(impressions)::bigint AS impressions, SUM(clicks)::bigint AS clicks, CASE WHEN SUM(impressions)>0 THEN SUM(revenue)::numeric/SUM(impressions)*1000 ELSE 0 END AS ecpm, CASE WHEN SUM(impressions)>0 THEN SUM(clicks)::numeric/SUM(impressions)*100 ELSE 0 END AS ctr FROM "AdReport" WHERE "dataDate" BETWEEN :from AND :to;`
   ,
   // Home: Offer/Yahoo series（可选表，若无数据则返回0行）
   'home.offer_by_day': `SELECT dataDate::date AS day, SUM(revenue)::numeric AS revenue FROM "offer_revenue" WHERE dataDate BETWEEN :from AND :to GROUP BY 1 ORDER BY 1;`,
   'home.yahoo_by_day': `SELECT dataDate::date AS day, SUM(revenue)::numeric AS revenue FROM "yahoo_revenue" WHERE dataDate BETWEEN :from AND :to GROUP BY 1 ORDER BY 1;`
+  ,
+  // Home: Classified Advertiser（按广告主聚合）
+  'home.classified_advertiser': `SELECT advertiser, SUM(COALESCE(revenue,0))::numeric AS revenue, SUM(COALESCE(impressions,0))::bigint AS impressions, SUM(COALESCE(clicks,0))::bigint AS clicks,
+     CASE WHEN SUM(COALESCE(impressions,0))>0 THEN SUM(COALESCE(revenue,0))::numeric/SUM(COALESCE(impressions,0))::numeric*1000 ELSE 0 END AS ecpm
+   FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY advertiser ORDER BY revenue DESC LIMIT 12;`
+  ,
+  // Home: Top Domains breakdown (ADX/Offer revenue and Google/Bing cost) — 可选表缺失将导致空结果（/api/charts 已做降级）
+  'home.top_domains_breakdown': `WITH adx AS (
+    SELECT website, SUM(COALESCE(revenue,0))::numeric AS adx_revenue
+    FROM "AdReport" WHERE dataDate BETWEEN :from AND :to GROUP BY website
+  ), offer AS (
+    SELECT website, SUM(COALESCE(revenue,0))::numeric AS offer_revenue
+    FROM "offer_revenue" WHERE dataDate BETWEEN :from AND :to GROUP BY website
+  ), gc AS (
+    SELECT website, SUM(COALESCE(cost,0))::numeric AS google_cost
+    FROM "ad_costs" WHERE source='google' AND dataDate BETWEEN :from AND :to GROUP BY website
+  ), bc AS (
+    SELECT website, SUM(COALESCE(cost,0))::numeric AS bing_cost
+    FROM "ad_costs" WHERE source='bing' AND dataDate BETWEEN :from AND :to GROUP BY website
+  )
+  SELECT COALESCE(adx.website, offer.website, gc.website, bc.website) AS website,
+         COALESCE(adx.adx_revenue,0)   AS adx_revenue,
+         COALESCE(offer.offer_revenue,0) AS offer_revenue,
+         COALESCE(gc.google_cost,0)    AS google_cost,
+         COALESCE(bc.bing_cost,0)      AS bing_cost
+  FROM adx
+  FULL OUTER JOIN offer USING (website)
+  FULL OUTER JOIN gc USING (website)
+  FULL OUTER JOIN bc USING (website)
+  ORDER BY (COALESCE(adx_revenue,0) + COALESCE(offer_revenue,0)) DESC
+  LIMIT 200;`
   ,
   // Home: Top Domains with KPI (cost/cpc/roi)
   'home.top_domains_kpi': `WITH rev_site_day AS (
@@ -87,16 +143,16 @@ const defaults: Record<string,string> = {
   ,
   // Report KPI Series: Profit/ROI/CPC（基于网站维度的每日序列）
   'report.kpi_series': `WITH rev AS (
-    SELECT dataDate::date AS day, SUM(COALESCE(revenue,0))::numeric AS revenue
+    SELECT "dataDate"::date AS day, SUM(COALESCE(revenue,0))::numeric AS revenue
     FROM "AdReport"
-    WHERE website = :site AND dataDate BETWEEN :from AND :to
+    WHERE website = :site AND "dataDate" BETWEEN :from AND :to
     GROUP BY 1
   ), cost AS (
-    SELECT dataDate::date AS day,
+    SELECT "dataDate"::date AS day,
            SUM(COALESCE(cost,0))::numeric AS cost,
            SUM(COALESCE(clicks,0))::bigint AS clicks
     FROM "ad_costs"
-    WHERE website = :site AND dataDate BETWEEN :from AND :to
+    WHERE website = :site AND "dataDate" BETWEEN :from AND :to
     GROUP BY 1
   )
   SELECT COALESCE(r.day, c.day) AS day,
@@ -108,19 +164,19 @@ const defaults: Record<string,string> = {
   ,
   // Report Country table with allocated cost (by revenue share per day)
   'report.country_table_kpi': `WITH rev_country_day AS (
-    SELECT dataDate::date AS day, country,
+    SELECT "dataDate"::date AS day, country,
            SUM(COALESCE(revenue,0))::numeric AS revenue,
            SUM(COALESCE(clicks,0))::bigint AS clicks,
            SUM(COALESCE(impressions,0))::bigint AS impressions
     FROM "AdReport"
-    WHERE website = :site AND dataDate BETWEEN :from AND :to
+    WHERE website = :site AND "dataDate" BETWEEN :from AND :to
     GROUP BY 1, country
   ), rev_total_day AS (
     SELECT day, SUM(revenue)::numeric AS revenue_total FROM rev_country_day GROUP BY day
   ), cost_day AS (
-    SELECT dataDate::date AS day, SUM(COALESCE(cost,0))::numeric AS cost
+    SELECT "dataDate"::date AS day, SUM(COALESCE(cost,0))::numeric AS cost
     FROM "ad_costs"
-    WHERE website = :site AND dataDate BETWEEN :from AND :to
+    WHERE website = :site AND "dataDate" BETWEEN :from AND :to
     GROUP BY 1
   ), dist AS (
     SELECT c.country, c.day, c.revenue, c.clicks, c.impressions, t.revenue_total, d.cost,
@@ -145,19 +201,19 @@ const defaults: Record<string,string> = {
   ,
   // Report Device table with allocated cost
   'report.device_table_kpi': `WITH rev_dev_day AS (
-    SELECT dataDate::date AS day, device,
+    SELECT "dataDate"::date AS day, device,
            SUM(COALESCE(revenue,0))::numeric AS revenue,
            SUM(COALESCE(clicks,0))::bigint AS clicks,
            SUM(COALESCE(impressions,0))::bigint AS impressions
     FROM "AdReport"
-    WHERE website = :site AND dataDate BETWEEN :from AND :to
+    WHERE website = :site AND "dataDate" BETWEEN :from AND :to
     GROUP BY 1, device
   ), rev_total_day AS (
     SELECT day, SUM(revenue)::numeric AS revenue_total FROM rev_dev_day GROUP BY day
   ), cost_day AS (
-    SELECT dataDate::date AS day, SUM(COALESCE(cost,0))::numeric AS cost
+    SELECT "dataDate"::date AS day, SUM(COALESCE(cost,0))::numeric AS cost
     FROM "ad_costs"
-    WHERE website = :site AND dataDate BETWEEN :from AND :to
+    WHERE website = :site AND "dataDate" BETWEEN :from AND :to
     GROUP BY 1
   ), dist AS (
     SELECT d.device, d.day, d.revenue, d.clicks, d.impressions, t.revenue_total, c.cost,
@@ -182,19 +238,19 @@ const defaults: Record<string,string> = {
   ,
   // Report Browser table with allocated cost
   'report.browser_table_kpi': `WITH rev_bro_day AS (
-    SELECT dataDate::date AS day, browser,
+    SELECT "dataDate"::date AS day, browser,
            SUM(COALESCE(revenue,0))::numeric AS revenue,
            SUM(COALESCE(clicks,0))::bigint AS clicks,
            SUM(COALESCE(impressions,0))::bigint AS impressions
     FROM "AdReport"
-    WHERE website = :site AND dataDate BETWEEN :from AND :to
+    WHERE website = :site AND "dataDate" BETWEEN :from AND :to
     GROUP BY 1, browser
   ), rev_total_day AS (
     SELECT day, SUM(revenue)::numeric AS revenue_total FROM rev_bro_day GROUP BY day
   ), cost_day AS (
-    SELECT dataDate::date AS day, SUM(COALESCE(cost,0))::numeric AS cost
+    SELECT "dataDate"::date AS day, SUM(COALESCE(cost,0))::numeric AS cost
     FROM "ad_costs"
-    WHERE website = :site AND dataDate BETWEEN :from AND :to
+    WHERE website = :site AND "dataDate" BETWEEN :from AND :to
     GROUP BY 1
   ), dist AS (
     SELECT b.browser, b.day, b.revenue, b.clicks, b.impressions, t.revenue_total, c.cost,
@@ -219,28 +275,28 @@ const defaults: Record<string,string> = {
   ,
   // Report AdUnit table with allocated cost
   'report.adunit_table_kpi': `WITH rev_unit_day AS (
-    SELECT dataDate::date AS day, adUnit,
+    SELECT "dataDate"::date AS day, "adUnit",
            SUM(COALESCE(revenue,0))::numeric AS revenue,
            SUM(COALESCE(clicks,0))::bigint AS clicks,
            SUM(COALESCE(impressions,0))::bigint AS impressions
     FROM "AdReport"
-    WHERE website = :site AND dataDate BETWEEN :from AND :to
-    GROUP BY 1, adUnit
+    WHERE website = :site AND "dataDate" BETWEEN :from AND :to
+    GROUP BY 1, "adUnit"
   ), rev_total_day AS (
     SELECT day, SUM(revenue)::numeric AS revenue_total FROM rev_unit_day GROUP BY day
   ), cost_day AS (
-    SELECT dataDate::date AS day, SUM(COALESCE(cost,0))::numeric AS cost
+    SELECT "dataDate"::date AS day, SUM(COALESCE(cost,0))::numeric AS cost
     FROM "ad_costs"
-    WHERE website = :site AND dataDate BETWEEN :from AND :to
+    WHERE website = :site AND "dataDate" BETWEEN :from AND :to
     GROUP BY 1
   ), dist AS (
-    SELECT u.adUnit, u.day, u.revenue, u.clicks, u.impressions, t.revenue_total, c.cost,
+    SELECT u."adUnit", u.day, u.revenue, u.clicks, u.impressions, t.revenue_total, c.cost,
            CASE WHEN t.revenue_total>0 THEN (u.revenue / t.revenue_total) * COALESCE(c.cost,0) ELSE 0 END AS cost_alloc
     FROM rev_unit_day u
     JOIN rev_total_day t ON t.day = u.day
     LEFT JOIN cost_day c ON c.day = u.day
   )
-  SELECT adUnit,
+  SELECT "adUnit",
          SUM(impressions)::bigint AS impressions,
          SUM(clicks)::bigint AS clicks,
          CASE WHEN SUM(impressions)>0 THEN SUM(clicks)::numeric/SUM(impressions)*100 ELSE 0 END AS ctr,
@@ -250,25 +306,25 @@ const defaults: Record<string,string> = {
          CASE WHEN SUM(clicks)>0 THEN SUM(cost_alloc)::numeric/NULLIF(SUM(clicks),0) ELSE NULL END AS cpc,
          CASE WHEN SUM(cost_alloc)>0 THEN SUM(revenue)::numeric/SUM(cost_alloc)*100 ELSE NULL END AS roi
   FROM dist
-  GROUP BY adUnit
+  GROUP BY "adUnit"
   ORDER BY revenue DESC
   LIMIT 100;`
   ,
   // Report Advertiser table with allocated cost
   'report.advertiser_table_kpi': `WITH rev_adv_day AS (
-    SELECT dataDate::date AS day, advertiser,
+    SELECT "dataDate"::date AS day, advertiser,
            SUM(COALESCE(revenue,0))::numeric AS revenue,
            SUM(COALESCE(clicks,0))::bigint AS clicks,
            SUM(COALESCE(impressions,0))::bigint AS impressions
     FROM "AdReport"
-    WHERE website = :site AND dataDate BETWEEN :from AND :to
+    WHERE website = :site AND "dataDate" BETWEEN :from AND :to
     GROUP BY 1, advertiser
   ), rev_total_day AS (
     SELECT day, SUM(revenue)::numeric AS revenue_total FROM rev_adv_day GROUP BY day
   ), cost_day AS (
-    SELECT dataDate::date AS day, SUM(COALESCE(cost,0))::numeric AS cost
+    SELECT "dataDate"::date AS day, SUM(COALESCE(cost,0))::numeric AS cost
     FROM "ad_costs"
-    WHERE website = :site AND dataDate BETWEEN :from AND :to
+    WHERE website = :site AND "dataDate" BETWEEN :from AND :to
     GROUP BY 1
   ), dist AS (
     SELECT a.advertiser, a.day, a.revenue, a.clicks, a.impressions, t.revenue_total, c.cost,

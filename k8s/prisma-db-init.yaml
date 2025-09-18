@@ -1,0 +1,65 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prisma-db-init
+  labels:
+    app.kubernetes.io/name: prisma-db-init
+    app.kubernetes.io/part-of: google-adx-optimization
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prisma-db-init
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: prisma
+          image: ghcr.io/xxrenzhe/google_adx_optimization:prod-latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: DATABASE_URL
+            - name: npm_config_cache
+              value: /data/.npm
+            # 设置为 "1" 时会附加 --accept-data-loss。初始化空库建议保持 "0"。
+            - name: DB_ACCEPT_DATA_LOSS
+              value: "0"
+            # 设置为 "1" 时，同步成功后执行 /app/scripts/bootstrap.js
+            - name: DB_BOOTSTRAP
+              value: "1"
+            # 可选：启用按月分区（见 docs/DB_Optimization_Postgres.md）
+            - name: PG_ENABLE_PARTITION
+              value: "0"
+          command: ["sh", "-lc"]
+          args:
+            - |
+              set -euo pipefail
+              echo "[JOB] Starting migrate deploy"
+              PRISMA="/app/node_modules/prisma/build/index.js"
+              node "$PRISMA" migrate deploy --schema=/app/prisma/schema.prisma
+              if [ "${DB_BOOTSTRAP:-1}" = "1" ]; then
+                echo "[JOB] Running bootstrap script"
+                node /app/scripts/bootstrap.js
+              fi
+              echo "[JOB] Done"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+              ephemeral-storage: "512Mi"
+            limits:
+              cpu: 200m
+              memory: 512Mi
+              ephemeral-storage: "2Gi"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: adx-data

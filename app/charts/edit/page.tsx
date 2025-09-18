@@ -48,9 +48,9 @@ export default function ChartQueryEditor() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-5xl mx-auto space-y-4">
-        <h1 className="text-2xl font-bold">图表查询编辑（只读 SELECT）</h1>
+    <div className="min-h-screen bg-gray-50 pt-2 md:pt-3 px-4 md:px-5 pb-4 md:pb-5">
+      <div className="max-w-7xl mx-auto space-y-4">
+        <h1 className="trk-page-title">图表查询编辑（只读 SELECT）</h1>
         <div className="bg-white rounded shadow p-4 space-y-3">
           <div className="flex gap-3 items-center">
             <label>Chart Key</label>
@@ -87,4 +87,3 @@ function defaultSQL(key: string) {
       return ''
   }
 }
-

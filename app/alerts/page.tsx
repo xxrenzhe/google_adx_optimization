@@ -10,35 +10,50 @@ export default function AlertsPage(){
   const [summary, setSummary] = useState<Summary>({revenue:0,impressions:0,clicks:0,ecpm:0,ctr:0})
   const [top, setTop] = useState<any[]>([])
   const [editorKey, setEditorKey] = useState<string|null>(null)
+  const [loading, setLoading] = useState(false)
+  const [noData, setNoData] = useState(false)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(()=>{
+    setLoading(true)
+    let hadError = false
+    const safe = (p: Promise<Response>) => p.then(r=>{ if(!r.ok) throw new Error(String(r.status)); return r.json() }).catch(()=>{ hadError = true; return { data: [] } })
     Promise.all([
-      fetch(`/api/charts?key=alerts.summary&from=${range.from}&to=${range.to}`).then(r=>r.json()),
-      fetch(`/api/charts?key=home.top_domains&from=${range.from}&to=${range.to}`).then(r=>r.json()),
+      safe(fetch(`/api/charts?key=alerts.summary&from=${range.from}&to=${range.to}`)),
+      safe(fetch(`/api/charts?key=home.top_domains&from=${range.from}&to=${range.to}`)),
     ]).then(([s,t])=>{
       const d = (s.data && s.data[0]) || {}
-      setSummary({
-        revenue: Number(d.revenue||0),
-        impressions: Number(d.impressions||0),
-        clicks: Number(d.clicks||0),
-        ecpm: Number(d.ecpm||0),
-        ctr: Number(d.ctr||0),
-      })
-      setTop(t.data||[])
-    })
+      setSummary({ revenue:Number(d.revenue||0), impressions:Number(d.impressions||0), clicks:Number(d.clicks||0), ecpm:Number(d.ecpm||0), ctr:Number(d.ctr||0) })
+      const topList = t.data||[]
+      setTop(topList)
+      setLoadError(hadError)
+      const hasSum = Number(d.revenue||0)>0 || Number(d.impressions||0)>0 || Number(d.clicks||0)>0
+      setNoData(!(hasSum || (topList.length>0)))
+    }).finally(()=> setLoading(false))
   },[range.from, range.to])
 
   const alerts = buildAlerts(summary, top)
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-5xl mx-auto space-y-4">
-        <header className="space-y-3">
+    <div className="min-h-screen bg-gray-50 pt-2 md:pt-3 px-4 md:px-5 pb-4 md:pb-5">
+      <div className="max-w-7xl mx-auto space-y-4">
+        <header className="space-y-2">
           <div className="trk-toolbar">
-            <h1 className="text-2xl font-bold">决策提醒</h1>
+            <h1 className="trk-page-title">决策提醒</h1>
+            <div className="ml-auto"><TopFilterBar range={range} onChange={setRange} showCompare={false} /></div>
           </div>
-          <TopFilterBar range={range} onChange={setRange} />
         </header>
+        {!loading && (noData || loadError) && (
+          <div className={`border-l-4 p-3 rounded ${loadError ? 'bg-red-50 border-red-400' : 'bg-blue-50 border-blue-400'}`} style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div className="text-sm text-gray-800">
+              {loadError ? '部分数据接口加载失败，已为你显示可用数据。' : '所选时间范围内未检测到任何数据，请调整时间范围或上传数据。'}
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="px-3 py-1 border rounded" onClick={()=>setRange(def())}>重置为最近30天</button>
+              <a href="/upload" className="px-3 py-1 bg-blue-600 text-white rounded">前往上传</a>
+            </div>
+          </div>
+        )}
         <div className="trk-card">
           <h3 className="trk-section-title">Alerts</h3>
           <div className="flex justify-end -mt-2 mb-2"><button className="trk-link" onClick={()=>setEditorKey('alerts.summary')}>编辑聚合查询</button></div>
@@ -73,4 +88,4 @@ function buildAlerts(s: Summary, top: any[]) {
   return arr
 }
 
-function def(){const d=new Date();d.setDate(d.getDate()-7);const from=d.toISOString().slice(0,10);const to=new Date().toISOString().slice(0,10);return {from,to}}
+function def(){const to=new Date();const from=new Date();from.setDate(from.getDate()-30);return {from:from.toISOString().slice(0,10), to:to.toISOString().slice(0,10)}}

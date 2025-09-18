@@ -11,6 +11,7 @@ export function baseOptions(title?: string): any {
     dataLabels: { enabled: false },
     stroke: { width: 2, curve: 'smooth' },
     legend: { position: 'top', horizontalAlign: 'right', labels: { colors: '#4B5563' } },
+    yaxis: intYAxis(),
     tooltip: {
       shared: true,
       x: { show: true },
@@ -40,6 +41,96 @@ export function baseOptions(title?: string): any {
 
 export function currencyYAxis(): any {
   return {
-    labels: { formatter: (v: number) => '$' + Number(v||0).toFixed(2) }
+    labels: { formatter: (v: number) => '$' + Math.round(Number(v||0)).toString() }
+  }
+}
+
+// 纵坐标使用整数展示（无小数）
+export function intYAxis(): any {
+  return { labels: { formatter: (v: number) => String(Math.round(Number(v||0))) } }
+}
+
+export function intYAxisWithTitle(title = 'Amount'): any {
+  return {
+    labels: { formatter: (v: number) => String(Math.round(Number(v||0))) },
+    title: { text: title, style: { color: '#6b7280', fontWeight: 600 } }
+  }
+}
+
+// 贴近 trk_ui donut 中心大数字样式
+export function donutOptions(labels: string[], series: number[], title?: string): any {
+  return {
+    chart: { type: 'donut', toolbar: { show: false } },
+    labels,
+    series,
+    stroke: { width: 0 },
+    legend: { position: 'bottom' },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '70%',
+          labels: {
+            show: true,
+            name: { show: true, fontSize: '12px', color: '#111827' },
+            value: { show: true, fontSize: '24px', fontWeight: 700, color: '#111827', formatter: (val: string) => `$${Number(val||0).toFixed(2)}` },
+            total: {
+              show: true,
+              label: 'Total',
+              color: '#6B7280',
+              fontSize: '12px',
+              formatter: (w: any) => {
+                try {
+                  const sum = (w.globals.seriesTotals || []).reduce((s:number,x:number)=>s+Number(x||0),0)
+                  return `$${sum.toFixed(2)}`
+                } catch { return '' }
+              }
+            }
+          }
+        }
+      }
+    },
+    colors: palette
+  }
+}
+
+// 右侧图例版本：用于报告页要求“指标说明在饼图右侧”。
+export function donutOptionsRight(labels: string[], series: number[], title?: string): any {
+  return {
+    chart: { type: 'donut', toolbar: { show: false } },
+    labels,
+    series,
+    stroke: { width: 0 },
+    legend: { position: 'right', horizontalAlign: 'left', labels: { colors: '#4B5563' }, fontSize: '14px', itemMargin: { horizontal: 8, vertical: 6 } },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: { legend: { position: 'bottom', horizontalAlign: 'center' } }
+      }
+    ],
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '70%',
+          labels: {
+            show: true,
+            name: { show: true, fontSize: '12px', color: '#111827' },
+            value: { show: true, fontSize: '24px', fontWeight: 700, color: '#111827', formatter: (val: string) => `$${Number(val||0).toFixed(2)}` },
+            total: {
+              show: true,
+              label: 'Total',
+              color: '#6B7280',
+              fontSize: '12px',
+              formatter: (w: any) => {
+                try {
+                  const sum = (w.globals.seriesTotals || []).reduce((s:number,x:number)=>s+Number(x||0),0)
+                  return `$${sum.toFixed(2)}`
+                } catch { return '' }
+              }
+            }
+          }
+        }
+      }
+    },
+    colors: palette
   }
 }
