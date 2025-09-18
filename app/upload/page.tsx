@@ -12,8 +12,13 @@ export default function UploadPage() {
 
   const loadHistory = async () => {
     try {
-      const res = await fetch('/api/uploads/history', { headers: { 'Accept': 'application/json' } })
-      const ct = res.headers.get('content-type') || ''
+      let res = await fetch('/api/uploads/history?limit=10', { headers: { 'Accept': 'application/json' } })
+      let ct = res.headers.get('content-type') || ''
+      if (!res.ok || !ct.includes('application/json')) {
+        // 回退到 /api/uploads（兼容某些部署不识别子路径）
+        res = await fetch('/api/uploads?limit=10', { headers: { 'Accept': 'application/json' } })
+        ct = res.headers.get('content-type') || ''
+      }
       if (ct.includes('application/json')) {
         const data = await res.json()
         if (data.ok) setHistory(data.items)
