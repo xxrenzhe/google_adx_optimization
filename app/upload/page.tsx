@@ -11,9 +11,21 @@ export default function UploadPage() {
   const [costSource, setCostSource] = useState<string>('google')
 
   const loadHistory = async () => {
-    const res = await fetch('/api/uploads/history')
-    const data = await res.json()
-    if (data.ok) setHistory(data.items)
+    try {
+      const res = await fetch('/api/uploads/history', { headers: { 'Accept': 'application/json' } })
+      const ct = res.headers.get('content-type') || ''
+      if (ct.includes('application/json')) {
+        const data = await res.json()
+        if (data.ok) setHistory(data.items)
+        else throw new Error(data.error || '获取历史失败')
+      } else {
+        const text = await res.text()
+        throw new Error(`${res.status} ${res.statusText}: ${text.slice(0,120)}`)
+      }
+    } catch (e: any) {
+      // 不阻塞页面，仅写入消息栏
+      setMessage(`历史加载失败：${e?.message || 'unknown error'}`)
+    }
   }
 
   useEffect(() => {
