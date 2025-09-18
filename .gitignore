@@ -43,3 +43,6 @@ migrations/
 # Generated data files
 results/
 uploads/
+# Unignore API route directory named 'uploads' under app/api
+!app/api/uploads/
+!app/api/uploads/**
