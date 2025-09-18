@@ -12,24 +12,22 @@ export default function UploadPage() {
 
   const loadHistory = async () => {
     try {
-      let res = await fetch('/api/uploads/history?limit=10', { headers: { 'Accept': 'application/json' } })
-      let ct = res.headers.get('content-type') || ''
-      if (!res.ok || !ct.includes('application/json')) {
-        // 回退到 /api/uploads（兼容某些部署不识别子路径）
-        res = await fetch('/api/uploads?limit=10', { headers: { 'Accept': 'application/json' } })
-        ct = res.headers.get('content-type') || ''
+      const tryFetch = async (url: string) => {
+        const res = await fetch(url, { headers: { 'Accept': 'application/json' } })
+        const ct = res.headers.get('content-type') || ''
+        if (res.ok && ct.includes('application/json')) {
+          return await res.json()
+        }
+        throw new Error(`${res.status} ${res.statusText}`)
       }
-      if (ct.includes('application/json')) {
-        const data = await res.json()
-        if (data.ok) setHistory(data.items)
-        else throw new Error(data.error || '获取历史失败')
-      } else {
-        const text = await res.text()
-        throw new Error(`${res.status} ${res.statusText}: ${text.slice(0,120)}`)
-      }
-    } catch (e: any) {
-      // 不阻塞页面，仅写入消息栏
-      setMessage(`历史加载失败：${e?.message || 'unknown error'}`)
+      let data: any | null = null
+      try { data = await tryFetch('/api/uploads/history?limit=10') } catch {}
+      if (!data) { try { data = await tryFetch('/api/uploads?limit=10') } catch {} }
+      if (data && data.ok) setHistory(data.items)
+      // 否则静默忽略，避免打断上传成功提示
+    } catch (e) {
+      // 静默：只在控制台输出，页面不提示
+      console.warn('加载上传历史失败', e)
     }
   }
 
@@ -63,7 +61,8 @@ export default function UploadPage() {
       if (!res.ok) throw new Error(data.error || '上传失败')
       setMessage(`上传成功：${data.fileName || file.name}`)
       setFile(null)
-      await loadHistory()
+      // 上传成功后尝试刷新历史，但失败不覆盖成功提示
+      loadHistory().catch(()=>{})
     } catch (e: any) {
       setMessage(`错误：${e.message}`)
     } finally {
