@@ -149,6 +149,46 @@ export default function HomePage() {
       </div>
     )
   }
+
+  function exportTopDomainsCsv() {
+    try {
+      const rows = sortRows(
+        topDomains
+          .filter(x => !filterDomain || String(x.website||'').toLowerCase().includes(filterDomain.toLowerCase()))
+          .filter(x => !onlyProfit || ((Number(x.revenue||0) - Number(x.cost||0)) > 0)),
+        sortTop
+      )
+      const header = ['Domain','Impressions','Clicks','CTR','Epc','eCPM','Revenue','Cost','Profit','ROI','CPC','ARPU']
+      const lines = [header.join(',')]
+      rows.forEach((r:any) => {
+        const profit = Number(r.revenue||0)-Number(r.cost||0)
+        const epc = Number(r.clicks||0)>0 ? Number(r.revenue||0)/Number(r.clicks||0) : 0
+        const arpu = epc
+        const row = [
+          r.website,
+          Number(r.impressions||0),
+          Number(r.clicks||0),
+          Number(r.ctr||0).toFixed(2)+'%',
+          epc.toFixed(2),
+          Number(r.ecpm||0).toFixed(2),
+          Number(r.revenue||0).toFixed(2),
+          r.cost!=null? Number(r.cost||0).toFixed(2) : '',
+          r.cost!=null? profit.toFixed(2) : '',
+          r.roi!=null? Number(r.roi||0).toFixed(2)+'%' : '',
+          r.cpc!=null? Number(r.cpc||0).toFixed(4) : '',
+          arpu.toFixed(2)
+        ]
+        lines.push(row.join(','))
+      })
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `top-domains-${range.from}_${range.to}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {}
+  }
   function header(key: string, s: Sort, set: (n:Sort)=>void, label: string) {
     const active = s.key === key
     const dir = s.dir
