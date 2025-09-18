@@ -26,10 +26,8 @@ export default function RootLayout({
         <FileSessionProvider>
           <div id="global-navbar" className="bg-[#292466] text-white border-b sticky top-0 z-10">
             {/* 客户端高亮当前路由 */}
-            {/* @ts-expect-error Server Component import Client Component */}
             <NavBar />
           </div>
-          {/* @ts-expect-error Server Component import Client Component */}
           <QueryNormalizer />
           {children}
         </FileSessionProvider>
