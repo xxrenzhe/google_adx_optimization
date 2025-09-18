@@ -6,10 +6,10 @@ export async function GET() {
   try {
     let html = await fs.readFile(filePath, 'utf8')
     // Rewrite relative asset paths to our served routes
-    html = html.replaceAll('./css/', '/trk_ui/css/')
-               .replaceAll('./js/', '/trk_ui/js/')
-               .replaceAll('./images/', '/trk_ui/images/')
-               .replaceAll('/images/', '/trk_ui/images/')
+    html = html.replace(/\.\/css\//g, '/trk_ui/css/')
+               .replace(/\.\/js\//g, '/trk_ui/js/')
+               .replace(/\.\/images\//g, '/trk_ui/images/')
+               .replace(/\/images\//g, '/trk_ui/images/')
     // Ensure links open in parent when embedded
     html = html.replace('<head>', '<head><base href="/" target="_parent">')
     return new Response(html, {

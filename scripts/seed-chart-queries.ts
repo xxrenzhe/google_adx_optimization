@@ -7,7 +7,7 @@
   说明：仅 seed 首页依赖的图表查询 key，避免引入 Next 路由依赖，直接使用 Prisma upsert。
 */
 
-import { prisma } from '../lib/prisma-extended.ts'
+import { prisma } from '../lib/prisma-extended'
 
 const defaults: Record<string, string> = {
   // Home KPI tiles（可编辑）
